@@ -33,6 +33,7 @@ public class ChessMove {
      * @return Type of piece to promote a pawn to, or null if no promotion
      */
     public ChessPiece.PieceType getPromotionPiece() {
+        // check if pawn reached the end of the board..
         throw new RuntimeException("Not implemented");
     }
 }
