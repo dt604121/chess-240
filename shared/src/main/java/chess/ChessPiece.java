@@ -53,8 +53,9 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
 
-    // delegate to PieceMovesCalculator
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+        // method for each move
+        // logic to know which method to call
         return new ArrayList<>();
     }
 
