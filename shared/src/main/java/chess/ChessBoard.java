@@ -47,7 +47,7 @@ public class ChessBoard {
     public void resetBoard() {
         // clear the board
         squares = new ChessPiece[8][8];
-        // fill in the black side of the board -> https://github.com/softwareconstruction240/softwareconstruction/blob/main/chess/0-chess-moves/the-game-of-chess.md
+        // fill in the black side of the board
         // back row
         squares[7][0] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
         squares[7][1] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
