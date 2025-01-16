@@ -1,6 +1,5 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -54,9 +53,20 @@ public class ChessPiece {
      */
 
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        // method for each move
         // logic to know which method to call
-        return new ArrayList<>();
+        // hover over switch to make it enhanced..
+        ChessPiece piece = board.getPiece(myPosition);
+        PieceMovesCalculator calculator = switch (piece.getPieceType()) {
+            case PieceType.BISHOP -> new BishopMovesCalculator();
+            case PieceType.KING -> new KingMovesCalculator();
+            case PieceType.KNIGHT -> new KnightMovesCalculator();
+            case PieceType.QUEEN -> new QueenMovesCalculator();
+            case PieceType.PAWN -> new PawnMovesCalculator();
+            case PieceType.ROOK -> new RookMovesCalculator();
+            default -> throw new RuntimeException("Not a Chess Piece...");
+        };
+
+        return calculator.pieceMoves(board, myPosition);
     }
 
     @Override
