@@ -37,6 +37,7 @@ public class ChessBoard {
      */
     public ChessPiece getPiece(ChessPosition position) {
         // Starting at index 0
+        // converting cs numbers to chess
         return squares[position.getRow() - 1][position.getColumn() - 1];
     }
 

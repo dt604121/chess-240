@@ -1,7 +1,7 @@
 ## Phase 0 
 ~ Set up based on the video ~
 Commit #1 & #2 - ChessBoard.java / ChessPosition.java / ChessPiece.java
-* implement the constructor + getters/setters / generating the overrides for the following classes: 
+- implement the constructor + getters/setters / generating the overrides for the following classes: 
 ChessBoard, ChessPiece, ChessPosition, ChessMove
 1) ChessBoard.java - implement the constructor / data structure for the squares
 2) Implement addPiece/getPiece making sure to compensate for the fact that the board is 1-8 but in 
@@ -32,29 +32,16 @@ the list unless the following happens:\
    b) we reach the edge of the board..\
    c) we can capture an enemy..
 2) Bishop Piece: need all 4 parts of the x -> upper left, upper right, lower left, lower right
-we need to keep track of both the current pieces position along with what the original's was..
-3) 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+we need to keep track of both the current pieces position along with what the original's was.. b
+* Check for code quality / updated lines that were too long and removed unused import statements currently @ %100 :)
+row / col movements
+initialize currentPiece, originalPiece, position..
+validity..
+* initalize validMove and do checks / add validMove to the list
+open space? 
+chess piece? 
+friendly fire? 
+capture enemy? 
 
 
 ## Phase 1 
