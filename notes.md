@@ -1,4 +1,4 @@
-## Phase 0 
+### Phase 0 
 ~ Set up based on the video ~
 Commit #1 & #2 - ChessBoard.java / ChessPosition.java / ChessPiece.java
 - implement the constructor + getters/setters / generating the overrides for the following classes: 
@@ -48,10 +48,9 @@ More specifically we create a new instance of each of the pieceMovesCalculator f
 a collection to make moves for each using pieceMoves. Use the addAll() method to add each of the valid moves.
 4) Knight: This one uses the same function (copy / paste) however we have to change it to make an L shape and remove the
 loop since knights only move once. We do have to add the method to the PieceMovesCalculator Interface (just like with
-the movesToEnd function but this time for moveL).
-5) King: 
-6) Pawn:
-
+the movesToEnd function but this time for moveOnce).
+5) King: moveOnce but w/the directions used in Rook/Bishop
+6) Pawn: psuedo code / logic! Create a new function based on the ones I've currently done. 
 
 ## Phase 1 
 

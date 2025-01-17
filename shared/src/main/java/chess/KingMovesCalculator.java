@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class KingMovesCalculator implements PieceMovesCalculator {
-    // TODO: implement the King!
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> validMoves = new ArrayList<>();
