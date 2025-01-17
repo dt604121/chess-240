@@ -10,25 +10,24 @@ public class KnightMovesCalculator implements PieceMovesCalculator{
         // Find all combinations of the L..
         // move the row +/- 2
         // L -> row + 2 and col + 1
-        PieceMovesCalculator.moveL(board, myPosition, validMoves, 2, 1);
+        PieceMovesCalculator.moveOnce(board, myPosition, validMoves, 2, 1);
         // L -> row + 2 and col - 1
-        PieceMovesCalculator.moveL(board, myPosition, validMoves, 2, -1);
+        PieceMovesCalculator.moveOnce(board, myPosition, validMoves, 2, -1);
         // L -> row - 2 and col + 1
-        PieceMovesCalculator.moveL(board, myPosition, validMoves, -2, 1);
+        PieceMovesCalculator.moveOnce(board, myPosition, validMoves, -2, 1);
         // L -> row - 2 and col - 1
-        PieceMovesCalculator.moveL(board, myPosition, validMoves, -2, -1);
+        PieceMovesCalculator.moveOnce(board, myPosition, validMoves, -2, -1);
 
         // move the row +/- 1
         // L -> row + 1 and col + 2
-        PieceMovesCalculator.moveL(board, myPosition, validMoves, 1, 2);
+        PieceMovesCalculator.moveOnce(board, myPosition, validMoves, 1, 2);
         // L -> row + 1 and col - 2
-        PieceMovesCalculator.moveL(board, myPosition, validMoves, 1, -2);
+        PieceMovesCalculator.moveOnce(board, myPosition, validMoves, 1, -2);
         // L -> row - 1 and col - 2
-        PieceMovesCalculator.moveL(board, myPosition, validMoves, -1, -2);
+        PieceMovesCalculator.moveOnce(board, myPosition, validMoves, -1, -2);
         // L -> row - 1 and col + 2
-        PieceMovesCalculator.moveL(board, myPosition, validMoves, -1, 2);
+        PieceMovesCalculator.moveOnce(board, myPosition, validMoves, -1, 2);
 
         return validMoves;
     }
-
 }

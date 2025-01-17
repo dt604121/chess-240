@@ -42,6 +42,15 @@ open space?
 chess piece? 
 friendly fire? 
 capture enemy? 
+3) Once we have the Bishop, we can use the same function to implement the Rook (using 0's and -/+ 1's). :) Once those 
+2 are finished doing the queen is a piece of cake because we just have to call both and join the two lists together. 
+More specifically we create a new instance of each of the pieceMovesCalculator for that specific piece and then use 
+a collection to make moves for each using pieceMoves. Use the addAll() method to add each of the valid moves.
+4) Knight: This one uses the same function (copy / paste) however we have to change it to make an L shape and remove the
+loop since knights only move once. We do have to add the method to the PieceMovesCalculator Interface (just like with
+the movesToEnd function but this time for moveL).
+5) King: 
+6) Pawn:
 
 
 ## Phase 1 

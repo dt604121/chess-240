@@ -31,7 +31,7 @@ public interface PieceMovesCalculator {
         }
     }
 
-    static void moveL(ChessBoard board, ChessPosition myPosition, ArrayList<ChessMove> validMoves,
+    static void moveOnce(ChessBoard board, ChessPosition myPosition, ArrayList<ChessMove> validMoves,
                       int rowDirection, int colDirection) {
         // start the offset -> look ahead
         int row = myPosition.getRow() + rowDirection;

@@ -8,7 +8,7 @@ public class QueenMovesCalculator implements PieceMovesCalculator{
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> validMoves = new ArrayList<>();
         // functionality of the rook and bishop..
-        // call rookMoves and bishopMoves? (row +/- #) or (row -/+ # col +/- #)
+        // call rookMoves and bishopMoves (row +/- #) or (row -/+ # col +/- #)
         RookMovesCalculator rookCalculator = new RookMovesCalculator();
         BishopMovesCalculator bishopCalculator = new BishopMovesCalculator();
 
