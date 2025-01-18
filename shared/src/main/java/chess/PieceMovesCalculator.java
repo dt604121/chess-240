@@ -155,7 +155,7 @@ public interface PieceMovesCalculator {
                                     ChessPiece.PieceType.KNIGHT
                             };
                             for (ChessPiece.PieceType promotionType : promotionTypes) {
-                                validMoves.add(new ChessMove(myPosition, position, promotionType));
+                                validMoves.add(new ChessMove(myPosition, leftPosition, promotionType));
                             }
                         }
                         else {
@@ -182,7 +182,7 @@ public interface PieceMovesCalculator {
                                     ChessPiece.PieceType.KNIGHT
                             };
                             for (ChessPiece.PieceType promotionType : promotionTypes) {
-                                validMoves.add(new ChessMove(myPosition, position, promotionType));
+                                validMoves.add(new ChessMove(myPosition, rightPosition, promotionType));
                             }
                         }
                         else {
