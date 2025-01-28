@@ -63,23 +63,23 @@ public interface PieceMovesCalculator {
     }
     // psuedo code for pawn
     // if in bounds..
-    // If there is an open space in front of the pawn:
-    // If it is the first move:
-    // If the square two steps ahead is also open:
-    // Add the two-square move to validMoves
-    // Else:
-    // Return (movement is blocked)
-    // Else (not the first move):
-    // Add the one-square move to validMoves
-    // if the pawn reaches the end of the board:
-    // Add the promotion moves (Queen, Rook, Bishop, Knight) to validMoves
+        // If there is an open space in front of the pawn:
+            // If it is the first move:
+                // If the square two steps ahead is also open:
+                    // Add the two-square move to validMoves
+                // Else:
+                    // Return (movement is blocked)
+            // Else (not the first move):
+                // Add the one-square move to validMoves
+                // if the pawn reaches the end of the board:
+                    // Add the promotion moves (Queen, Rook, Bishop, Knight) to validMoves
 
-    // Else if there is an enemy piece in a diagonal direction:
-    // Check the diagonal left and diagonal right:
-    // If there is an enemy piece:
-    // Add the capture move to validMoves
-    // if the pawn reaches the end of the board:
-    // Add the promotion moves (Queen, Rook, Bishop, Knight) to validMoves
+        // Else if there is an enemy piece in a diagonal direction:
+            // Check the diagonal left and diagonal right:
+                // If there is an enemy piece:
+                    // Add the capture move to validMoves
+                        // if the pawn reaches the end of the board:
+                            // Add the promotion moves (Queen, Rook, Bishop, Knight) to validMoves
 
 
     static void movePawn(ChessBoard board, ChessPosition myPosition, ArrayList<ChessMove> validMoves,

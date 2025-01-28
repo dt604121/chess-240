@@ -10,8 +10,8 @@ public class PawnMovesCalculator implements PieceMovesCalculator{
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> validMoves = new ArrayList<>();
         // first turn is row + 1  unless we can go 2 (accounted for w/i the function)
-        ChessPiece currentPiece = board.getPiece(myPosition);
-        if (currentPiece.getTeamColor() == WHITE) {
+        ChessPiece piece = board.getPiece(myPosition);
+        if (piece.getTeamColor() == WHITE) {
             // White - moving up
             PieceMovesCalculator.movePawn(board, myPosition, validMoves,
                     1, -1, 0, 1);

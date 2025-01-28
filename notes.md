@@ -50,9 +50,16 @@ a collection to make moves for each using pieceMoves. Use the addAll() method to
 loop since knights only move once. We do have to add the method to the PieceMovesCalculator Interface (just like with
 the movesToEnd function but this time for moveOnce).
 5) King: moveOnce but w/the directions used in Rook/Bishop
-6) Pawn: psuedo code / logic! Create a new function based on the ones I've currently done. 
+6) Pawn: psuedo code / logic! Create a new function based on the ones I've currently done. For the calculator itself 
+it will be the same except we have to check the team color (white moving up vs. black moving down) to move in the right 
+direction when we pass in the values for row / col direction. For movePawn we will put it in the PieceMovesCalculator
+and cp / paste the base function from before (moveOne) and then proceed to implement the psudeocode. When checking for 
+promotion we can make the pieceTypes a list and iterate through to add them.. if not it will be null. When dealing with
+twoRows and checking for enemy pieces we do need to include boundary checking (same as before but with the diff. var 
+names). With leftPosition and rightPosition make sure to use those instead of position!
 
 ## Phase 1 
+
 
 ## Phase 2
 
