@@ -111,4 +111,11 @@ public class ChessBoard {
                 "squares=" + Arrays.deepToString(squares) +
                 '}';
     }
+    public ChessBoard cloneBoard() {
+        var clonedBoard = new ChessBoard();
+        for (int row = 0; row <= 7; row += 1){
+            System.arraycopy(squares[row], 0, clonedBoard.squares[row], 0, 8);
+        }
+        return clonedBoard;
+    }
 }
