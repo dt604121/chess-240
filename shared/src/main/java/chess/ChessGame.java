@@ -86,23 +86,43 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         // initialize the piece
         ChessPiece piece = board.getPiece(move.getStartPosition());
-        TeamColor teamColor = piece.getTeamColor();
-        ChessGame game = new ChessGame();
-        // make move -> set the piece to have the new move? Do we need to call pieceMoves?
-        game.makeMove(new ChessMove(move.getStartPosition(), move.getEndPosition(), null));
-        // if isInCheck
-        if (isInCheck(teamColor)){
-            // if == null || it's invalid from starting position || teamTurn != teamColor
-            if (piece == null || teamTurn != teamColor){
-                throw InvalidMoveException;
-            }
+        if (piece == null){
+            throw new InvalidMoveException("Invalid Move");
         }
-        // new teams turn if teamTurn == WHITE set it now to BLACK
-        if (teamTurn == TeamColor.WHITE){
-            game.setTeamTurn(ChessGame.TeamColor.BLACK);
+
+        Collection<ChessMove> possibleMoves = piece.pieceMoves(board, move.getStartPosition());
+        TeamColor teamColor = piece.getTeamColor();
+
+        // make move only on empty spots or enemy pieces
+        if (possibleMoves.contains(move)){
+            // promotion handling
+            if (move.getPromotionPiece() != null){
+                ChessPiece promotionPiece = new ChessPiece(teamColor, move.getPromotionPiece());
+                board.addPiece(move.getEndPosition(), promotionPiece); // new spot
+            }
+            else {
+                board.addPiece(move.getEndPosition(), piece); // new spot
+            }
+
+            board.addPiece(move.getStartPosition(), null); // old spot
         }
         else {
-            game.setTeamTurn(ChessGame.TeamColor.WHITE);
+            throw new InvalidMoveException("Invalid Move");
+        }
+
+
+        // if isInCheck
+        if (isInCheck(teamColor) || teamTurn != teamColor) {
+            throw new InvalidMoveException("Invalid Move");
+        }
+
+
+        // new teams turn if teamTurn == WHITE set it now to BLACK
+        if (teamTurn == TeamColor.WHITE){
+            this.setTeamTurn(ChessGame.TeamColor.BLACK);
+        }
+        else {
+            this.setTeamTurn(ChessGame.TeamColor.WHITE);
         }
     }
 
@@ -183,7 +203,7 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor) {
         // if isCheck() is false -> king isn't in danger
-        if (isInCheck() == false){
+        if (!isInCheck(teamColor)){
             // iterate through the moves of the teamcolor
             // check if the move is within the bounds
             for (int row = 1; row <= 8 && row >= 1; row += 1){
