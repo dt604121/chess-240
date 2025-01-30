@@ -70,9 +70,9 @@ public class ChessGame {
                 validMoves.add(possibleMove);
             }
             catch (InvalidMoveException ignored) {
+                continue;
             }
 
-            return (Collection<ChessMove>) validMoves;
         }
         return validMoves;
     }
@@ -94,7 +94,7 @@ public class ChessGame {
         TeamColor teamColor = piece.getTeamColor();
 
         // make move only on empty spots or enemy pieces
-        if (possibleMoves.contains(move)){
+        if (possibleMoves.contains(move) && teamTurn == teamColor){
             // promotion handling
             if (move.getPromotionPiece() != null){
                 ChessPiece promotionPiece = new ChessPiece(teamColor, move.getPromotionPiece());
@@ -111,8 +111,8 @@ public class ChessGame {
         }
 
 
-        // if isInCheck
-        if (isInCheck(teamColor) || teamTurn != teamColor) {
+        // if isInCheck TODO: teamColor is off!
+        if (isInCheck(teamColor)) {
             throw new InvalidMoveException("Invalid Move");
         }
 
