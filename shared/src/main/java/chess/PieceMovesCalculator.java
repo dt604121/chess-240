@@ -62,7 +62,7 @@ public interface PieceMovesCalculator {
         }
     }
     // psuedo code for pawn
-    // if in bounds..
+    // if in bounds
         // If there is an open space in front of the pawn:
             // If it is the first move:
                 // If the square two steps ahead is also open:
@@ -81,7 +81,6 @@ public interface PieceMovesCalculator {
                         // if the pawn reaches the end of the board:
                             // Add the promotion moves (Queen, Rook, Bishop, Knight) to validMoves
 
-
     static void movePawn(ChessBoard board, ChessPosition myPosition, ArrayList<ChessMove> validMoves,
                          int rowDirection, int colDirectionLeft, int colDirectionMiddle, int colDirectionRight) {
         // start the offset -> look ahead
@@ -95,10 +94,11 @@ public interface PieceMovesCalculator {
         // bounds checking
         if (row < 9 && row >= 1 && col < 9 && col >= 1) {
             // is there an open space in front of the pawn?
-            if (currentPiece == null) {
-                // check for promotion -> queen, bishop, rook, knight 4 sep. moves
-                // team color -> (row 8 for white and row 1 for black)
-                if (originalPiece.getTeamColor() == WHITE && row == 8 || originalPiece.getTeamColor() == BLACK && row == 1){
+            if (currentPiece == null){
+                if (originalPiece.getTeamColor() == WHITE && row == 8 ||
+                        originalPiece.getTeamColor() == BLACK && row == 1) {
+                    // check for promotion -> queen, bishop, rook, knight 4 sep. moves
+                    // team color -> (row 8 for white and row 1 for black)
                     // make the types a list and then iterate through it!
                     ChessPiece.PieceType[] promotionTypes = {
                             ChessPiece.PieceType.QUEEN,
@@ -123,73 +123,45 @@ public interface PieceMovesCalculator {
                     ChessPosition nextPosition = new ChessPosition(twoRows, col);
                     ChessPiece nextPiece = board.getPiece(nextPosition);
 
-                    if (nextPiece == null) {
-                        if (originalPiece.getTeamColor() == WHITE) {
-                            if (myPosition.getRow() == 2) {
-                                ChessMove validTwoMove = new ChessMove(myPosition, nextPosition, null);
-                                validMoves.add(validTwoMove);
-                            }
-                        } else if (originalPiece.getTeamColor() == BLACK) {
-                            if (myPosition.getRow() == 7) {
-                                ChessMove validTwoMove = new ChessMove(myPosition, nextPosition, null);
-                                validMoves.add(validTwoMove);
-                            }
-                        }
+                    if (nextPiece == null && originalPiece.getTeamColor() == WHITE && myPosition.getRow() == 2) {
+                        ChessMove validTwoMove = new ChessMove(myPosition, nextPosition, null);
+                        validMoves.add(validTwoMove);
+                    }
+                    else if (originalPiece.getTeamColor() == BLACK && myPosition.getRow() == 7) {
+                        ChessMove validTwoMove = new ChessMove(myPosition, nextPosition, null);
+                        validMoves.add(validTwoMove);
                     }
                 }
             }
             // enemy piece - left/right diagonally
-            if (colLeft < 9 && colLeft >= 1) {
-                ChessPosition leftPosition = new ChessPosition(row, colLeft);
-                ChessPiece leftCol = board.getPiece(leftPosition);
-                if (leftCol != null) {
-                    if (originalPiece.getTeamColor() != leftCol.getTeamColor()) {
-                        // check for promotion -> queen, bishop, rook, knight 4 sep. moves
-                        // team color -> (row 8 for white and row 1 for black)
-                        if (originalPiece.getTeamColor() == WHITE && row == 8 || originalPiece.getTeamColor() == BLACK && row == 1){
-                            // make the types a list and then iterate through it!
-                            ChessPiece.PieceType[] promotionTypes = {
-                                    ChessPiece.PieceType.QUEEN,
-                                    ChessPiece.PieceType.BISHOP,
-                                    ChessPiece.PieceType.ROOK,
-                                    ChessPiece.PieceType.KNIGHT
-                            };
-                            for (ChessPiece.PieceType promotionType : promotionTypes) {
-                                validMoves.add(new ChessMove(myPosition, leftPosition, promotionType));
-                            }
-                        }
-                        else {
-                            ChessMove validLeftCaptureMove = new ChessMove(myPosition, leftPosition, null);
-                            validMoves.add(validLeftCaptureMove);
-                        }
+            diagonalEnemyPieceChecker(colLeft, originalPiece, row, board, validMoves, myPosition);
+            diagonalEnemyPieceChecker(colRight, originalPiece, row, board, validMoves, myPosition);
+        }
+    }
+    static void diagonalEnemyPieceChecker(int colPositionDirection, ChessPiece originalPiece, int row, ChessBoard board,
+                                          ArrayList<ChessMove> validMoves, ChessPosition myPosition){
+        if (colPositionDirection < 9 && colPositionDirection >= 1) {
+            ChessPosition colPosition = new ChessPosition(row, colPositionDirection);
+            ChessPiece colPieceDirection = board.getPiece(colPosition);
+            if ((colPieceDirection != null) && (originalPiece.getTeamColor() != colPieceDirection.getTeamColor())) {
+                if (originalPiece.getTeamColor() == WHITE  && row == 8 || originalPiece.getTeamColor() == BLACK
+                        && row == 1){
+                    // check for promotion -> queen, bishop, rook, knight 4 sep. moves
+                    // team color -> (row 8 for white and row 1 for black)
+                    // make the types a list and then iterate through it!
+                    ChessPiece.PieceType[] promotionTypes = {
+                            ChessPiece.PieceType.QUEEN,
+                            ChessPiece.PieceType.BISHOP,
+                            ChessPiece.PieceType.ROOK,
+                            ChessPiece.PieceType.KNIGHT
+                    };
+                    for (ChessPiece.PieceType promotionType : promotionTypes) {
+                        validMoves.add(new ChessMove(myPosition, colPosition, promotionType));
                     }
                 }
-            }
-
-            if (colRight < 9 && colRight >= 1) {
-                ChessPosition rightPosition = new ChessPosition(row, colRight);
-                ChessPiece rightCol = board.getPiece(rightPosition);
-                if (rightCol != null) {
-                    if (originalPiece.getTeamColor() != rightCol.getTeamColor()) {
-                        // check for promotion -> queen, bishop, rook, knight 4 sep. moves
-                        // team color -> (row 8 for white and row 1 for black)
-                        if (originalPiece.getTeamColor() == WHITE && row == 8 || originalPiece.getTeamColor() == BLACK && row == 1){
-                            // make the types a list and then iterate through it!
-                            ChessPiece.PieceType[] promotionTypes = {
-                                    ChessPiece.PieceType.QUEEN,
-                                    ChessPiece.PieceType.BISHOP,
-                                    ChessPiece.PieceType.ROOK,
-                                    ChessPiece.PieceType.KNIGHT
-                            };
-                            for (ChessPiece.PieceType promotionType : promotionTypes) {
-                                validMoves.add(new ChessMove(myPosition, rightPosition, promotionType));
-                            }
-                        }
-                        else {
-                            ChessMove validRightCaptureMove = new ChessMove(myPosition, rightPosition, null);
-                            validMoves.add(validRightCaptureMove);
-                        }
-                    }
+                else {
+                    ChessMove validCaptureMove = new ChessMove(myPosition, colPosition, null);
+                    validMoves.add(validCaptureMove);
                 }
             }
         }
