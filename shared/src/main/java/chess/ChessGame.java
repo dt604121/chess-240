@@ -212,11 +212,12 @@ public class ChessGame {
                 for (int col = 1; col <= 8; col += 1){
                     ChessPosition position = new ChessPosition(row, col);
                     ChessPiece piece = board.getPiece(position);
-                    if (piece != null && validMoves(position).isEmpty() && piece.getTeamColor() == teamColor){
-                        return true;
+                    if (piece != null && !validMoves(position).isEmpty() && piece.getTeamColor() == teamColor){
+                        return false;
                     }
                 }
             }
+            return true;
         }
         return false;
     }
