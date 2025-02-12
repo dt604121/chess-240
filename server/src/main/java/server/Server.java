@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import exception.DataAccessException;
 import model.*;
 import service.GameService;
 import service.UserService;
@@ -23,14 +24,13 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
-        Spark.post("/user", this::register);
-        Spark.post("/session", this::login);
-        Spark.delete("/session", this::logout);
-        Spark.get("/game", this::listGames);
-        Spark.post("/game", this::createGames);
-        Spark.put("/game", this::joinGame);
-        Spark.delete("/db", this::clearUserDAO);
-        Spark.exception(ResponseException.class, this::exceptionHandler);
+        Spark.post("/user", this::registerHandler);
+        Spark.post("/session", this::loginHandler);
+        Spark.delete("/session", this::logoutHandler);
+        Spark.get("/game", this::listGamesHandler);
+        Spark.post("/game", this::createGamesHandler);
+        Spark.put("/game", this::joinGameHandler);
+        Spark.delete("/db", this::clearHandler);
 
         // This line initializes the server and can be removed once you have a functioning endpoint
         Spark.init();
@@ -44,49 +44,47 @@ public class Server {
         Spark.awaitStop();
     }
 
-    private void exceptionHandler(ResponseException ex, Request req, Response res) {
-        res.status(ex.StatusCode());
-        res.body(ex.toJson());
-    }
-    private Object register(Request req, Response res) throws ResponseException {
+    private Object registerHandler(Request req, Response res) throws DataAccessException {
         var registerRequest = new Gson().fromJson(req.body(), RegisterRequest.class);
         var registerResult = userService.register(registerRequest);
         return new Gson().toJson(registerResult);
     }
 
-    private Object login(Request req, Response res) throws ResponseException {
+    private Object loginHandler(Request req, Response res) throws DataAccessException {
         var loginRequest = new Gson().fromJson(req.body(), LoginRequest.class);
-        var loginResult = userService.login(loginRequest);
+        var loginResult = userService.loginService(loginRequest);
         return new Gson().toJson(loginResult);
     }
 
-    private Object logout(Request req, Response res) throws ResponseException {
+    private Object logoutHandler(Request req, Response res) throws DataAccessException {
         // var logoutRequest = new Gson().fromJson(req.body(), LogoutRequest.class);
         // var logoutResult = userService.logout(logoutRequest);
         return null;
     }
 
-    private Object listGames(Request req, Response res) throws ResponseException {
+    private Object listGamesHandler(Request req, Response res) throws DataAccessException {
         // TODO: best guess?
         var listGamesRequest = new Gson().fromJson(req.body(), ListGamesRequest.class);
         var listGamesResult = gameService.listGames(listGamesRequest);
         return new Gson().toJson(Map.of("games", listGamesResult));
     }
 
-    private Object createGames(Request req, Response res) throws ResponseException {
+    private Object createGamesHandler(Request req, Response res) throws DataAccessException {
         var createGamesRequest = new Gson().fromJson(req.body(), CreateGamesRequest.class);
         var createGamesResult = gameService.createGames(createGamesRequest);
         return new Gson().toJson(createGamesResult);
     }
 
-    private Object joinGame(Request req, Response res) throws ResponseException{
+    private Object joinGameHandler(Request req, Response res) throws DataAccessException{
         var joinGamesRequest = new Gson().fromJson(req.body(), JoinGamesRequest.class);
         var joinGamesResult = gameService.joinGame(joinGamesRequest);
         return new Gson().toJson(joinGamesResult);
     }
 
-    private Object clearUserDAO(Request req, Response res) throws ResponseException {
+    private Object clearHandler(Request req, Response res) throws DataAccessException {
         userService.clearUserDAO();
+//        userService.clearGameDAO();
+//        userService.clearAuthDAO();
         res.status(204);
         return "";
     }

@@ -1,8 +1,8 @@
 package service;
 
 import dataaccess.GameDAO;
+import exception.DataAccessException;
 import model.*;
-import server.ResponseException;
 
 public class GameService {
     private final GameDAO gameDAO;
@@ -10,26 +10,27 @@ public class GameService {
     public GameService(GameDAO gameDAO){
         this.gameDAO = gameDAO;
     }
-    public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws ResponseException {
+    public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws DataAccessException {
         return gameDAO.listGames(listGamesRequest);
     }
 
-    public CreateGamesResult createGames(CreateGamesRequest createGamesRequest) throws ResponseException{
+    public CreateGamesResult createGames(CreateGamesRequest createGamesRequest) throws DataAccessException{
         return gameDAO.createGames(createGamesRequest);
     }
 
-    public JoinGamesResult joinGame(JoinGamesRequest joinGameRequest) throws ResponseException {
+    public JoinGamesResult joinGame(JoinGamesRequest joinGameRequest) throws DataAccessException {
         return gameDAO.joinGame(joinGameRequest);
     }
 
-    void clearGameDAO() throws ResponseException{
+    void clearGameDAO() throws DataAccessException{
         gameDAO.clearGameDAO();
     }
 
-    public GameData getGame(String gameID) throws ResponseException{
+    public GameData getGame(String gameID) throws DataAccessException{
         return gameDAO.getGame(gameID);
     }
-    public GameData updateGame(GameData) throws ResponseException{
-        return gameDAO.updateGame(GameData);
-    }
+
+//    public GameData updateGame(GameData) throws DataAccessException{
+//        return gameDAO.updateGame(GameData);
+//    }
 }

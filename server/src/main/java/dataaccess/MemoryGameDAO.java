@@ -1,9 +1,39 @@
 package dataaccess;
 
-import model.GameData;
+import exception.DataAccessException;
+import model.*;
 
 public class MemoryGameDAO implements GameDAO {
-    public GameData listGames(Object listGamesRequest) {
+    @Override
+    public ListGamesResult listGames(Object listGamesRequest) throws DataAccessException {
+        return null;
+    }
+
+    @Override
+    public CreateGamesResult createGames(CreateGamesRequest createGamesRequest) throws DataAccessException {
+        return null;
+    }
+
+    @Override
+    public JoinGamesResult joinGame(JoinGamesRequest joinGameRequest) throws DataAccessException {
+        return null;
+    }
+
+    @Override
+    public GameData getGame(String gameID) throws DataAccessException {
+        return null;
+    }
+
+    @Override
+    public GameData updateGame() throws DataAccessException {
+        return null;
+    }
+
+    @Override
+    public void clearGameDAO() throws DataAccessException {
+
+    }
+/*    public GameData listGames(Object listGamesRequest) {
         return null;
     }
 
@@ -21,6 +51,6 @@ public class MemoryGameDAO implements GameDAO {
 
     public void clearGameDAO(){
 
-    }
+    }*/
 
 }

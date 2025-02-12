@@ -1,28 +1,29 @@
 package service;
 
-import dataaccess.UserDAO;
+import exception.DataAccessException;
+import dataaccess.MemoryAuthDAO;
+import dataaccess.MemoryUserDAO;
 import model.*;
-import server.ResponseException;
 
 public class UserService {
-    private final UserDAO userDAO;
+    private final MemoryUserDAO memoryUserDAO;
 
-    public UserService(UserDAO userDAO){
-        this.userDAO = userDAO;
+    public UserService(MemoryUserDAO memoryUserDAO){
+        this.memoryUserDAO = memoryUserDAO;
     }
-    public RegisterResult register(RegisterRequest registerRequest) throws ResponseException {
-        return userDAO.register(registerRequest);
-    }
-
-    public LoginResult login(LoginRequest loginRequest) throws ResponseException {
-        return userDAO.login(loginRequest);
+    public RegisterResult register(RegisterRequest registerRequest) throws DataAccessException {
+        return memoryUserDAO.register(registerRequest);
     }
 
-    public void logout(LogoutRequest logoutRequest) throws ResponseException {
-        userDAO.logout(logoutRequest);
+    public LoginResult loginService(LoginRequest loginRequest, MemoryUserDAO memoryUserDAO, MemoryAuthDAO memoryAuthDAO) throws DataAccessException {
+        return memoryUserDAO.login(loginRequest, memoryUserDAO, memoryAuthDAO);
     }
 
-    public void clearUserDAO() throws ResponseException {
-        userDAO.clearUserDAO();
+    public void logout(LogoutRequest logoutRequest) throws DataAccessException {
+        memoryUserDAO.logout(logoutRequest);
+    }
+
+    public void clearUserDAO() throws DataAccessException {
+        memoryUserDAO.clearUserDAO();
     }
 }
