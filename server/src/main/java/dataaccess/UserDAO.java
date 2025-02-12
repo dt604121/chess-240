@@ -1,6 +1,7 @@
 package dataaccess;
 
-import model.UserData;
+import model.*;
+import org.eclipse.jetty.util.log.Log;
 import server.ResponseException;
 
 public interface UserDAO {
@@ -8,4 +9,7 @@ public interface UserDAO {
     UserData createUser(Object UserData) throws ResponseException;
     String createAuthToken(Object AuthData) throws ResponseException;
     void clearUserDAO() throws ResponseException;
+    void logout(LogoutRequest logoutRequest) throws ResponseException;
+    LoginResult login(LoginRequest loginRequest) throws ResponseException;
+    RegisterResult register(RegisterRequest registerRequest) throws ResponseException;
 }

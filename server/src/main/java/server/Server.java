@@ -5,7 +5,6 @@ import model.*;
 import service.GameService;
 import service.UserService;
 import spark.*;
-import java.util.UUID;
 
 import java.util.Map;
 
@@ -13,7 +12,7 @@ public class Server {
     private final UserService userService;
     private final GameService gameService;
 
-    public Server(UserService userService) {
+    public Server(UserService userService, GameService gameService) {
         this.userService = userService;
         this.gameService = gameService;
     }
