@@ -26,4 +26,8 @@ public class UserService {
     public JoinGamesResult joinGame(JoinGamesRequest joinGameRequest){
         return null;
     }
+
+    public void clearUserDAO() {
+        // dataAccess.deleteAllPets();
+    }
 }
