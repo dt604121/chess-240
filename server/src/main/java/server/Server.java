@@ -2,6 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import model.*;
+import service.GameService;
 import service.UserService;
 import spark.*;
 import java.util.UUID;
@@ -10,9 +11,11 @@ import java.util.Map;
 
 public class Server {
     private final UserService userService;
+    private final GameService gameService;
 
     public Server(UserService userService) {
         this.userService = userService;
+        this.gameService = gameService;
     }
 
     public int run(int desiredPort) {
@@ -28,6 +31,7 @@ public class Server {
         Spark.post("/game", this::createGames);
         Spark.put("/game", this::joinGame);
         Spark.delete("/db", this::clearUserDAO);
+        Spark.exception(ResponseException.class, this::exceptionHandler);
 
         // This line initializes the server and can be removed once you have a functioning endpoint
         Spark.init();
@@ -66,19 +70,19 @@ public class Server {
     private Object listGames(Request req, Response res) throws ResponseException {
         // TODO: best guess?
         var listGamesRequest = new Gson().fromJson(req.body(), ListGamesRequest.class);
-        var listGamesResult = userService.listGames(listGamesRequest);
+        var listGamesResult = gameService.listGames(listGamesRequest);
         return new Gson().toJson(Map.of("games", listGamesResult));
     }
 
     private Object createGames(Request req, Response res) throws ResponseException {
         var createGamesRequest = new Gson().fromJson(req.body(), CreateGamesRequest.class);
-        var createGamesResult = userService.createGames(createGamesRequest);
+        var createGamesResult = gameService.createGames(createGamesRequest);
         return new Gson().toJson(createGamesResult);
     }
 
     private Object joinGame(Request req, Response res) throws ResponseException{
         var joinGamesRequest = new Gson().fromJson(req.body(), JoinGamesRequest.class);
-        var joinGamesResult = userService.joinGame(joinGamesRequest);
+        var joinGamesResult = gameService.joinGame(joinGamesRequest);
         return new Gson().toJson(joinGamesResult);
     }
 

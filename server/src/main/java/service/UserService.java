@@ -15,18 +15,6 @@ public class UserService {
         return;
     }
 
-    public ListGamesResult listGames(ListGamesRequest listGamesRequest) {
-        return null;
-    }
-
-    public CreateGamesResult createGames(CreateGamesRequest createGamesRequest){
-        return null;
-    }
-
-    public JoinGamesResult joinGame(JoinGamesRequest joinGameRequest){
-        return null;
-    }
-
     public void clearUserDAO() {
         // dataAccess.deleteAllPets();
     }

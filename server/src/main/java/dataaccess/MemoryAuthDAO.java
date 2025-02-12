@@ -14,4 +14,5 @@ public class MemoryAuthDAO implements AuthDAO {
 
     public void clearAuthDAO(){
     }
+
 }
