@@ -1,7 +1,6 @@
 package dataaccess;
 
 import model.*;
-import server.ResponseException;
 
 public interface GameDAO {
     ListGamesResult listGames(Object listGamesRequest) throws ResponseException;

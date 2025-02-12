@@ -1,15 +1,13 @@
 package dataaccess;
 
+import exception.DataAccessException;
 import model.*;
-import org.eclipse.jetty.util.log.Log;
-import server.ResponseException;
 
 public interface UserDAO {
-    UserData getUser(String username) throws ResponseException;
-    UserData createUser(Object UserData) throws ResponseException;
-    String createAuthToken(Object AuthData) throws ResponseException;
-    void clearUserDAO() throws ResponseException;
-    void logout(LogoutRequest logoutRequest) throws ResponseException;
-    LoginResult login(LoginRequest loginRequest) throws ResponseException;
-    RegisterResult register(RegisterRequest registerRequest) throws ResponseException;
+    UserData getUser(String username) throws DataAccessException;
+    UserData createUser(Object UserData) throws DataAccessException;
+    void clearUserDAO() throws DataAccessException;
+    void logout(LogoutRequest logoutRequest, MemoryUserDAO memoryUserDAO, MemoryAuthDAO memoryAuthDAO) throws DataAccessException;
+    LoginResult login(LoginRequest loginRequest, MemoryUserDAO memoryUserDAO, MemoryAuthDAO memoryAuthDAO) throws DataAccessException;
+    RegisterResult register(RegisterRequest registerRequest) throws DataAccessException;
 }
