@@ -1,10 +1,9 @@
-package java.unittests;
+package java.service;
 
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryUserDAO;
 import exception.DataAccessException;
 import exception.UnauthorizedException;
-import model.AuthData;
 import model.LoginRequest;
 import model.LoginResult;
 import model.UserData;
@@ -20,8 +19,6 @@ public class ServiceTests {
     private UserService userService;
     private MemoryUserDAO memoryUserDAO;
     private MemoryAuthDAO memoryAuthDAO;
-    private UserData userData;
-    private AuthData authData;
 
     @BeforeEach
     void setUP() throws DataAccessException{

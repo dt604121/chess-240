@@ -1,6 +1,7 @@
 package java.passoff.server;
 
 import chess.ChessGame;
+import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import dataaccess.MemoryUserDAO;
 import org.junit.jupiter.api.*;
@@ -38,7 +39,8 @@ public class StandardAPITests {
     public static void init() {
         MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
         MemoryGameDAO memoryGameDAO = new MemoryGameDAO();
-        UserService userService = new UserService(memoryUserDAO);
+        MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
+        UserService userService = new UserService(memoryUserDAO, memoryAuthDAO);
         GameService gameService = new GameService(memoryGameDAO);
         Server server = new Server(userService, gameService);
         var port = server.run(0);
