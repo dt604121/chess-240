@@ -7,6 +7,7 @@ public class Main {
     public static void main(String[] args) {
         MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
         MemoryGameDAO memoryGameDAO = new MemoryGameDAO();
+        // Phase 4: swap for sqlUserDAO
         UserService userService = new UserService(memoryUserDAO);
         GameService gameService = new GameService(memoryGameDAO);
         Server server = new Server(userService, gameService);

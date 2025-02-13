@@ -59,14 +59,14 @@ public class Server {
             MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
             MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
             var loginResult = userService.loginService(loginRequest, memoryUserDAO, memoryAuthDAO);
+            res.status(200);
             return new Gson().toJson(loginResult);
-            // TODO: fix the syntax for this rq
-        } catch (UnauthorizedException e){
-            res.status(401);
-            return "Unauthorized";
         } catch (DataAccessException e) {
             res.status(500);
             return "Internal Server Error";
+        } catch (UnauthorizedException e) {
+            res.status(401);
+            return "Error: unauthorized\"";
         }
     }
 

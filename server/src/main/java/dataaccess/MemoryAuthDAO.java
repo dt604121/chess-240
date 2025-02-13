@@ -13,18 +13,17 @@ public class MemoryAuthDAO implements AuthDAO {
     public AuthData getAuthToken(String authToken) throws DataAccessException {
         return null;
     }
+//
+//    public AuthDAO deleteAuth(AuthData authData){
+//        return authDataHashMap.remove(authData);
+//    }
 
-    public AuthDAO deleteAuth(AuthData){
-        return authDataHashMap.remove(AuthData);
+    public AuthDAO addAuthToken(AuthData authData){
+        return authDataHashMap.put(authData);
     }
 
     public void clearAuthDAO(){
         authDataHashMap.clear();
-    }
-
-    @Override
-    public String createAuthToken(Object AuthData, MemoryUserDAO memoryUserDAO, MemoryAuthDAO memoryAuthDAO) throws DataAccessException {
-        return UUID.randomUUID().toString();
     }
 
 }
