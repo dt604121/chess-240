@@ -1,7 +1,10 @@
 package server;
 
 import com.google.gson.Gson;
+import dataaccess.MemoryAuthDAO;
+import dataaccess.MemoryUserDAO;
 import exception.DataAccessException;
+import exception.UnauthorizedException;
 import model.*;
 import service.GameService;
 import service.UserService;
@@ -46,14 +49,25 @@ public class Server {
 
     private Object registerHandler(Request req, Response res) throws DataAccessException {
         var registerRequest = new Gson().fromJson(req.body(), RegisterRequest.class);
-        var registerResult = userService.register(registerRequest);
+        var registerResult = userService.registerService(registerRequest);
         return new Gson().toJson(registerResult);
     }
 
-    private Object loginHandler(Request req, Response res) throws DataAccessException {
+    private Object loginHandler(Request req, Response res) throws DataAccessException, UnauthorizedException {
         var loginRequest = new Gson().fromJson(req.body(), LoginRequest.class);
-        var loginResult = userService.loginService(loginRequest);
-        return new Gson().toJson(loginResult);
+        try {
+            MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
+            MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
+            var loginResult = userService.loginService(loginRequest, memoryUserDAO, memoryAuthDAO);
+            return new Gson().toJson(loginResult);
+            // TODO: fix the syntax for this rq
+        } catch (UnauthorizedException e){
+            res.status(401);
+            return "Unauthorized";
+        } catch (DataAccessException e) {
+            res.status(500);
+            return "Internal Server Error";
+        }
     }
 
     private Object logoutHandler(Request req, Response res) throws DataAccessException {
@@ -82,7 +96,7 @@ public class Server {
     }
 
     private Object clearHandler(Request req, Response res) throws DataAccessException {
-        userService.clearUserDAO();
+        userService.clearUserDAOService();
 //        userService.clearGameDAO();
 //        userService.clearAuthDAO();
         res.status(204);

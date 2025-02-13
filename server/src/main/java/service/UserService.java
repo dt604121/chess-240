@@ -11,7 +11,7 @@ public class UserService {
     public UserService(MemoryUserDAO memoryUserDAO){
         this.memoryUserDAO = memoryUserDAO;
     }
-    public RegisterResult register(RegisterRequest registerRequest) throws DataAccessException {
+    public RegisterResult registerService(RegisterRequest registerRequest) throws DataAccessException {
         return memoryUserDAO.register(registerRequest);
     }
 
@@ -19,11 +19,11 @@ public class UserService {
         return memoryUserDAO.login(loginRequest, memoryUserDAO, memoryAuthDAO);
     }
 
-    public void logout(LogoutRequest logoutRequest) throws DataAccessException {
-        memoryUserDAO.logout(logoutRequest);
+    public void logoutService(LogoutRequest logoutRequest, MemoryUserDAO memoryUserDAO, MemoryAuthDAO memoryAuthDAO) throws DataAccessException {
+        memoryUserDAO.logout(logoutRequest, memoryUserDAO, memoryAuthDAO);
     }
 
-    public void clearUserDAO() throws DataAccessException {
+    public void clearUserDAOService() throws DataAccessException {
         memoryUserDAO.clearUserDAO();
     }
 }

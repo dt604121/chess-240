@@ -11,7 +11,6 @@ public class MemoryUserDAO implements UserDAO {
 
     void clear(UserData u) throws DataAccessException {}
 
-    // TODO: Login
     @Override
     public UserData getUser(String username) throws DataAccessException{
         if (userDataTable.containsValue(username)){
@@ -31,7 +30,7 @@ public class MemoryUserDAO implements UserDAO {
     }
 
     @Override
-    public void logout(LogoutRequest logoutRequest) throws DataAccessException {
+    public void logout(LogoutRequest logoutRequest, MemoryUserDAO memoryUserDAO, MemoryAuthDAO memoryAuthDAO) throws DataAccessException {
 
     }
 
@@ -45,5 +44,4 @@ public class MemoryUserDAO implements UserDAO {
     public RegisterResult register(RegisterRequest registerRequest) throws DataAccessException {
         return null;
     }
-
 }
