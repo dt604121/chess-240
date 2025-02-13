@@ -36,24 +36,6 @@ public class MemoryUserDAO implements UserDAO {
     }
 
     @Override
-    public UserData checkPassword(String password) throws DataAccessException {
-        if (userDataTable.containsValue(password)){
-            return userDataTable.get(password);
-        }
-        throw new DataAccessException("No password found.");
-    }
-
-    @Override
-    public LoginResult login(LoginRequest loginRequest, MemoryUserDAO memoryUserDAO, MemoryAuthDAO memoryAuthDAO)
-            throws DataAccessException {
-        UserData username = getUser(loginRequest.username());
-        UserData password = checkPassword(loginRequest.password());
-        // How are we grabbing the authData?
-        String authToken = memoryAuthDAO.createAuthToken(authData, memoryUserDAO, memoryAuthDAO);
-        return new LoginResult(username, authToken);
-    }
-
-    @Override
     public RegisterResult register(RegisterRequest registerRequest) throws DataAccessException {
         return null;
     }

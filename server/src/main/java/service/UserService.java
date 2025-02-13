@@ -1,29 +1,59 @@
 package service;
 
+import dataaccess.AuthDAO;
+import dataaccess.UserDAO;
 import exception.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryUserDAO;
+import exception.UnauthorizedException;
 import model.*;
+import org.eclipse.jetty.server.Authentication;
+
+import java.util.Objects;
+import java.util.UUID;
 
 public class UserService {
-    private final MemoryUserDAO memoryUserDAO;
+    private final UserDAO userDAO;
+    private final AuthDAO authDAO;
 
-    public UserService(MemoryUserDAO memoryUserDAO){
-        this.memoryUserDAO = memoryUserDAO;
+    public UserService(UserDAO userDAO, AuthDAO authDAO){
+        this.userDAO = userDAO;
+        this.authDAO = authDAO;
     }
-    public RegisterResult registerService(RegisterRequest registerRequest) throws DataAccessException {
-        return memoryUserDAO.register(registerRequest);
-    }
-
-    public LoginResult loginService(LoginRequest loginRequest, MemoryUserDAO memoryUserDAO, MemoryAuthDAO memoryAuthDAO) throws DataAccessException {
-        return memoryUserDAO.login(loginRequest, memoryUserDAO, memoryAuthDAO);
+    public RegisterResult register(RegisterRequest registerRequest) throws DataAccessException {
+        return userDAO.register(registerRequest);
     }
 
-    public void logoutService(LogoutRequest logoutRequest, MemoryUserDAO memoryUserDAO, MemoryAuthDAO memoryAuthDAO) throws DataAccessException {
-        memoryUserDAO.logout(logoutRequest, memoryUserDAO, memoryAuthDAO);
+    public AuthData createAndSaveAuthToken(String username) throws DataAccessException {
+        String authToken = UUID.randomUUID().toString();
+        AuthData authData = new AuthData(authToken, username);
+        authDAO.addAuthToken(authData);
+        return authData;
     }
 
-    public void clearUserDAOService() throws DataAccessException {
-        memoryUserDAO.clearUserDAO();
+    public LoginResult login(LoginRequest loginRequest)
+            throws DataAccessException, UnauthorizedException {
+        UserData userData = userDAO.getUser(loginRequest.username());
+        // check password
+        if (Objects.equals(loginRequest.password(), userData.password())){
+            AuthData authData = createAndSaveAuthToken(userData.username());
+            return new LoginResult(userData.username(), authData.authToken());
+        }
+        else {
+            throw new UnauthorizedException("unauthorized");
+        }
+    }
+
+    public LoginResult loginService(LoginRequest loginRequest, MemoryUserDAO memoryUserDAO, MemoryAuthDAO memoryAuthDAO)
+            throws DataAccessException, UnauthorizedException {
+        return login(loginRequest);
+    }
+
+    public void logout(LogoutRequest logoutRequest) throws DataAccessException {
+        userDAO.logout(logoutRequest);
+    }
+
+    public void clearUserDAO() throws DataAccessException {
+        userDAO.clearUserDAO();
     }
 }
