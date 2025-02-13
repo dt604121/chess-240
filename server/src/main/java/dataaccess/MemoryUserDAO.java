@@ -2,7 +2,6 @@ package dataaccess;
 
 import exception.DataAccessException;
 import model.*;
-import org.eclipse.jetty.server.Authentication;
 
 import java.util.HashMap;
 
@@ -25,13 +24,17 @@ public class MemoryUserDAO implements UserDAO {
         return null;
     }
 
+    public void addUser(UserData userData){
+        userDataTable.put(userData.username(), userData);
+    }
+
     @Override
     public void clearUserDAO() throws DataAccessException {
         return;
     }
 
     @Override
-    public void logout(LogoutRequest logoutRequest, MemoryUserDAO memoryUserDAO, MemoryAuthDAO memoryAuthDAO) throws DataAccessException {
+    public void logout(LogoutRequest logoutRequest) throws DataAccessException {
 
     }
 

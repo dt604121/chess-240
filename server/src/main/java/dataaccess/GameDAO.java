@@ -1,12 +1,18 @@
 package dataaccess;
 
+import exception.DataAccessException;
 import model.*;
 
+import javax.xml.crypto.Data;
+
 public interface GameDAO {
-    ListGamesResult listGames(Object listGamesRequest) throws ResponseException;
-    CreateGamesResult createGames(CreateGamesRequest createGamesRequest) throws ResponseException;
-    JoinGamesResult joinGame(JoinGamesRequest joinGameRequest) throws ResponseException
-    GameData getGame(String gameID) throws ResponseException;
-    GameData updateGame(GameData) throws ResponseException;
-    void clearGameDAO() throws ResponseException;
+    ListGamesResult listGames(Object listGamesRequest) throws DataAccessException;
+    CreateGamesResult createGames(CreateGamesRequest createGamesRequest) throws DataAccessException;
+    JoinGamesResult joinGame(JoinGamesRequest joinGameRequest) throws DataAccessException;
+    GameData getGame(String gameID) throws DataAccessException;
+    GameData updateGame(GameData gameData) throws DataAccessException;
+
+    GameData updateGame() throws DataAccessException;
+
+    void clearGameDAO() throws DataAccessException;
 }

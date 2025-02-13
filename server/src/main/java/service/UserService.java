@@ -7,7 +7,6 @@ import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryUserDAO;
 import exception.UnauthorizedException;
 import model.*;
-import org.eclipse.jetty.server.Authentication;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -20,7 +19,7 @@ public class UserService {
         this.userDAO = userDAO;
         this.authDAO = authDAO;
     }
-    public RegisterResult register(RegisterRequest registerRequest) throws DataAccessException {
+    public RegisterResult registerService(RegisterRequest registerRequest) throws DataAccessException {
         return userDAO.register(registerRequest);
     }
 
@@ -53,7 +52,7 @@ public class UserService {
         userDAO.logout(logoutRequest);
     }
 
-    public void clearUserDAO() throws DataAccessException {
+    public void clearUserDAOService() throws DataAccessException {
         userDAO.clearUserDAO();
     }
 }
