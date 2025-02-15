@@ -13,7 +13,7 @@ public class MemoryUserDAO implements UserDAO {
 
     @Override
     public UserData getUser(String username) throws DataAccessException{
-        if (userDataTable.containsValue(username)){
+        if (userDataTable.containsKey(username)){
             return userDataTable.get(username);
         }
         throw new DataAccessException("No user found.");
