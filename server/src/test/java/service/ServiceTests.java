@@ -1,13 +1,12 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import dataaccess.MemoryUserDAO;
 import exception.DataAccessException;
 import exception.UnauthorizedException;
-import model.LoginRequest;
-import model.LoginResult;
-import model.UserData;
+import model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -75,11 +74,26 @@ public class ServiceTests {
     // Create Game
     // Join Game
     // Clear
+    @Test
     void clearApplicationTest() throws DataAccessException{
-        memoryUserDAO.addUser(new UserData("clearUser", "clear", "clearUser@email"));
+        UserData userData = new UserData("clearUser", "clear", "clearUser@email");
+        GameData gameData = new GameData(12, "whiteUsername", "blackUsername",
+                "gameName", new ChessGame());
+        AuthData authData = new AuthData("1234", "username");
+        memoryUserDAO.addUser(userData);
+        memoryGameDAO.addGame(gameData);
+        memoryAuthDAO.addAuthToken(authData);
 
         memoryUserDAO.clearUserDAO();
         memoryAuthDAO.clearAuthDAO();
         memoryGameDAO.clearGameDAO();
+
+        // throws error if the data in the DAO still exists
+        assertThrows(DataAccessException.class, () -> memoryUserDAO.getUser("clearUser"),
+                "UserDAO should be empty after clear.");
+        assertThrows(DataAccessException.class, () -> memoryGameDAO.getGame(12),
+                "GameDAO should be empty after clear.");
+        assertThrows(DataAccessException.class, () -> memoryAuthDAO.getAuthToken("1234"),
+                "AuthDAO should be empty after clear.");
     }
 }

@@ -26,7 +26,7 @@ public class GameService {
         gameDAO.clearGameDAO();
     }
 
-    public GameData getGame(String gameID) throws DataAccessException{
+    public GameData getGame(int gameID) throws DataAccessException{
         return gameDAO.getGame(gameID);
     }
 

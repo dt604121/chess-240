@@ -96,10 +96,15 @@ public class Server {
     }
 
     private Object clearHandler(Request req, Response res) throws DataAccessException {
-        userService.clearUserDAOService();
-        gameService.clearGameDAOService();
-        userService.clearAuthDAOService();
-        res.status(204);
-        return "";
+        try {
+            userService.clearUserDAOService();
+            gameService.clearGameDAOService();
+            userService.clearAuthDAOService();
+            res.status(200);
+            return "";
+        } catch(DataAccessException e) {
+            res.status(500);
+            return "Internal Server Error";
+        }
     }
 }

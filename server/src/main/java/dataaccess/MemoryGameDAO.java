@@ -6,8 +6,8 @@ import model.*;
 import java.util.HashMap;
 
 public class MemoryGameDAO implements GameDAO {
-    // Key: Username Value: GameDataRecord
-    final private HashMap<String, GameData> gameDataTable = new HashMap<>();
+    // Key: ID Value: GameDataRecord
+    final private HashMap<Integer, GameData> gameDataTable = new HashMap<>();
 
     @Override
     public ListGamesResult listGames(Object listGamesRequest) throws DataAccessException {
@@ -19,14 +19,21 @@ public class MemoryGameDAO implements GameDAO {
         return null;
     }
 
+    public void addGame(GameData gameData){
+        gameDataTable.put(gameData.gameId(), gameData);
+    }
+
     @Override
     public JoinGamesResult joinGame(JoinGamesRequest joinGameRequest) throws DataAccessException {
         return null;
     }
 
     @Override
-    public GameData getGame(String gameID) throws DataAccessException {
-        return null;
+    public GameData getGame(int gameID) throws DataAccessException {
+        if (gameDataTable.containsKey(gameID)) {
+            return gameDataTable.get(gameID);
+        }
+        throw new DataAccessException("No game found.");
     }
 
     @Override
