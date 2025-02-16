@@ -14,15 +14,17 @@ public class MemoryAuthDAO implements AuthDAO {
         return authDataHashMap.get(authToken);
     }
 
-    public void deleteAuth(AuthData authData){
+    @Override
+    public void deleteAuth(AuthData authData) throws DataAccessException{
         authDataHashMap.remove(authData.authToken(), authData);
     }
-
-    public void addAuthToken(AuthData authData){
+    @Override
+    public void addAuthToken(AuthData authData) throws DataAccessException{
         authDataHashMap.put(authData.authToken(), authData);
     }
 
-    public void clearAuthDAO(){
+    @Override
+    public void clearAuthDAO() throws DataAccessException{
         authDataHashMap.clear();
     }
 }

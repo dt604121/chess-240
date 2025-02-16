@@ -97,8 +97,8 @@ public class Server {
 
     private Object clearHandler(Request req, Response res) throws DataAccessException {
         userService.clearUserDAOService();
-//        userService.clearGameDAO();
-//        userService.clearAuthDAO();
+        gameService.clearGameDAOService();
+        userService.clearAuthDAOService();
         res.status(204);
         return "";
     }

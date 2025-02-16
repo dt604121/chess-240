@@ -10,9 +10,6 @@ public interface GameDAO {
     CreateGamesResult createGames(CreateGamesRequest createGamesRequest) throws DataAccessException;
     JoinGamesResult joinGame(JoinGamesRequest joinGameRequest) throws DataAccessException;
     GameData getGame(String gameID) throws DataAccessException;
-    GameData updateGame(GameData gameData) throws DataAccessException;
-
-    GameData updateGame() throws DataAccessException;
-
     void clearGameDAO() throws DataAccessException;
+    GameData updateGame(GameData gameData) throws DataAccessException;
 }

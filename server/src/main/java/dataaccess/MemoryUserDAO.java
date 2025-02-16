@@ -9,8 +9,6 @@ public class MemoryUserDAO implements UserDAO {
     // Key: Username Value: UserDataRecord
     final private HashMap<String, UserData> userDataTable = new HashMap<>();
 
-    void clear(UserData u) throws DataAccessException {}
-
     @Override
     public UserData getUser(String username) throws DataAccessException{
         if (userDataTable.containsKey(username)){
@@ -30,7 +28,7 @@ public class MemoryUserDAO implements UserDAO {
 
     @Override
     public void clearUserDAO() throws DataAccessException {
-        return;
+        userDataTable.clear();
     }
 
     @Override

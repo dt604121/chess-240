@@ -3,7 +3,12 @@ package dataaccess;
 import exception.DataAccessException;
 import model.*;
 
+import java.util.HashMap;
+
 public class MemoryGameDAO implements GameDAO {
+    // Key: Username Value: GameDataRecord
+    final private HashMap<String, GameData> gameDataTable = new HashMap<>();
+
     @Override
     public ListGamesResult listGames(Object listGamesRequest) throws DataAccessException {
         return null;
@@ -30,13 +35,8 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public GameData updateGame() throws DataAccessException {
-        return null;
-    }
-
-    @Override
     public void clearGameDAO() throws DataAccessException {
-
+        gameDataTable.clear();
     }
 
 }

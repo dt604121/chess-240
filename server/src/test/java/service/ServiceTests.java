@@ -8,14 +8,8 @@ import exception.UnauthorizedException;
 import model.LoginRequest;
 import model.LoginResult;
 import model.UserData;
-import org.eclipse.jetty.util.log.Log;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import server.Server;
-import service.GameService;
-import service.UserService;
-
-import javax.xml.crypto.Data;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,6 +22,7 @@ public class ServiceTests {
 
     @BeforeEach
     void setUP() throws DataAccessException {
+        // Clear the DAO's
         memoryUserDAO.clearUserDAO();
         memoryAuthDAO.clearAuthDAO();
         memoryGameDAO.clearGameDAO();
@@ -35,7 +30,8 @@ public class ServiceTests {
         memoryUserDAO.addUser(userData);
         assertNotNull(memoryUserDAO.getUser("testUser"), "User should be added before login test");
     }
-
+    // Register
+    //
     // Login
     @Test
     void loginPositiveTest() throws DataAccessException, UnauthorizedException {
@@ -72,5 +68,18 @@ public class ServiceTests {
         LoginRequest emptyPasswordRequest = new LoginRequest("testUser", "");
 
         assertThrows(UnauthorizedException.class, () -> userService.login(emptyPasswordRequest));
+    }
+
+    // Logout
+    // List Games
+    // Create Game
+    // Join Game
+    // Clear
+    void clearApplicationTest() throws DataAccessException{
+        memoryUserDAO.addUser(new UserData("clearUser", "clear", "clearUser@email"));
+
+        memoryUserDAO.clearUserDAO();
+        memoryAuthDAO.clearAuthDAO();
+        memoryGameDAO.clearGameDAO();
     }
 }

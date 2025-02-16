@@ -8,6 +8,7 @@ import dataaccess.MemoryUserDAO;
 import exception.UnauthorizedException;
 import model.*;
 
+import javax.xml.crypto.Data;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -54,5 +55,9 @@ public class UserService {
 
     public void clearUserDAOService() throws DataAccessException {
         userDAO.clearUserDAO();
+    }
+
+    public void clearAuthDAOService() throws DataAccessException {
+        authDAO.clearAuthDAO();
     }
 }

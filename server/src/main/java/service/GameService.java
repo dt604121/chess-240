@@ -22,7 +22,7 @@ public class GameService {
         return gameDAO.joinGame(joinGameRequest);
     }
 
-    void clearGameDAO() throws DataAccessException{
+    public void clearGameDAOService() throws DataAccessException{
         gameDAO.clearGameDAO();
     }
 
@@ -30,7 +30,7 @@ public class GameService {
         return gameDAO.getGame(gameID);
     }
 
-//    public GameData updateGame(GameData) throws DataAccessException{
-//        return gameDAO.updateGame(GameData);
-//    }
+    public GameData updateGame(GameData gameData) throws DataAccessException{
+        return gameDAO.updateGame(gameData);
+    }
 }
