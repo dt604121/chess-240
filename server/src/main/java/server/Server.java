@@ -1,13 +1,14 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryUserDAO;
+import dataaccess.*;
 import exception.DataAccessException;
 import exception.UnauthorizedException;
 import model.*;
+import org.eclipse.jetty.server.Authentication;
 import service.GameService;
 import service.UserService;
+import service.ClearService;
 import spark.*;
 
 import java.util.Map;
@@ -15,10 +16,15 @@ import java.util.Map;
 public class Server {
     private final UserService userService;
     private final GameService gameService;
+    private final ClearService clearService;
 
-    public Server(UserService userService, GameService gameService) {
-        this.userService = userService;
-        this.gameService = gameService;
+    public Server() {
+        UserDAO userDAO = new MemoryUserDAO();
+        AuthDAO authDAO = new MemoryAuthDAO();
+        GameDAO gameDAO = new MemoryGameDAO();
+        this.userService = new UserService(userDAO, authDAO);
+        this.gameService = new GameService(gameDAO);
+        this.clearService = new ClearService(userDAO, authDAO, gameDAO);
     }
 
     public int run(int desiredPort) {
@@ -56,9 +62,7 @@ public class Server {
     private Object loginHandler(Request req, Response res) throws DataAccessException, UnauthorizedException {
         var loginRequest = new Gson().fromJson(req.body(), LoginRequest.class);
         try {
-            MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
-            MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
-            var loginResult = userService.loginService(loginRequest, memoryUserDAO, memoryAuthDAO);
+            var loginResult = userService.loginService(loginRequest);
             res.status(200);
             return new Gson().toJson(loginResult);
         } catch (DataAccessException e) {
@@ -97,9 +101,7 @@ public class Server {
 
     private Object clearHandler(Request req, Response res) throws DataAccessException {
         try {
-            userService.clearUserDAOService();
-            gameService.clearGameDAOService();
-            userService.clearAuthDAOService();
+            clearService.clearService();
             res.status(200);
             return "";
         } catch(DataAccessException e) {

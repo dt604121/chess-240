@@ -22,10 +22,6 @@ public class GameService {
         return gameDAO.joinGame(joinGameRequest);
     }
 
-    public void clearGameDAOService() throws DataAccessException{
-        gameDAO.clearGameDAO();
-    }
-
     public GameData getGame(int gameID) throws DataAccessException{
         return gameDAO.getGame(gameID);
     }

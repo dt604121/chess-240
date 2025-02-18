@@ -37,12 +37,7 @@ public class StandardAPITests {
 
     @BeforeAll
     public static void init() {
-        MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
-        MemoryGameDAO memoryGameDAO = new MemoryGameDAO();
-        MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
-        UserService userService = new UserService(memoryUserDAO, memoryAuthDAO);
-        GameService gameService = new GameService(memoryGameDAO);
-        Server server = new Server(userService, gameService);
+        Server server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
 

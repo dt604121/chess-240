@@ -3,12 +3,9 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
 import exception.DataAccessException;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryUserDAO;
 import exception.UnauthorizedException;
 import model.*;
 
-import javax.xml.crypto.Data;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -31,7 +28,7 @@ public class UserService {
         return authData;
     }
 
-    public LoginResult login(LoginRequest loginRequest)
+    public LoginResult loginService(LoginRequest loginRequest)
             throws DataAccessException, UnauthorizedException {
         UserData userData = userDAO.getUser(loginRequest.username());
         // check password
@@ -44,20 +41,7 @@ public class UserService {
         }
     }
 
-    public LoginResult loginService(LoginRequest loginRequest, MemoryUserDAO memoryUserDAO, MemoryAuthDAO memoryAuthDAO)
-            throws DataAccessException, UnauthorizedException {
-        return login(loginRequest);
-    }
-
     public void logout(LogoutRequest logoutRequest) throws DataAccessException {
         userDAO.logout(logoutRequest);
-    }
-
-    public void clearUserDAOService() throws DataAccessException {
-        userDAO.clearUserDAO();
-    }
-
-    public void clearAuthDAOService() throws DataAccessException {
-        authDAO.clearAuthDAO();
     }
 }

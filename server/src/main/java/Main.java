@@ -11,7 +11,7 @@ public class Main {
         // Phase 4: swap for sqlUserDAO
         UserService userService = new UserService(memoryUserDAO, memoryAuthDAO);
         GameService gameService = new GameService(memoryGameDAO);
-        Server server = new Server(userService, gameService);
+        Server server = new Server();
         server.run(8080);
     }
 }

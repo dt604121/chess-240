@@ -36,7 +36,7 @@ public class ServiceTests {
     void loginPositiveTest() throws DataAccessException, UnauthorizedException {
         // positive: empty -> assertTrue
         LoginRequest loginRequest = new LoginRequest("testUser", "1234");
-        LoginResult loginResult = userService.login(loginRequest);
+        LoginResult loginResult = userService.loginService(loginRequest);
 
         assertEquals(loginRequest.username(), loginResult.username());
         assertNotNull(loginResult.authToken());
@@ -46,27 +46,27 @@ public class ServiceTests {
         // negative: wrong password -> assertThrows
         LoginRequest invalidLoginRequest = new LoginRequest("testUser", "1233");
 
-        assertThrows(UnauthorizedException.class, () -> userService.login(invalidLoginRequest));
+        assertThrows(UnauthorizedException.class, () -> userService.loginService(invalidLoginRequest));
     }
     @Test
     void loginNonexistentUsernameTest() throws DataAccessException {
         // negative: nonexistent username -> assertThrows
         LoginRequest nonexistentUserRequest = new LoginRequest("nonExistentUser", "password");
 
-        assertThrows(DataAccessException.class, () -> userService.login(nonexistentUserRequest));
+        assertThrows(DataAccessException.class, () -> userService.loginService(nonexistentUserRequest));
     }
     @Test
     void loginEmptyUsernameTest() throws DataAccessException {
         // negative: empty username
         LoginRequest emptyUsernameRequest = new LoginRequest("", "password");
 
-        assertThrows(DataAccessException.class, () -> userService.login(emptyUsernameRequest));
+        assertThrows(DataAccessException.class, () -> userService.loginService(emptyUsernameRequest));
     }
     @Test
     void loginEmptyPasswordTest() throws UnauthorizedException {
         LoginRequest emptyPasswordRequest = new LoginRequest("testUser", "");
 
-        assertThrows(UnauthorizedException.class, () -> userService.login(emptyPasswordRequest));
+        assertThrows(UnauthorizedException.class, () -> userService.loginService(emptyPasswordRequest));
     }
 
     // Logout
