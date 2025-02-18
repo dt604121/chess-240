@@ -4,6 +4,10 @@ import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
 import dataaccess.GameDAO;
 import exception.DataAccessException;
+import model.AuthData;
+import model.UserData;
+
+import javax.xml.crypto.Data;
 
 public class ClearService {
     private final UserDAO userDAO;

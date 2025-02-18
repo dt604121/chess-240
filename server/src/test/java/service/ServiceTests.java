@@ -49,18 +49,18 @@ public class ServiceTests {
         assertThrows(UnauthorizedException.class, () -> userService.loginService(invalidLoginRequest));
     }
     @Test
-    void loginNonexistentUsernameTest() throws DataAccessException {
+    void loginNonexistentUsernameTest() throws UnauthorizedException {
         // negative: nonexistent username -> assertThrows
         LoginRequest nonexistentUserRequest = new LoginRequest("nonExistentUser", "password");
 
-        assertThrows(DataAccessException.class, () -> userService.loginService(nonexistentUserRequest));
+        assertThrows(UnauthorizedException.class, () -> userService.loginService(nonexistentUserRequest));
     }
     @Test
-    void loginEmptyUsernameTest() throws DataAccessException {
+    void loginEmptyUsernameTest() throws UnauthorizedException {
         // negative: empty username
         LoginRequest emptyUsernameRequest = new LoginRequest("", "password");
 
-        assertThrows(DataAccessException.class, () -> userService.loginService(emptyUsernameRequest));
+        assertThrows(UnauthorizedException.class, () -> userService.loginService(emptyUsernameRequest));
     }
     @Test
     void loginEmptyPasswordTest() throws UnauthorizedException {
@@ -70,12 +70,22 @@ public class ServiceTests {
     }
 
     // Logout
+    @Test
+    void logoutPositiveTest () throws DataAccessException, UnauthorizedException {
+//        LogoutRequest logoutRequest = new LogoutRequest("1234");
+//        LogoutResult logoutResult = userService.logoutService(logoutRequest);
+    }
+
+    @Test
+    void logoutNullAuthToken() throws DataAccessException, UnauthorizedException {
+
+    }
     // List Games
     // Create Game
     // Join Game
     // Clear
     @Test
-    void clearApplicationTest() throws DataAccessException{
+    void clearApplicationTest() throws DataAccessException {
         UserData userData = new UserData("clearUser", "clear", "clearUser@email");
         GameData gameData = new GameData(12, "whiteUsername", "blackUsername",
                 "gameName", new ChessGame());
@@ -89,11 +99,11 @@ public class ServiceTests {
         memoryGameDAO.clearGameDAO();
 
         // throws error if the data in the DAO still exists
-        assertThrows(DataAccessException.class, () -> memoryUserDAO.getUser("clearUser"),
+        assertNull(memoryUserDAO.getUser("clearUser"),
                 "UserDAO should be empty after clear.");
-        assertThrows(DataAccessException.class, () -> memoryGameDAO.getGame(12),
+        assertNull(memoryGameDAO.getGame(12),
                 "GameDAO should be empty after clear.");
-        assertThrows(DataAccessException.class, () -> memoryAuthDAO.getAuthToken("1234"),
+        assertNull(memoryAuthDAO.getAuthToken("1234"),
                 "AuthDAO should be empty after clear.");
     }
 }

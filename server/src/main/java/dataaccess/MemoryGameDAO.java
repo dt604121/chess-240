@@ -33,7 +33,7 @@ public class MemoryGameDAO implements GameDAO {
         if (gameDataTable.containsKey(gameID)) {
             return gameDataTable.get(gameID);
         }
-        throw new DataAccessException("No game found.");
+        return null;
     }
 
     @Override
@@ -42,7 +42,7 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public void clearGameDAO() throws DataAccessException {
+    public void clearGameDAO(){
         gameDataTable.clear();
     }
 

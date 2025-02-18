@@ -59,9 +59,7 @@ twoRows and checking for enemy pieces we do need to include boundary checking (s
 names). With leftPosition and rightPosition make sure to use those instead of position!
 
 ## Phase 1
-Implement validMoves -> makeMoves. Also need to make a helper function for movePiece. Need to go back through for code quality to improve DRYness. 
-
-## Phase 2
+Implement validMoves -> makeMoves. Also need to make a helper function for movePiece. Need to go back through for code quality to improve DRYness.
 
 ## Phase 3
 

@@ -28,20 +28,27 @@ public class UserService {
         return authData;
     }
 
-    public LoginResult loginService(LoginRequest loginRequest)
-            throws DataAccessException, UnauthorizedException {
+    public LoginResult loginService(LoginRequest loginRequest) throws DataAccessException, UnauthorizedException {
         UserData userData = userDAO.getUser(loginRequest.username());
         // check password
+        if (userData == null){
+            throw new UnauthorizedException("unauthorized");
+        }
+
         if (Objects.equals(loginRequest.password(), userData.password())){
             AuthData authData = createAndSaveAuthToken(userData.username());
             return new LoginResult(userData.username(), authData.authToken());
         }
+        throw new UnauthorizedException("unauthorized");
+    }
+
+    public void logoutService(LogoutRequest logoutRequest) throws DataAccessException, UnauthorizedException {
+        AuthData authData = authDAO.getAuthToken(logoutRequest.authtoken());
+        if (authData != null){
+            authDAO.deleteAuth(authData);
+        }
         else {
             throw new UnauthorizedException("unauthorized");
         }
-    }
-
-    public void logout(LogoutRequest logoutRequest) throws DataAccessException {
-        userDAO.logout(logoutRequest);
     }
 }

@@ -14,7 +14,7 @@ public class MemoryUserDAO implements UserDAO {
         if (userDataTable.containsKey(username)){
             return userDataTable.get(username);
         }
-        throw new DataAccessException("No user found.");
+        return null;
     }
 
     @Override
@@ -27,13 +27,8 @@ public class MemoryUserDAO implements UserDAO {
     }
 
     @Override
-    public void clearUserDAO() throws DataAccessException {
+    public void clearUserDAO(){
         userDataTable.clear();
-    }
-
-    @Override
-    public void logout(LogoutRequest logoutRequest) throws DataAccessException {
-
     }
 
     @Override

@@ -5,7 +5,6 @@ import dataaccess.*;
 import exception.DataAccessException;
 import exception.UnauthorizedException;
 import model.*;
-import org.eclipse.jetty.server.Authentication;
 import service.GameService;
 import service.UserService;
 import service.ClearService;
@@ -74,10 +73,19 @@ public class Server {
         }
     }
 
-    private Object logoutHandler(Request req, Response res) throws DataAccessException {
-        // var logoutRequest = new Gson().fromJson(req.body(), LogoutRequest.class);
-        // var logoutResult = userService.logout(logoutRequest);
-        return null;
+    private Object logoutHandler(Request req, Response res) throws DataAccessException, UnauthorizedException {
+         var logoutRequest = new Gson().fromJson(req.body(), LogoutRequest.class);
+         try {
+             userService.logoutService(logoutRequest);
+             res.status(200);
+             return "{}";
+         } catch (DataAccessException e) {
+             res.status(500);
+             return "Internal Service Error";
+         } catch (UnauthorizedException e) {
+             res.status(401);
+             return "Error: unauthorized\"";
+         }
     }
 
     private Object listGamesHandler(Request req, Response res) throws DataAccessException {
@@ -103,7 +111,7 @@ public class Server {
         try {
             clearService.clearService();
             res.status(200);
-            return "";
+            return "{}";
         } catch(DataAccessException e) {
             res.status(500);
             return "Internal Server Error";
