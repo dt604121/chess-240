@@ -31,10 +31,9 @@ public class ServiceTests {
         memoryUserDAO.addUser(userData);
         assertNotNull(memoryUserDAO.getUser("testUser"), "User should be added before login test");
     }
-    // Register TODO: test giving an error
     @Test
     void registerPositiveTest() throws DataAccessException, AlreadyTakenException, BadRequestException {
-        RegisterRequest registerRequest = new RegisterRequest("testUser", "1234",
+        RegisterRequest registerRequest = new RegisterRequest("userTest", "1234",
                 "testing@email.com");
         RegisterResult registerResult = userService.registerService(registerRequest);
 
@@ -43,7 +42,7 @@ public class ServiceTests {
     }
 
     @Test
-    void registerExisitingUserTest() throws AlreadyTakenException, DataAccessException {
+    void registerExistingUserTest() throws AlreadyTakenException, DataAccessException {
         UserData userData = new UserData("testUser", "1234", "testing@email.com");
         RegisterRequest registerExisitingUserRequest = new RegisterRequest("testUser", "1234",
                 "testing@email.com");
@@ -89,17 +88,15 @@ public class ServiceTests {
         assertThrows(UnauthorizedException.class, () -> userService.loginService(emptyPasswordRequest));
     }
 
-    // Logout - TODO: fix test
     @Test
     void logoutPositiveTest () throws DataAccessException, UnauthorizedException {
-        String authToken = "1234";
         AuthData authData = userService.createAndSaveAuthToken("testUser");
-        LogoutRequest logoutRequest = new LogoutRequest(authToken);
+        LogoutRequest logoutRequest = new LogoutRequest(authData.authToken());
         memoryAuthDAO.addAuthToken(authData);
-        assertNotNull(memoryAuthDAO.getAuthToken(authToken));
+        assertNotNull(memoryAuthDAO.getAuthToken(authData.authToken()));
 
         userService.logoutService(logoutRequest);
-        assertNull(memoryAuthDAO.getAuthToken(authToken));
+        assertNull(memoryAuthDAO.getAuthToken(authData.authToken()));
     }
     @Test
     void logoutNullAuthTokenTest() {

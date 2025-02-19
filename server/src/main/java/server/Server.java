@@ -64,13 +64,13 @@ public class Server {
             return new Gson().toJson(registerResult);
         } catch (BadRequestException e) {
             res.status(400);
-            return "Error: bad request";
+            return "{ \"message\": \"Error: bad request\" }";
         } catch (AlreadyTakenException e) {
             res.status(403);
-            return "Error: already taken";
+            return "{ \"message\": \"Error: already taken\" }";
         } catch (DataAccessException e) {
             res.status(500);
-            return "Internal Server Error";
+            return "{ \"message\": \"Error: (description of error)\" }";
         }
     }
 
@@ -82,10 +82,10 @@ public class Server {
             return new Gson().toJson(loginResult);
         } catch (UnauthorizedException e) {
             res.status(401);
-            return "Error: unauthorized\"";
+            return "{ \"message\": \"Error: unauthorized\" }";
         } catch (DataAccessException e) {
             res.status(500);
-            return "Internal Server Error";
+            return "{ \"message\": \"Error: (description of error)\" }";
         }
     }
 

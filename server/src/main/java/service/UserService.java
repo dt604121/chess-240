@@ -33,6 +33,7 @@ public class UserService {
         // new user
         UserData userData = userDAO.createUser(registerRequest.username(), registerRequest.password(),
                 registerRequest.email());
+        userDAO.addUser(userData);
         AuthData authData = createAndSaveAuthToken(userData.username());
         return new RegisterResult(userData.username(), authData.authToken());
     }
