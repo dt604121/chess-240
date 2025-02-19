@@ -4,6 +4,8 @@ import chess.ChessGame;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import dataaccess.MemoryUserDAO;
+import exception.AlreadyTakenException;
+import exception.BadRequestException;
 import exception.DataAccessException;
 import exception.UnauthorizedException;
 import model.*;
@@ -29,8 +31,26 @@ public class ServiceTests {
         memoryUserDAO.addUser(userData);
         assertNotNull(memoryUserDAO.getUser("testUser"), "User should be added before login test");
     }
-    // Register
-    //
+    // Register TODO: test giving an error
+    @Test
+    void registerPositiveTest() throws DataAccessException, AlreadyTakenException, BadRequestException {
+        RegisterRequest registerRequest = new RegisterRequest("testUser", "1234",
+                "testing@email.com");
+        RegisterResult registerResult = userService.registerService(registerRequest);
+
+        assertEquals(registerRequest.username(), registerResult.username());
+        assertNotNull(memoryAuthDAO.getAuthToken(registerResult.authToken()));
+    }
+
+    @Test
+    void registerExisitingUserTest() throws AlreadyTakenException, DataAccessException {
+        UserData userData = new UserData("testUser", "1234", "testing@email.com");
+        RegisterRequest registerExisitingUserRequest = new RegisterRequest("testUser", "1234",
+                "testing@email.com");
+
+        assertThrows(AlreadyTakenException.class, () -> userService.registerService(registerExisitingUserRequest));
+    }
+
     // Login
     @Test
     void loginPositiveTest() throws DataAccessException, UnauthorizedException {
@@ -69,11 +89,13 @@ public class ServiceTests {
         assertThrows(UnauthorizedException.class, () -> userService.loginService(emptyPasswordRequest));
     }
 
-    // Logout
+    // Logout - TODO: fix test
     @Test
     void logoutPositiveTest () throws DataAccessException, UnauthorizedException {
         String authToken = "1234";
+        AuthData authData = userService.createAndSaveAuthToken("testUser");
         LogoutRequest logoutRequest = new LogoutRequest(authToken);
+        memoryAuthDAO.addAuthToken(authData);
         assertNotNull(memoryAuthDAO.getAuthToken(authToken));
 
         userService.logoutService(logoutRequest);

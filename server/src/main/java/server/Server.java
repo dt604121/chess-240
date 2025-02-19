@@ -2,6 +2,8 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.*;
+import exception.AlreadyTakenException;
+import exception.BadRequestException;
 import exception.DataAccessException;
 import exception.UnauthorizedException;
 import model.*;
@@ -52,10 +54,24 @@ public class Server {
         Spark.awaitStop();
     }
 
-    private Object registerHandler(Request req, Response res) throws DataAccessException {
+    private Object registerHandler(Request req, Response res) {
+        // JSON -> Java Object (serialize)
         var registerRequest = new Gson().fromJson(req.body(), RegisterRequest.class);
-        var registerResult = userService.registerService(registerRequest);
-        return new Gson().toJson(registerResult);
+        try {
+            var registerResult = userService.registerService(registerRequest);
+            res.status(200);
+            // Java Object -> JSON (deserialize)
+            return new Gson().toJson(registerResult);
+        } catch (BadRequestException e) {
+            res.status(400);
+            return "Error: bad request";
+        } catch (AlreadyTakenException e) {
+            res.status(403);
+            return "Error: already taken";
+        } catch (DataAccessException e) {
+            res.status(500);
+            return "Internal Server Error";
+        }
     }
 
     private Object loginHandler(Request req, Response res) {
@@ -64,12 +80,12 @@ public class Server {
             var loginResult = userService.loginService(loginRequest);
             res.status(200);
             return new Gson().toJson(loginResult);
-        } catch (DataAccessException e) {
-            res.status(500);
-            return "Internal Server Error";
         } catch (UnauthorizedException e) {
             res.status(401);
             return "Error: unauthorized\"";
+        } catch (DataAccessException e) {
+            res.status(500);
+            return "Internal Server Error";
         }
     }
 

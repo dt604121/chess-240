@@ -2,6 +2,8 @@ package service;
 
 import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
+import exception.AlreadyTakenException;
+import exception.BadRequestException;
 import exception.DataAccessException;
 import exception.UnauthorizedException;
 import model.*;
@@ -17,8 +19,22 @@ public class UserService {
         this.userDAO = userDAO;
         this.authDAO = authDAO;
     }
-    public RegisterResult registerService(RegisterRequest registerRequest) throws DataAccessException {
-        return userDAO.register(registerRequest);
+    public RegisterResult registerService(RegisterRequest registerRequest) throws DataAccessException,
+            AlreadyTakenException, BadRequestException {
+        // null field(s)
+        if (registerRequest.password() == null | registerRequest.username() == null | registerRequest.email() == null){
+            throw new BadRequestException("unauthorized");
+        }
+        // username exists already
+        UserData existingUser = userDAO.getUser(registerRequest.username());
+        if (existingUser != null) {
+            throw new AlreadyTakenException("Username already taken");
+        }
+        // new user
+        UserData userData = userDAO.createUser(registerRequest.username(), registerRequest.password(),
+                registerRequest.email());
+        AuthData authData = createAndSaveAuthToken(userData.username());
+        return new RegisterResult(userData.username(), authData.authToken());
     }
 
     public AuthData createAndSaveAuthToken(String username) throws DataAccessException {

@@ -18,8 +18,8 @@ public class MemoryUserDAO implements UserDAO {
     }
 
     @Override
-    public UserData createUser(Object userData) throws DataAccessException {
-        return null;
+    public UserData createUser(String username, String password, String email) throws DataAccessException {
+        return new UserData(username, password, email);
     }
 
     public void addUser(UserData userData) throws DataAccessException{
@@ -29,10 +29,5 @@ public class MemoryUserDAO implements UserDAO {
     @Override
     public void clearUserDAO() throws DataAccessException{
         userDataTable.clear();
-    }
-
-    @Override
-    public RegisterResult register(RegisterRequest registerRequest) {
-        return null;
     }
 }
