@@ -18,21 +18,21 @@ public class MemoryUserDAO implements UserDAO {
     }
 
     @Override
-    public UserData createUser(Object UserData) throws DataAccessException {
+    public UserData createUser(Object userData) throws DataAccessException {
         return null;
     }
 
-    public void addUser(UserData userData){
+    public void addUser(UserData userData) throws DataAccessException{
         userDataTable.put(userData.username(), userData);
     }
 
     @Override
-    public void clearUserDAO(){
+    public void clearUserDAO() throws DataAccessException{
         userDataTable.clear();
     }
 
     @Override
-    public RegisterResult register(RegisterRequest registerRequest) throws DataAccessException {
+    public RegisterResult register(RegisterRequest registerRequest) {
         return null;
     }
 }

@@ -102,7 +102,7 @@ public class Server {
 
     private Object joinGameHandler(Request req, Response res) throws DataAccessException{
         var joinGamesRequest = new Gson().fromJson(req.body(), JoinGamesRequest.class);
-        var joinGamesResult = gameService.JoinGameService(joinGamesRequest);
+        var joinGamesResult = gameService.joinGameService(joinGamesRequest);
         return new Gson().toJson(joinGamesResult);
     }
 

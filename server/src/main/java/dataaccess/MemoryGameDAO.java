@@ -19,7 +19,7 @@ public class MemoryGameDAO implements GameDAO {
         return null;
     }
 
-    public void addGame(GameData gameData){
+    public void addGame(GameData gameData) throws DataAccessException{
         gameDataTable.put(gameData.gameId(), gameData);
     }
 
@@ -29,7 +29,7 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public GameData getGame(int gameID) {
+    public GameData getGame(int gameID) throws DataAccessException{
         if (gameDataTable.containsKey(gameID)) {
             return gameDataTable.get(gameID);
         }
@@ -42,7 +42,7 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public void clearGameDAO(){
+    public void clearGameDAO() throws DataAccessException{
         gameDataTable.clear();
     }
 

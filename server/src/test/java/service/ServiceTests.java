@@ -122,7 +122,7 @@ public class ServiceTests {
     @Test
     void joinGamePositiveTest() throws DataAccessException {
         JoinGamesRequest joinGameRequest = new JoinGamesRequest("WHITE", 1234, "1233");
-        JoinGamesResult joinGameResult = gameService.JoinGameService(joinGameRequest);
+        JoinGamesResult joinGameResult = gameService.joinGameService(joinGameRequest);
 
         assertNotNull(joinGameResult);
     }
@@ -130,7 +130,7 @@ public class ServiceTests {
     void joinGameUnauthorizedTest() throws DataAccessException {
         JoinGamesRequest joinGameUnauthorizedRequest = new JoinGamesRequest("white", 1234,
                 null);
-        JoinGamesResult joinGameUnauthorizedResult = gameService.JoinGameService(joinGameUnauthorizedRequest);
+        JoinGamesResult joinGameUnauthorizedResult = gameService.joinGameService(joinGameUnauthorizedRequest);
 
         assertNull(joinGameUnauthorizedResult);
     }

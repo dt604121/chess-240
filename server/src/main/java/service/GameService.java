@@ -18,7 +18,7 @@ public class GameService {
         return gameDAO.createGames(createGameRequest);
     }
 
-    public JoinGamesResult JoinGameService(JoinGamesRequest joinGameRequest) throws DataAccessException {
+    public JoinGamesResult joinGameService(JoinGamesRequest joinGameRequest) throws DataAccessException {
         return gameDAO.joinGame(joinGameRequest);
     }
 
