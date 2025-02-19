@@ -58,7 +58,7 @@ public class Server {
         return new Gson().toJson(registerResult);
     }
 
-    private Object loginHandler(Request req, Response res) throws DataAccessException, UnauthorizedException {
+    private Object loginHandler(Request req, Response res) {
         var loginRequest = new Gson().fromJson(req.body(), LoginRequest.class);
         try {
             var loginResult = userService.loginService(loginRequest);
@@ -73,7 +73,7 @@ public class Server {
         }
     }
 
-    private Object logoutHandler(Request req, Response res) throws DataAccessException, UnauthorizedException {
+    private Object logoutHandler(Request req, Response res) {
          var logoutRequest = new Gson().fromJson(req.body(), LogoutRequest.class);
          try {
              userService.logoutService(logoutRequest);
@@ -89,30 +89,29 @@ public class Server {
     }
 
     private Object listGamesHandler(Request req, Response res) throws DataAccessException {
-        // TODO: best guess?
         var listGamesRequest = new Gson().fromJson(req.body(), ListGamesRequest.class);
-        var listGamesResult = gameService.listGames(listGamesRequest);
+        var listGamesResult = gameService.listGamesService(listGamesRequest);
         return new Gson().toJson(Map.of("games", listGamesResult));
     }
 
     private Object createGamesHandler(Request req, Response res) throws DataAccessException {
-        var createGamesRequest = new Gson().fromJson(req.body(), CreateGamesRequest.class);
-        var createGamesResult = gameService.createGames(createGamesRequest);
+        var createGamesRequest = new Gson().fromJson(req.body(), CreateGameRequest.class);
+        var createGamesResult = gameService.createGameService(createGamesRequest);
         return new Gson().toJson(createGamesResult);
     }
 
     private Object joinGameHandler(Request req, Response res) throws DataAccessException{
         var joinGamesRequest = new Gson().fromJson(req.body(), JoinGamesRequest.class);
-        var joinGamesResult = gameService.joinGame(joinGamesRequest);
+        var joinGamesResult = gameService.JoinGameService(joinGamesRequest);
         return new Gson().toJson(joinGamesResult);
     }
 
-    private Object clearHandler(Request req, Response res) throws DataAccessException {
+    private Object clearHandler(Request req, Response res) {
         try {
             clearService.clearService();
             res.status(200);
             return "{}";
-        } catch(DataAccessException e) {
+        } catch (DataAccessException e) {
             res.status(500);
             return "Internal Server Error";
         }

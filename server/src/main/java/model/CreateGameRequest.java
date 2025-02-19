@@ -1,5 +1,5 @@
 package model;
 
-public record CreateGamesRequest(
+public record CreateGameRequest(
         String gameName) {
 }

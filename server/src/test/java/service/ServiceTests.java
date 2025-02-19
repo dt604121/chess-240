@@ -42,28 +42,28 @@ public class ServiceTests {
         assertNotNull(loginResult.authToken());
     }
     @Test
-    void loginInvalidPasswordTest() throws UnauthorizedException {
+    void loginInvalidPasswordTest() {
         // negative: wrong password -> assertThrows
         LoginRequest invalidLoginRequest = new LoginRequest("testUser", "1233");
 
         assertThrows(UnauthorizedException.class, () -> userService.loginService(invalidLoginRequest));
     }
     @Test
-    void loginNonexistentUsernameTest() throws UnauthorizedException {
+    void loginNonexistentUsernameTest() {
         // negative: nonexistent username -> assertThrows
         LoginRequest nonexistentUserRequest = new LoginRequest("nonExistentUser", "password");
 
         assertThrows(UnauthorizedException.class, () -> userService.loginService(nonexistentUserRequest));
     }
     @Test
-    void loginEmptyUsernameTest() throws UnauthorizedException {
+    void loginEmptyUsernameTest() {
         // negative: empty username
         LoginRequest emptyUsernameRequest = new LoginRequest("", "password");
 
         assertThrows(UnauthorizedException.class, () -> userService.loginService(emptyUsernameRequest));
     }
     @Test
-    void loginEmptyPasswordTest() throws UnauthorizedException {
+    void loginEmptyPasswordTest() {
         LoginRequest emptyPasswordRequest = new LoginRequest("testUser", "");
 
         assertThrows(UnauthorizedException.class, () -> userService.loginService(emptyPasswordRequest));
@@ -72,17 +72,69 @@ public class ServiceTests {
     // Logout
     @Test
     void logoutPositiveTest () throws DataAccessException, UnauthorizedException {
-//        LogoutRequest logoutRequest = new LogoutRequest("1234");
-//        LogoutResult logoutResult = userService.logoutService(logoutRequest);
-    }
+        String authToken = "1234";
+        LogoutRequest logoutRequest = new LogoutRequest(authToken);
+        assertNotNull(memoryAuthDAO.getAuthToken(authToken));
 
+        userService.logoutService(logoutRequest);
+        assertNull(memoryAuthDAO.getAuthToken(authToken));
+    }
     @Test
-    void logoutNullAuthToken() throws DataAccessException, UnauthorizedException {
+    void logoutNullAuthTokenTest() {
+        LogoutRequest logoutNullRequest = new LogoutRequest(null);
 
+        assertThrows(UnauthorizedException.class, () -> userService.logoutService(logoutNullRequest));
     }
+
     // List Games
+    @Test
+    void listGamesPositiveTest() throws DataAccessException {
+        ListGamesRequest listGamesRequest = new ListGamesRequest("1234");
+        ListGamesResult listGamesResult = gameService.listGamesService(listGamesRequest);
+
+        assertNotNull(listGamesResult);
+    }
+    @Test
+    void listGamesUnauthorizedTest() throws DataAccessException {
+        ListGamesRequest listGamesUnauthorizedRequest = new ListGamesRequest("1234");
+        ListGamesResult listGamesUnauthorizedResult = gameService.listGamesService(listGamesUnauthorizedRequest);
+
+        assertNull(listGamesUnauthorizedResult);
+    }
+
     // Create Game
+    @Test
+    void createGamePositiveTest() throws DataAccessException {
+        CreateGameRequest createGameRequest = new CreateGameRequest("gameName");
+        CreateGameResult createGameResult = gameService.createGameService(createGameRequest);
+
+        assertNotNull(createGameResult);
+    }
+    @Test
+    void createGameUnauthorizedTest() throws DataAccessException {
+        CreateGameRequest createGameUnauthorizedRequest = new CreateGameRequest(null);
+        CreateGameResult createGameUnauthorizedResult = gameService.createGameService(createGameUnauthorizedRequest);
+
+        assertNull(createGameUnauthorizedResult);
+    }
+
     // Join Game
+    @Test
+    void joinGamePositiveTest() throws DataAccessException {
+        JoinGamesRequest joinGameRequest = new JoinGamesRequest("WHITE", 1234, "1233");
+        JoinGamesResult joinGameResult = gameService.JoinGameService(joinGameRequest);
+
+        assertNotNull(joinGameResult);
+    }
+    @Test
+    void joinGameUnauthorizedTest() throws DataAccessException {
+        JoinGamesRequest joinGameUnauthorizedRequest = new JoinGamesRequest("white", 1234,
+                null);
+        JoinGamesResult joinGameUnauthorizedResult = gameService.JoinGameService(joinGameUnauthorizedRequest);
+
+        assertNull(joinGameUnauthorizedResult);
+    }
+
     // Clear
     @Test
     void clearApplicationTest() throws DataAccessException {

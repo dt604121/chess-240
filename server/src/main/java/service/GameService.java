@@ -10,15 +10,15 @@ public class GameService {
     public GameService(GameDAO gameDAO){
         this.gameDAO = gameDAO;
     }
-    public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws DataAccessException {
+    public ListGamesResult listGamesService(ListGamesRequest listGamesRequest) throws DataAccessException {
         return gameDAO.listGames(listGamesRequest);
     }
 
-    public CreateGamesResult createGames(CreateGamesRequest createGamesRequest) throws DataAccessException{
-        return gameDAO.createGames(createGamesRequest);
+    public CreateGameResult createGameService(CreateGameRequest createGameRequest) throws DataAccessException{
+        return gameDAO.createGames(createGameRequest);
     }
 
-    public JoinGamesResult joinGame(JoinGamesRequest joinGameRequest) throws DataAccessException {
+    public JoinGamesResult JoinGameService(JoinGamesRequest joinGameRequest) throws DataAccessException {
         return gameDAO.joinGame(joinGameRequest);
     }
 

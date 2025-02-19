@@ -15,7 +15,7 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public CreateGamesResult createGames(CreateGamesRequest createGamesRequest) throws DataAccessException {
+    public CreateGameResult createGames(CreateGameRequest createGameRequest) throws DataAccessException {
         return null;
     }
 
@@ -29,7 +29,7 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public GameData getGame(int gameID) throws DataAccessException {
+    public GameData getGame(int gameID) {
         if (gameDataTable.containsKey(gameID)) {
             return gameDataTable.get(gameID);
         }
