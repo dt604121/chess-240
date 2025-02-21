@@ -22,7 +22,7 @@ public class ServiceTests {
     GameService gameService = new GameService(memoryGameDAO);
 
     @BeforeEach
-    void setUP() throws DataAccessException {
+    void setUP() {
         // Clear the DAO's
         memoryUserDAO.clearUserDAO();
         memoryAuthDAO.clearAuthDAO();
@@ -42,12 +42,11 @@ public class ServiceTests {
     }
 
     @Test
-    void registerExistingUserTest() throws AlreadyTakenException, DataAccessException {
-        UserData userData = new UserData("testUser", "1234", "testing@email.com");
-        RegisterRequest registerExisitingUserRequest = new RegisterRequest("testUser", "1234",
+    void registerExistingUserTest() {
+        RegisterRequest registerExistingUserRequest = new RegisterRequest("testUser", "1234",
                 "testing@email.com");
 
-        assertThrows(AlreadyTakenException.class, () -> userService.registerService(registerExisitingUserRequest));
+        assertThrows(AlreadyTakenException.class, () -> userService.registerService(registerExistingUserRequest));
     }
 
     // Login
@@ -123,15 +122,15 @@ public class ServiceTests {
 
     // Create Game
     @Test
-    void createGamePositiveTest() throws DataAccessException {
-        CreateGameRequest createGameRequest = new CreateGameRequest("gameName");
+    void createGamePositiveTest() throws DataAccessException, UnauthorizedException, BadRequestException {
+        CreateGameRequest createGameRequest = new CreateGameRequest("gameName", "1234");
         CreateGameResult createGameResult = gameService.createGameService(createGameRequest);
 
         assertNotNull(createGameResult);
     }
     @Test
-    void createGameUnauthorizedTest() throws DataAccessException {
-        CreateGameRequest createGameUnauthorizedRequest = new CreateGameRequest(null);
+    void createGameUnauthorizedTest() throws DataAccessException, UnauthorizedException, BadRequestException {
+        CreateGameRequest createGameUnauthorizedRequest = new CreateGameRequest(null, null);
         CreateGameResult createGameUnauthorizedResult = gameService.createGameService(createGameUnauthorizedRequest);
 
         assertNull(createGameUnauthorizedResult);
@@ -139,14 +138,14 @@ public class ServiceTests {
 
     // Join Game
     @Test
-    void joinGamePositiveTest() throws DataAccessException {
+    void joinGamePositiveTest() throws DataAccessException, UnauthorizedException, BadRequestException, AlreadyTakenException {
         JoinGamesRequest joinGameRequest = new JoinGamesRequest("WHITE", 1234, "1233");
         JoinGamesResult joinGameResult = gameService.joinGameService(joinGameRequest);
 
         assertNotNull(joinGameResult);
     }
     @Test
-    void joinGameUnauthorizedTest() throws DataAccessException {
+    void joinGameUnauthorizedTest() throws DataAccessException, UnauthorizedException, BadRequestException, AlreadyTakenException {
         JoinGamesRequest joinGameUnauthorizedRequest = new JoinGamesRequest("white", 1234,
                 null);
         JoinGamesResult joinGameUnauthorizedResult = gameService.joinGameService(joinGameUnauthorizedRequest);

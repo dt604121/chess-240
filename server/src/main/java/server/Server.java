@@ -12,7 +12,6 @@ import service.UserService;
 import service.ClearService;
 import spark.*;
 
-import javax.xml.crypto.Data;
 import java.util.Map;
 
 public class Server {
@@ -111,7 +110,7 @@ public class Server {
         return new Gson().toJson(Map.of("games", listGamesResult));
     }
 
-    private Object createGamesHandler(Request req, Response res) throws DataAccessException {
+    private Object createGamesHandler(Request req, Response res) {
         var createGamesRequest = new Gson().fromJson(req.body(), CreateGameRequest.class);
         try {
             var createGamesResult = gameService.createGameService(createGamesRequest);
@@ -129,7 +128,7 @@ public class Server {
         }
     }
 
-    private Object joinGameHandler(Request req, Response res) throws DataAccessException{
+    private Object joinGameHandler(Request req, Response res) {
         var joinGamesRequest = new Gson().fromJson(req.body(), JoinGamesRequest.class);
         try {
             var joinGamesResult = gameService.joinGameService(joinGamesRequest);
@@ -148,7 +147,6 @@ public class Server {
             res.status(500);
             return "{ \"message\": \"Error: (description of error)\" }";
         }
-
     }
 
     private Object clearHandler(Request req, Response res) {

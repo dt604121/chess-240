@@ -1,6 +1,4 @@
 package dataaccess;
-
-import exception.DataAccessException;
 import model.AuthData;
 
 import java.util.HashMap;
@@ -10,21 +8,21 @@ public class MemoryAuthDAO implements AuthDAO {
     final private HashMap<String, AuthData> authDataHashMap = new HashMap<>();
 
     @Override
-    public AuthData getAuthToken(String authToken) throws DataAccessException {
+    public AuthData getAuthToken(String authToken) {
         return authDataHashMap.get(authToken);
     }
 
     @Override
-    public void deleteAuth(AuthData authData) throws DataAccessException{
+    public void deleteAuth(AuthData authData) {
         authDataHashMap.remove(authData.authToken(), authData);
     }
     @Override
-    public void addAuthToken(AuthData authData) throws DataAccessException{
+    public void addAuthToken(AuthData authData) {
         authDataHashMap.put(authData.authToken(), authData);
     }
 
     @Override
-    public void clearAuthDAO() throws DataAccessException{
+    public void clearAuthDAO() {
         authDataHashMap.clear();
     }
 }

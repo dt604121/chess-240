@@ -1,6 +1,5 @@
 package dataaccess;
 
-import exception.DataAccessException;
 import model.*;
 
 import java.util.HashMap;
@@ -10,7 +9,7 @@ public class MemoryUserDAO implements UserDAO {
     final private HashMap<String, UserData> userDataTable = new HashMap<>();
 
     @Override
-    public UserData getUser(String username) throws DataAccessException{
+    public UserData getUser(String username) {
         if (userDataTable.containsKey(username)){
             return userDataTable.get(username);
         }
@@ -18,17 +17,17 @@ public class MemoryUserDAO implements UserDAO {
     }
 
     @Override
-    public UserData createUser(String username, String password, String email) throws DataAccessException {
+    public UserData createUser(String username, String password, String email) {
         return new UserData(username, password, email);
     }
 
     @Override
-    public void addUser(UserData userData) throws DataAccessException{
+    public void addUser(UserData userData){
         userDataTable.put(userData.username(), userData);
     }
 
     @Override
-    public void clearUserDAO() throws DataAccessException{
+    public void clearUserDAO() {
         userDataTable.clear();
     }
 }
