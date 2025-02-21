@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import exception.DataAccessException;
 import model.*;
 
@@ -15,8 +16,8 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public CreateGameResult createGames(CreateGameRequest createGameRequest) throws DataAccessException {
-        return null;
+    public GameData createGame(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game) throws DataAccessException {
+        return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
     }
 
     public void addGame(GameData gameData) throws DataAccessException{

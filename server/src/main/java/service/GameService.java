@@ -1,8 +1,12 @@
 package service;
 
 import dataaccess.GameDAO;
+import exception.BadRequestException;
 import exception.DataAccessException;
+import exception.UnauthorizedException;
 import model.*;
+
+import java.util.Objects;
 
 public class GameService {
     private final GameDAO gameDAO;
@@ -14,19 +18,26 @@ public class GameService {
         return gameDAO.listGames(listGamesRequest);
     }
 
-    public CreateGameResult createGameService(CreateGameRequest createGameRequest) throws DataAccessException{
-        return gameDAO.createGames(createGameRequest);
+    public CreateGameResult createGameService(CreateGameRequest createGameRequest) throws DataAccessException,
+            BadRequestException, UnauthorizedException {
+
+        if (createGameRequest.gameName() == null){
+            throw new BadRequestException("unauthorized");
+        }
+
+        if (createGameRequest.authToken() == null) {
+            throw new UnauthorizedException("unauthorized");
+        }
+
+        GameData gameData = gameDAO.createGame();
+        return new CreateGameResult();
     }
 
-    public JoinGamesResult joinGameService(JoinGamesRequest joinGameRequest) throws DataAccessException {
+    public JoinGamesResult joinGameService(JoinGamesRequest joinGameRequest) throws DataAccessException,
+            BadRequestException{
+        if (joinGameRequest.playerColor() == null | joinGameRequest.authToken() == null) {
+            throw new BadRequestException("unauthorized");
+        }
         return gameDAO.joinGame(joinGameRequest);
-    }
-
-    public GameData getGame(int gameID) throws DataAccessException{
-        return gameDAO.getGame(gameID);
-    }
-
-    public GameData updateGame(GameData gameData) throws DataAccessException{
-        return gameDAO.updateGame(gameData);
     }
 }

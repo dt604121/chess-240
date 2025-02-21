@@ -12,6 +12,7 @@ import service.UserService;
 import service.ClearService;
 import spark.*;
 
+import javax.xml.crypto.Data;
 import java.util.Map;
 
 public class Server {
@@ -112,14 +113,42 @@ public class Server {
 
     private Object createGamesHandler(Request req, Response res) throws DataAccessException {
         var createGamesRequest = new Gson().fromJson(req.body(), CreateGameRequest.class);
-        var createGamesResult = gameService.createGameService(createGamesRequest);
-        return new Gson().toJson(createGamesResult);
+        try {
+            var createGamesResult = gameService.createGameService(createGamesRequest);
+            res.status(200);
+            return new Gson().toJson(createGamesResult);
+        } catch (BadRequestException e){
+            res.status(400);
+            return "{ \"message\": \"Error: bad request\" }";
+        } catch (UnauthorizedException e) {
+            res.status(401);
+            return "{ \"message\": \"Error: unauthorized\" }";
+        } catch (DataAccessException e) {
+            res.status(500);
+            return "{ \"message\": \"Error: (description of error)\" }";
+        }
     }
 
     private Object joinGameHandler(Request req, Response res) throws DataAccessException{
         var joinGamesRequest = new Gson().fromJson(req.body(), JoinGamesRequest.class);
-        var joinGamesResult = gameService.joinGameService(joinGamesRequest);
-        return new Gson().toJson(joinGamesResult);
+        try {
+            var joinGamesResult = gameService.joinGameService(joinGamesRequest);
+            res.status(200);
+            return new Gson().toJson(joinGamesResult);
+        } catch (BadRequestException e) {
+            res.status(400);
+            return "{ \"message\": \"Error: bad request\" }";
+        } catch (UnauthorizedException e) {
+            res.status(401);
+            return "{ \"message\": \"Error: unauthorized\" }";
+        } catch (AlreadyTakenException e) {
+            res.status(403);
+            return "{ \"message\": \"Error: already taken\" }";
+        } catch (DataAccessException e) {
+            res.status(500);
+            return "{ \"message\": \"Error: (description of error)\" }";
+        }
+
     }
 
     private Object clearHandler(Request req, Response res) {
@@ -129,7 +158,7 @@ public class Server {
             return "{}";
         } catch (DataAccessException e) {
             res.status(500);
-            return "Internal Server Error";
+            return "{ \"message\": \"Error: (description of error)\" }";
         }
     }
 }
