@@ -20,6 +20,7 @@ public class MemoryGameDAO implements GameDAO {
         return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
     }
 
+    @Override
     public void addGame(GameData gameData) {
         gameDataTable.put(gameData.gameId(), gameData);
     }

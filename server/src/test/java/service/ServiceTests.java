@@ -19,7 +19,7 @@ public class ServiceTests {
     MemoryGameDAO memoryGameDAO = new MemoryGameDAO();
     MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
     UserService userService = new UserService(memoryUserDAO, memoryAuthDAO);
-    GameService gameService = new GameService(memoryGameDAO);
+    GameService gameService = new GameService(memoryGameDAO, memoryAuthDAO);
 
     @BeforeEach
     void setUP() {

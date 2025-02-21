@@ -24,7 +24,7 @@ public class Server {
         AuthDAO authDAO = new MemoryAuthDAO();
         GameDAO gameDAO = new MemoryGameDAO();
         this.userService = new UserService(userDAO, authDAO);
-        this.gameService = new GameService(gameDAO);
+        this.gameService = new GameService(gameDAO, authDAO);
         this.clearService = new ClearService(userDAO, authDAO, gameDAO);
     }
 
