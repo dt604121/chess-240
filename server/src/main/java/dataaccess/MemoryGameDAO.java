@@ -11,23 +11,13 @@ public class MemoryGameDAO implements GameDAO {
 
     @Override
     public ListGamesResult listGames(Object listGamesRequest) {
+        // TODO: implement listGames
         return null;
-    }
-
-    @Override
-    public GameData createGame(int gameID, String whiteUsername, String blackUsername, String gameName,
-                               ChessGame game) {
-        return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
     }
 
     @Override
     public void addGame(GameData gameData) {
         gameDataTable.put(gameData.gameId(), gameData);
-    }
-
-    @Override
-    public JoinGamesResult joinGame(JoinGamesRequest joinGameRequest) {
-        return null;
     }
 
     @Override
@@ -38,9 +28,10 @@ public class MemoryGameDAO implements GameDAO {
         return null;
     }
 
+    // TODO: how do we update the team color?
     @Override
-    public GameData updateGame(GameData gameData) {
-        return null;
+    public void updateGame(GameData gameData) {
+        gameDataTable.put(gameData.gameId(), gameData);
     }
 
     @Override

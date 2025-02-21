@@ -118,6 +118,7 @@ public class ServiceTests {
         ListGamesResult listGamesUnauthorizedResult = gameService.listGamesService(listGamesUnauthorizedRequest);
 
         assertNull(listGamesUnauthorizedResult);
+        assertThrows(UnauthorizedException.class, () -> gameService.listGamesService(listGamesUnauthorizedRequest));
     }
 
     // Create Game
@@ -134,6 +135,7 @@ public class ServiceTests {
         CreateGameResult createGameUnauthorizedResult = gameService.createGameService(createGameUnauthorizedRequest);
 
         assertNull(createGameUnauthorizedResult);
+        assertThrows(UnauthorizedException.class, () -> gameService.createGameService(createGameUnauthorizedRequest));
     }
 
     // Join Game
@@ -151,6 +153,7 @@ public class ServiceTests {
         JoinGamesResult joinGameUnauthorizedResult = gameService.joinGameService(joinGameUnauthorizedRequest);
 
         assertNull(joinGameUnauthorizedResult);
+        assertThrows(UnauthorizedException.class, () -> gameService.joinGameService(joinGameUnauthorizedRequest));
     }
 
     // Clear

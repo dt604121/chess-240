@@ -19,8 +19,14 @@ public class GameService {
         this.authDAO = authDAO;
     }
 
-    public ListGamesResult listGamesService(ListGamesRequest listGamesRequest) throws DataAccessException {
-        return gameDAO.listGames(listGamesRequest);
+    public ListGamesResult listGamesService(ListGamesRequest listGamesRequest) throws DataAccessException, UnauthorizedException {
+        // authenticate
+        AuthData authData = authDAO.getAuthToken(listGamesRequest.authToken());
+        if (authData == null){
+            throw new UnauthorizedException("Error: unauthorized");
+        }
+        gameDAO.listGames(listGamesRequest);
+        return new ListGamesResult();
     }
 
     public int createAndSaveGameID(String gameName) throws DataAccessException {
@@ -55,17 +61,33 @@ public class GameService {
 
     public JoinGamesResult joinGameService(JoinGamesRequest joinGameRequest) throws DataAccessException,
             BadRequestException, UnauthorizedException, AlreadyTakenException {
-        if (joinGameRequest.playerColor() == null | joinGameRequest.authToken() == null) {
-            throw new BadRequestException("unauthorized");
+        if (joinGameRequest.playerColor() == null || joinGameRequest.authToken() == null) {
+            throw new BadRequestException("\"Error: bad request\"");
         }
-        if (joinGameRequest.authToken() == null) {
-            throw new UnauthorizedException("unauthorized");
+
+        // authenticate
+        AuthData authData = authDAO.getAuthToken(joinGameRequest.authToken());
+        if (authData == null){
+            throw new UnauthorizedException("Error: unauthorized");
         }
+        String username = authData.username();
         // exists already
         GameData existingGame = gameDAO.getGame(joinGameRequest.gameID());
-        if (existingGame != null) {
+        if (existingGame == null) {
             throw new AlreadyTakenException("Username already taken");
         }
-        return gameDAO.joinGame(joinGameRequest);
+
+        if ("WHITE".equals(joinGameRequest.playerColor()) && existingGame.whiteUsername() != null) {
+            throw new AlreadyTakenException("Error: already taken");
+        }
+
+        if ("BLACK".equals(joinGameRequest.playerColor()) && existingGame.blackUsername() != null) {
+            throw new AlreadyTakenException("Error: already taken");
+        }
+
+        // TODO: update the whiteUsername / blackUsername
+
+        gameDAO.updateGame(existingGame);
+        return new JoinGamesResult();
     }
 }

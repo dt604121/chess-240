@@ -106,8 +106,17 @@ public class Server {
 
     private Object listGamesHandler(Request req, Response res) throws DataAccessException {
         var listGamesRequest = new Gson().fromJson(req.body(), ListGamesRequest.class);
-        var listGamesResult = gameService.listGamesService(listGamesRequest);
-        return new Gson().toJson(Map.of("games", listGamesResult));
+        try {
+            var listGamesResult = gameService.listGamesService(listGamesRequest);
+            res.status(200);
+            return new Gson().toJson(Map.of("games", listGamesResult));
+        } catch (UnauthorizedException e) {
+            res.status(401);
+            return "{ \"message\": \"Error: unauthorized\" }";
+        } catch (DataAccessException e) {
+            res.status(500);
+            return "{ \"message\": \"Error: (description of error)\" }";
+        }
     }
 
     private Object createGamesHandler(Request req, Response res) {
