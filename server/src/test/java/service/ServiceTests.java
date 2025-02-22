@@ -105,10 +105,14 @@ public class ServiceTests {
     // List Games
     @Test
     void listGamesPositiveTest() throws DataAccessException, UnauthorizedException {
-        ListGamesRequest listGamesRequest = new ListGamesRequest("1234");
+        GameData game1 = new GameData(2,"whiteUsername", "blackUsername",
+                "gameName", null);
+        AuthData authData = userService.createAndSaveAuthToken("testUser");
+        ListGamesRequest listGamesRequest = new ListGamesRequest(authData.authToken());
         ListGamesResult listGamesResult = gameService.listGamesService(listGamesRequest);
 
         assertNotNull(listGamesResult);
+        assertTrue(listGamesResult.games().contains(game1));
     }
     @Test
     void listGamesUnauthorizedTest() throws DataAccessException, UnauthorizedException {
