@@ -106,14 +106,14 @@ public class ServiceTests {
 
     // List Games
     @Test
-    void listGamesPositiveTest() throws DataAccessException {
+    void listGamesPositiveTest() throws DataAccessException, UnauthorizedException {
         ListGamesRequest listGamesRequest = new ListGamesRequest("1234");
         ListGamesResult listGamesResult = gameService.listGamesService(listGamesRequest);
 
         assertNotNull(listGamesResult);
     }
     @Test
-    void listGamesUnauthorizedTest() throws DataAccessException {
+    void listGamesUnauthorizedTest() throws DataAccessException, UnauthorizedException {
         ListGamesRequest listGamesUnauthorizedRequest = new ListGamesRequest("1234");
         ListGamesResult listGamesUnauthorizedResult = gameService.listGamesService(listGamesUnauthorizedRequest);
 

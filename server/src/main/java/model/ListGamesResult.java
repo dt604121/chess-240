@@ -2,10 +2,9 @@ package model;
 
 import chess.ChessGame;
 
+import java.util.List;
+
 public record ListGamesResult(
-        int gameId,
-        String whiteUsername,
-        String blackUsername,
-        String gameName,
-        ChessGame game) {
+        List games,
+        GameData gameData) {
 }

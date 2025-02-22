@@ -1,8 +1,8 @@
 package dataaccess;
 
-import chess.ChessGame;
 import model.*;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 public class MemoryGameDAO implements GameDAO {
@@ -10,9 +10,8 @@ public class MemoryGameDAO implements GameDAO {
     final private HashMap<Integer, GameData> gameDataTable = new HashMap<>();
 
     @Override
-    public ListGamesResult listGames(Object listGamesRequest) {
-        // TODO: implement listGames
-        return null;
+    public Collection<GameData> listGames(Object listGamesRequest) {
+        return gameDataTable.values();
     }
 
     @Override
@@ -28,7 +27,6 @@ public class MemoryGameDAO implements GameDAO {
         return null;
     }
 
-    // TODO: how do we update the team color?
     @Override
     public void updateGame(GameData gameData) {
         gameDataTable.put(gameData.gameId(), gameData);
