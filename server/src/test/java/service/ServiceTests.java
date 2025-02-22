@@ -107,6 +107,7 @@ public class ServiceTests {
     void listGamesPositiveTest() throws DataAccessException, UnauthorizedException {
         GameData game1 = new GameData(2,"whiteUsername", "blackUsername",
                 "gameName", null);
+        memoryGameDAO.addGame(game1);
         AuthData authData = userService.createAndSaveAuthToken("testUser");
         ListGamesRequest listGamesRequest = new ListGamesRequest(authData.authToken());
         ListGamesResult listGamesResult = gameService.listGamesService(listGamesRequest);
@@ -117,9 +118,6 @@ public class ServiceTests {
     @Test
     void listGamesUnauthorizedTest() throws DataAccessException, UnauthorizedException {
         ListGamesRequest listGamesUnauthorizedRequest = new ListGamesRequest("1234");
-        ListGamesResult listGamesUnauthorizedResult = gameService.listGamesService(listGamesUnauthorizedRequest);
-
-        assertNull(listGamesUnauthorizedResult);
         assertThrows(UnauthorizedException.class, () -> gameService.listGamesService(listGamesUnauthorizedRequest));
     }
 
