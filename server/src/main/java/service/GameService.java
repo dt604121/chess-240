@@ -9,8 +9,7 @@ import exception.DataAccessException;
 import exception.UnauthorizedException;
 import model.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Objects;
 
 public class GameService {
@@ -23,17 +22,18 @@ public class GameService {
         this.authDAO = authDAO;
     }
 
-    public ListGamesResult listGamesService(ListGamesRequest listGamesRequest) throws DataAccessException, UnauthorizedException {
+    public ListGamesResult listGamesService(ListGamesRequest listGamesRequest) throws DataAccessException,
+            UnauthorizedException {
         // authenticate
         AuthData authData = authDAO.getAuthToken(listGamesRequest.authToken());
         if (authData == null){
             throw new UnauthorizedException("Error: unauthorized");
         }
-        List<GameData> games = new ArrayList<>(gameDAO.listGames(listGamesRequest));
-        return new ListGamesResult(games, null);
+        Collection<GameData> games = gameDAO.listGames(listGamesRequest);
+        return new ListGamesResult(games);
     }
 
-    public int createAndSaveGameID(String gameName) throws DataAccessException {
+    public int createAndSaveGameID(String gameName) {
         randomInt += 1;
         int gameID = 0;
         gameID += randomInt;
@@ -47,8 +47,8 @@ public class GameService {
     public CreateGameResult createGameService(CreateGameRequest createGameRequest) throws DataAccessException,
             BadRequestException, UnauthorizedException {
 
-        if (createGameRequest.gameName() == null) {
-            throw new BadRequestException("unauthorized");
+        if (createGameRequest.gameName() == null | createGameRequest.gameName().isBlank()) {
+            throw new BadRequestException("\"Error: bad request\"");
         }
 
         // authenticate

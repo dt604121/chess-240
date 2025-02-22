@@ -40,7 +40,6 @@ public class ServiceTests {
         assertEquals(registerRequest.username(), registerResult.username());
         assertNotNull(memoryAuthDAO.getAuthToken(registerResult.authToken()));
     }
-
     @Test
     void registerExistingUserTest() {
         RegisterRequest registerExistingUserRequest = new RegisterRequest("testUser", "1234",
@@ -48,7 +47,6 @@ public class ServiceTests {
 
         assertThrows(AlreadyTakenException.class, () -> userService.registerService(registerExistingUserRequest));
     }
-
     // Login
     @Test
     void loginPositiveTest() throws DataAccessException, UnauthorizedException {
@@ -127,6 +125,7 @@ public class ServiceTests {
         CreateGameRequest createGameRequest = new CreateGameRequest("gameName", "1234");
         CreateGameResult createGameResult = gameService.createGameService(createGameRequest);
 
+        assertTrue(createGameResult.gameID() > 0 );
         assertNotNull(createGameResult);
     }
     @Test

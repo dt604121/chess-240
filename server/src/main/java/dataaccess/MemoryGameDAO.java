@@ -16,7 +16,7 @@ public class MemoryGameDAO implements GameDAO {
 
     @Override
     public void addGame(GameData gameData) {
-        gameDataTable.put(gameData.gameId(), gameData);
+        gameDataTable.put(gameData.gameID(), gameData);
     }
 
     @Override
@@ -29,7 +29,7 @@ public class MemoryGameDAO implements GameDAO {
 
     @Override
     public void updateGame(GameData gameData) {
-        gameDataTable.put(gameData.gameId(), gameData);
+        gameDataTable.put(gameData.gameID(), gameData);
     }
 
     @Override
