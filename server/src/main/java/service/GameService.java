@@ -47,7 +47,7 @@ public class GameService {
     public CreateGameResult createGameService(CreateGameRequest createGameRequest) throws DataAccessException,
             BadRequestException, UnauthorizedException {
 
-        if (createGameRequest.gameName() == null | createGameRequest.gameName().isBlank()) {
+        if (createGameRequest.gameName() == null) {
             throw new BadRequestException("\"Error: bad request\"");
         }
 

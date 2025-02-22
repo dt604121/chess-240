@@ -120,7 +120,9 @@ public class Server {
     }
 
     private Object createGamesHandler(Request req, Response res) {
+        // TODO: how to do both header / body
         var createGamesRequest = new Gson().fromJson(req.body(), CreateGameRequest.class);
+        createGamesRequest = new Gson().fromJson(req.headers("authorization"), CreateGameRequest.class);
         try {
             var createGamesResult = gameService.createGameService(createGamesRequest);
             res.status(200);
@@ -139,6 +141,7 @@ public class Server {
 
     private Object joinGameHandler(Request req, Response res) {
         var joinGamesRequest = new Gson().fromJson(req.body(), JoinGamesRequest.class);
+        joinGamesRequest = new Gson().fromJson(req.headers("authorization"), JoinGamesRequest.class);
         try {
             var joinGamesResult = gameService.joinGameService(joinGamesRequest);
             res.status(200);

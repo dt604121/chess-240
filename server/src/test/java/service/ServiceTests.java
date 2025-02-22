@@ -133,15 +133,16 @@ public class ServiceTests {
     @Test
     void createGameUnauthorizedTest() throws DataAccessException, UnauthorizedException, BadRequestException {
         CreateGameRequest createGameUnauthorizedRequest = new CreateGameRequest(null, null);
-        CreateGameResult createGameUnauthorizedResult = gameService.createGameService(createGameUnauthorizedRequest);
 
-        assertNull(createGameUnauthorizedResult);
         assertThrows(UnauthorizedException.class, () -> gameService.createGameService(createGameUnauthorizedRequest));
     }
 
     // Join Game
     @Test
     void joinGamePositiveTest() throws DataAccessException, UnauthorizedException, BadRequestException, AlreadyTakenException {
+        GameData game1 = new GameData(2,"whiteUsername", "blackUsername",
+                "gameName", null);
+        memoryGameDAO.addGame(game1);
         JoinGamesRequest joinGameRequest = new JoinGamesRequest("WHITE", 1234, "1233");
         JoinGamesResult joinGameResult = gameService.joinGameService(joinGameRequest);
 
