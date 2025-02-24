@@ -139,13 +139,12 @@ public class Server {
     }
 
     private Object joinGameHandler(Request req, Response res) {
-        // TODO: fix this
         var joinGamesRequest = new Gson().fromJson(req.body(), JoinGamesRequest.class);
-        joinGamesRequest = new Gson().fromJson(req.headers("authorization"), JoinGamesRequest.class);
+        String authToken = req.headers("authorization");
         try {
-            var joinGamesResult = gameService.joinGameService(joinGamesRequest);
+            gameService.joinGameService(joinGamesRequest, authToken);
             res.status(200);
-            return new Gson().toJson(joinGamesResult);
+            return "{}";
         } catch (BadRequestException e) {
             res.status(400);
             return "{ \"message\": \"Error: bad request\" }";
