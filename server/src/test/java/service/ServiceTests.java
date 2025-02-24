@@ -107,16 +107,16 @@ public class ServiceTests {
                 "gameName", null);
         memoryGameDAO.addGame(game1);
         AuthData authData = userService.createAndSaveAuthToken("testUser");
-        ListGamesRequest listGamesRequest = new ListGamesRequest(authData.authToken());
-        ListGamesResult listGamesResult = gameService.listGamesService(listGamesRequest);
+       String authToken = authData.authToken();
+       ListGamesResult listGamesResult = gameService.listGamesService(authToken);
 
         assertNotNull(listGamesResult);
         assertTrue(listGamesResult.games().contains(game1));
     }
     @Test
     void listGamesUnauthorizedTest() throws DataAccessException, UnauthorizedException {
-        ListGamesRequest listGamesUnauthorizedRequest = new ListGamesRequest("1234");
-        assertThrows(UnauthorizedException.class, () -> gameService.listGamesService(listGamesUnauthorizedRequest));
+        String authToken = "1234";
+        assertThrows(UnauthorizedException.class, () -> gameService.listGamesService(authToken));
     }
 
     // Create Game
@@ -138,23 +138,22 @@ public class ServiceTests {
 
     // Join Game
     @Test
-    void joinGamePositiveTest() throws DataAccessException, UnauthorizedException, BadRequestException, AlreadyTakenException {
+    void joinGamePositiveTest() throws DataAccessException, UnauthorizedException, BadRequestException,
+            AlreadyTakenException {
         GameData game1 = new GameData(2,"whiteUsername", "blackUsername",
                 "gameName", null);
         memoryGameDAO.addGame(game1);
-        JoinGamesRequest joinGameRequest = new JoinGamesRequest("WHITE", 1234, "1233");
-        JoinGamesResult joinGameResult = gameService.joinGameService(joinGameRequest);
-
-        assertNotNull(joinGameResult);
+        String authToken = "1233";
+        JoinGamesRequest joinGameRequest = new JoinGamesRequest("WHITE", 1234);
+        gameService.joinGameService(joinGameRequest, authToken);
     }
     @Test
     void joinGameUnauthorizedTest() throws DataAccessException, UnauthorizedException, BadRequestException, AlreadyTakenException {
-        JoinGamesRequest joinGameUnauthorizedRequest = new JoinGamesRequest("white", 1234,
-                null);
-        JoinGamesResult joinGameUnauthorizedResult = gameService.joinGameService(joinGameUnauthorizedRequest);
+        JoinGamesRequest joinGameUnauthorizedRequest = new JoinGamesRequest("white", 1234);
+        gameService.joinGameService(joinGameUnauthorizedRequest, null);
 
-        assertNull(joinGameUnauthorizedResult);
-        assertThrows(UnauthorizedException.class, () -> gameService.joinGameService(joinGameUnauthorizedRequest));
+        assertThrows(UnauthorizedException.class, () -> gameService.joinGameService(joinGameUnauthorizedRequest,
+                null));
     }
 
     // Clear
