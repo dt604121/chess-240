@@ -13,8 +13,8 @@ public class MemoryAuthDAO implements AuthDAO {
     }
 
     @Override
-    public void deleteAuth(AuthData authData) {
-        authDataHashMap.remove(authData.authToken(), authData);
+    public void deleteAuth(String authToken) {
+        authDataHashMap.remove(authToken);
     }
     @Override
     public void addAuthToken(AuthData authData) {

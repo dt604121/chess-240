@@ -59,11 +59,9 @@ public class UserService {
         throw new UnauthorizedException("unauthorized");
     }
 
-    // TODO: logout request is null? Tests fail
-    public void logoutService(LogoutRequest logoutRequest) throws DataAccessException, UnauthorizedException {
-        AuthData authData = authDAO.getAuthToken(logoutRequest.authToken());
-        if (authData != null){
-            authDAO.deleteAuth(authData);
+    public void logoutService(String authToken) throws DataAccessException, UnauthorizedException {
+        if (authDAO.getAuthToken(authToken) != null){
+            authDAO.deleteAuth(authToken);
         }
         else {
             throw new UnauthorizedException("unauthorized");

@@ -88,18 +88,16 @@ public class ServiceTests {
     @Test
     void logoutPositiveTest () throws DataAccessException, UnauthorizedException {
         AuthData authData = userService.createAndSaveAuthToken("testUser");
-        LogoutRequest logoutRequest = new LogoutRequest(authData.authToken());
+        String authToken = authData.authToken();
         memoryAuthDAO.addAuthToken(authData);
         assertNotNull(memoryAuthDAO.getAuthToken(authData.authToken()));
 
-        userService.logoutService(logoutRequest);
+        userService.logoutService(authToken);
         assertNull(memoryAuthDAO.getAuthToken(authData.authToken()));
     }
     @Test
     void logoutNullAuthTokenTest() {
-        LogoutRequest logoutNullRequest = new LogoutRequest(null);
-
-        assertThrows(UnauthorizedException.class, () -> userService.logoutService(logoutNullRequest));
+        assertThrows(UnauthorizedException.class, () -> userService.logoutService(null));
     }
 
     // List Games
@@ -124,17 +122,18 @@ public class ServiceTests {
     // Create Game
     @Test
     void createGamePositiveTest() throws DataAccessException, UnauthorizedException, BadRequestException {
-        CreateGameRequest createGameRequest = new CreateGameRequest("gameName", "1234");
-        CreateGameResult createGameResult = gameService.createGameService(createGameRequest);
+        CreateGameRequest createGameRequest = new CreateGameRequest("gameName");
+        String authToken = "1234";
+        CreateGameResult createGameResult = gameService.createGameService(createGameRequest, authToken);
 
         assertTrue(createGameResult.gameID() > 0 );
         assertNotNull(createGameResult);
     }
     @Test
     void createGameUnauthorizedTest() throws DataAccessException, UnauthorizedException, BadRequestException {
-        CreateGameRequest createGameUnauthorizedRequest = new CreateGameRequest(null, null);
+        CreateGameRequest createGameUnauthorizedRequest = new CreateGameRequest(null);
 
-        assertThrows(UnauthorizedException.class, () -> gameService.createGameService(createGameUnauthorizedRequest));
+        assertThrows(BadRequestException.class, () -> gameService.createGameService(createGameUnauthorizedRequest, null));
     }
 
     // Join Game

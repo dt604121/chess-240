@@ -44,7 +44,7 @@ public class GameService {
         return gameID;
     }
 
-    public CreateGameResult createGameService(CreateGameRequest createGameRequest) throws DataAccessException,
+    public CreateGameResult createGameService(CreateGameRequest createGameRequest, String authToken) throws DataAccessException,
             BadRequestException, UnauthorizedException {
 
         if (createGameRequest.gameName() == null) {
@@ -52,8 +52,7 @@ public class GameService {
         }
 
         // authenticate
-        AuthData authData = authDAO.getAuthToken(createGameRequest.authToken());
-        if (authData == null) {
+        if (authDAO.getAuthToken(authToken) == null) {
             throw new UnauthorizedException("unauthorized");
         }
 

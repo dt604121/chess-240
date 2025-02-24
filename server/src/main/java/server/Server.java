@@ -90,17 +90,17 @@ public class Server {
     }
 
     private Object logoutHandler(Request req, Response res) {
-         var logoutRequest = new Gson().fromJson(req.body(), LogoutRequest.class);
+        String authToken = req.headers("authorization");
          try {
-             userService.logoutService(logoutRequest);
+             userService.logoutService(authToken);
              res.status(200);
              return "{}";
          } catch (DataAccessException e) {
              res.status(500);
-             return "Internal Service Error";
+             return "{ \"message\": \"Error: (description of error)\" }";
          } catch (UnauthorizedException e) {
              res.status(401);
-             return "Error: unauthorized\"";
+             return "{ \"message\": \"Error: unauthorized\" }";
          }
     }
 
@@ -120,11 +120,10 @@ public class Server {
     }
 
     private Object createGamesHandler(Request req, Response res) {
-        // TODO: how to do both header / body
         var createGamesRequest = new Gson().fromJson(req.body(), CreateGameRequest.class);
-        createGamesRequest = new Gson().fromJson(req.headers("authorization"), CreateGameRequest.class);
+        String authToken = req.headers("authorization");
         try {
-            var createGamesResult = gameService.createGameService(createGamesRequest);
+            var createGamesResult = gameService.createGameService(createGamesRequest, authToken);
             res.status(200);
             return new Gson().toJson(createGamesResult);
         } catch (BadRequestException e){
@@ -140,6 +139,7 @@ public class Server {
     }
 
     private Object joinGameHandler(Request req, Response res) {
+        // TODO: fix this
         var joinGamesRequest = new Gson().fromJson(req.body(), JoinGamesRequest.class);
         joinGamesRequest = new Gson().fromJson(req.headers("authorization"), JoinGamesRequest.class);
         try {
