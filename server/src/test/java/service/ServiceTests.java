@@ -12,6 +12,8 @@ import model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ServiceTests {
@@ -123,7 +125,9 @@ public class ServiceTests {
     @Test
     void createGamePositiveTest() throws DataAccessException, UnauthorizedException, BadRequestException {
         CreateGameRequest createGameRequest = new CreateGameRequest("gameName");
-        String authToken = "1234";
+        String authToken = UUID.randomUUID().toString();
+        AuthData authData = new AuthData(authToken, "testUser");
+        memoryAuthDAO.addAuthToken(authData);
         CreateGameResult createGameResult = gameService.createGameService(createGameRequest, authToken);
 
         assertTrue(createGameResult.gameID() > 0 );
@@ -140,17 +144,18 @@ public class ServiceTests {
     @Test
     void joinGamePositiveTest() throws DataAccessException, UnauthorizedException, BadRequestException,
             AlreadyTakenException {
-        GameData game1 = new GameData(2,"whiteUsername", "blackUsername",
+        GameData game1 = new GameData(1234,"whiteUsername", "blackUsername",
                 "gameName", null);
         memoryGameDAO.addGame(game1);
-        String authToken = "1233";
+        String authToken = UUID.randomUUID().toString();
+        AuthData authData = new AuthData(authToken, "testUser");
+        memoryAuthDAO.addAuthToken(authData);
         JoinGamesRequest joinGameRequest = new JoinGamesRequest("WHITE", 1234);
         gameService.joinGameService(joinGameRequest, authToken);
     }
     @Test
     void joinGameUnauthorizedTest() throws DataAccessException, UnauthorizedException, BadRequestException, AlreadyTakenException {
         JoinGamesRequest joinGameUnauthorizedRequest = new JoinGamesRequest("white", 1234);
-        gameService.joinGameService(joinGameUnauthorizedRequest, null);
 
         assertThrows(UnauthorizedException.class, () -> gameService.joinGameService(joinGameUnauthorizedRequest,
                 null));

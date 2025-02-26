@@ -109,7 +109,7 @@ public class Server {
         try {
             var listGamesResult = gameService.listGamesService(authToken);
             res.status(200);
-            return new Gson().toJson(Map.of("games", listGamesResult));
+            return new Gson().toJson(listGamesResult);
         } catch (UnauthorizedException e) {
             res.status(401);
             return "{ \"message\": \"Error: unauthorized\" }";

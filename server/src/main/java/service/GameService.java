@@ -44,7 +44,8 @@ public class GameService {
         return gameID;
     }
 
-    public CreateGameResult createGameService(CreateGameRequest createGameRequest, String authToken) throws DataAccessException,
+    public CreateGameResult createGameService(CreateGameRequest createGameRequest, String authToken)
+            throws DataAccessException,
             BadRequestException, UnauthorizedException {
 
         if (createGameRequest.gameName() == null) {
@@ -63,7 +64,10 @@ public class GameService {
     }
     public void joinGameService(JoinGamesRequest joinGameRequest, String authToken) throws DataAccessException,
             BadRequestException, UnauthorizedException, AlreadyTakenException {
-        if (joinGameRequest.playerColor() == null || authDAO.getAuthToken(authToken) == null) {
+
+        GameData existingGame = gameDAO.getGame(joinGameRequest.gameID());
+        if (joinGameRequest.playerColor() == null || joinGameRequest.gameID() < 1 || existingGame == null ||
+                (!(joinGameRequest.playerColor().equals("WHITE")) && !(joinGameRequest.playerColor().equals("BLACK")))) {
             throw new BadRequestException("\"Error: bad request\"");
         }
 
@@ -72,18 +76,33 @@ public class GameService {
         if (authData == null){
             throw new UnauthorizedException("Error: unauthorized");
         }
+
         String username = authData.username();
 
         // white/black username exists already (playerColor)
-        GameData existingGame = gameDAO.getGame(joinGameRequest.gameID());
-        if (joinGameRequest.playerColor().equals("WHITE") && Objects.equals(username, existingGame.whiteUsername())) {
+        if (joinGameRequest.playerColor().equals("WHITE") && Objects.equals(username, existingGame.whiteUsername()) &&
+                existingGame.whiteUsername() != null) {
             throw new AlreadyTakenException("Username already taken");
         }
 
-        if (joinGameRequest.playerColor().equals("BLACK") && Objects.equals(username, existingGame.blackUsername())) {
+        if (joinGameRequest.playerColor().equals("BLACK") && Objects.equals(username, existingGame.blackUsername()) &&
+                existingGame.blackUsername() != null) {
             throw new AlreadyTakenException("Username already taken");
         }
 
-        gameDAO.updateGame(existingGame);
+        // save the username
+        if (joinGameRequest.playerColor().equals("WHITE") ){
+            GameData gameData = new GameData(joinGameRequest.gameID(), username, existingGame.blackUsername(),
+                    existingGame.gameName(), existingGame.game());
+            gameDAO.updateGame(gameData);
+        }
+
+        if (joinGameRequest.playerColor().equals("BLACK") ){
+            GameData gameData = new GameData(joinGameRequest.gameID(),existingGame.whiteUsername(), username,
+                    existingGame.gameName(), existingGame.game());
+            gameDAO.updateGame(gameData);
+        }
+
+
     }
 }
