@@ -163,7 +163,7 @@ public class ServiceTests {
 
     // Clear
     @Test
-    void clearApplicationTest() throws DataAccessException {
+    void clearApplicationTest() {
         UserData userData = new UserData("clearUser", "clear", "clearUser@email");
         GameData gameData = new GameData(12, "whiteUsername", "blackUsername",
                 "gameName", new ChessGame());
