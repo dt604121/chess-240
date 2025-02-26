@@ -80,12 +80,12 @@ public class GameService {
         String username = authData.username();
 
         // white/black username exists already (playerColor)
-        if (joinGameRequest.playerColor().equals("WHITE") && Objects.equals(username, existingGame.whiteUsername()) &&
+        if (joinGameRequest.playerColor().equals("WHITE") && !Objects.equals(username, existingGame.whiteUsername()) &&
                 existingGame.whiteUsername() != null) {
             throw new AlreadyTakenException("Username already taken");
         }
 
-        if (joinGameRequest.playerColor().equals("BLACK") && Objects.equals(username, existingGame.blackUsername()) &&
+        if (joinGameRequest.playerColor().equals("BLACK") && !Objects.equals(username, existingGame.blackUsername()) &&
                 existingGame.blackUsername() != null) {
             throw new AlreadyTakenException("Username already taken");
         }

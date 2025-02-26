@@ -116,7 +116,7 @@ public class ServiceTests {
         assertTrue(listGamesResult.games().contains(game1));
     }
     @Test
-    void listGamesUnauthorizedTest() throws DataAccessException, UnauthorizedException {
+    void listGamesUnauthorizedTest() {
         String authToken = "1234";
         assertThrows(UnauthorizedException.class, () -> gameService.listGamesService(authToken));
     }
@@ -134,7 +134,7 @@ public class ServiceTests {
         assertNotNull(createGameResult);
     }
     @Test
-    void createGameUnauthorizedTest() throws DataAccessException, UnauthorizedException, BadRequestException {
+    void createGameUnauthorizedTest() {
         CreateGameRequest createGameUnauthorizedRequest = new CreateGameRequest(null);
 
         assertThrows(BadRequestException.class, () -> gameService.createGameService(createGameUnauthorizedRequest, null));
@@ -144,20 +144,20 @@ public class ServiceTests {
     @Test
     void joinGamePositiveTest() throws DataAccessException, UnauthorizedException, BadRequestException,
             AlreadyTakenException {
-        GameData game1 = new GameData(1234,"whiteUsername", "blackUsername",
+        GameData game1 = new GameData(1234,null, "blackUsername",
                 "gameName", null);
         memoryGameDAO.addGame(game1);
         String authToken = UUID.randomUUID().toString();
-        AuthData authData = new AuthData(authToken, "testUser");
+        AuthData authData = new AuthData(authToken, "whiteUsername");
         memoryAuthDAO.addAuthToken(authData);
         JoinGamesRequest joinGameRequest = new JoinGamesRequest("WHITE", 1234);
         gameService.joinGameService(joinGameRequest, authToken);
     }
     @Test
-    void joinGameUnauthorizedTest() throws DataAccessException, UnauthorizedException, BadRequestException, AlreadyTakenException {
+    void joinGameUnauthorizedTest() {
         JoinGamesRequest joinGameUnauthorizedRequest = new JoinGamesRequest("white", 1234);
 
-        assertThrows(UnauthorizedException.class, () -> gameService.joinGameService(joinGameUnauthorizedRequest,
+        assertThrows(BadRequestException.class, () -> gameService.joinGameService(joinGameUnauthorizedRequest,
                 null));
     }
 
