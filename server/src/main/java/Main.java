@@ -1,4 +1,6 @@
-import dataaccess.*;
+import dataaccess.memory.MemoryAuthDAO;
+import dataaccess.memory.MemoryGameDAO;
+import dataaccess.memory.MemoryUserDAO;
 import server.Server;
 import service.GameService;
 import service.UserService;

@@ -1,7 +1,7 @@
 package service;
 
-import dataaccess.AuthDAO;
-import dataaccess.UserDAO;
+import dataaccess.dao.AuthDAO;
+import dataaccess.dao.UserDAO;
 import exception.AlreadyTakenException;
 import exception.BadRequestException;
 import exception.DataAccessException;

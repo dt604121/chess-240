@@ -1,7 +1,12 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.*;
+import dataaccess.dao.AuthDAO;
+import dataaccess.dao.GameDAO;
+import dataaccess.dao.UserDAO;
+import dataaccess.memory.MemoryAuthDAO;
+import dataaccess.memory.MemoryGameDAO;
+import dataaccess.memory.MemoryUserDAO;
 import exception.AlreadyTakenException;
 import exception.BadRequestException;
 import exception.DataAccessException;
@@ -12,14 +17,13 @@ import service.UserService;
 import service.ClearService;
 import spark.*;
 
-import java.util.Map;
-
 public class Server {
     private final UserService userService;
     private final GameService gameService;
     private final ClearService clearService;
 
     public Server() {
+        // TODO: SQL Database Instead (edit right side)
         UserDAO userDAO = new MemoryUserDAO();
         AuthDAO authDAO = new MemoryAuthDAO();
         GameDAO gameDAO = new MemoryGameDAO();

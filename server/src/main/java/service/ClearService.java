@@ -1,13 +1,9 @@
 package service;
 
-import dataaccess.AuthDAO;
-import dataaccess.UserDAO;
-import dataaccess.GameDAO;
+import dataaccess.dao.AuthDAO;
+import dataaccess.dao.UserDAO;
+import dataaccess.dao.GameDAO;
 import exception.DataAccessException;
-import model.AuthData;
-import model.UserData;
-
-import javax.xml.crypto.Data;
 
 public class ClearService {
     private final UserDAO userDAO;
