@@ -22,7 +22,7 @@ public class Server {
     private final GameService gameService;
     private final ClearService clearService;
 
-    public Server() {
+    public Server() throws DataAccessException {
         // SQL Database Instead
         UserDAO userDAO = new SQLUserDAO();
         AuthDAO authDAO = new SQLAuthDAO();

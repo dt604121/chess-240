@@ -10,9 +10,11 @@ public class SQLAuthDAO implements AuthDAO {
         return null;
     }
 
+    // delete pet
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
-
+        var statement = "DELETE FROM authToken WHERE authToken=?";
+        SQLUserDAO.executeUpdate(statement, authToken);
     }
 
     @Override

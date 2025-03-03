@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class SQLGameDAO implements GameDAO {
+    // list pets
     @Override
     public Collection<GameData> listGames(Object listGamesRequest) throws DataAccessException {
         return List.of();
@@ -28,6 +29,7 @@ public class SQLGameDAO implements GameDAO {
 
     }
 
+    // add pet
     @Override
     public void addGame(GameData gameData) {
 
