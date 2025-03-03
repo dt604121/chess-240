@@ -20,6 +20,11 @@ public class DatabaseUnitTests {
     SQLUserDAO sqlUserDAO = new SQLUserDAO();
     SQLAuthDAO sqlAuthDAO = new SQLAuthDAO();
 
+    public DatabaseUnitTests() throws DataAccessException {
+    }
+
+    // TODO: tests implemented correctly (based on pets?)
+
     @BeforeEach
     void setUP() throws DataAccessException {
         // Clear the DAO's
