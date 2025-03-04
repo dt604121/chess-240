@@ -1,14 +1,13 @@
 package dataaccess.sql;
 
+import com.google.gson.Gson;
 import dataaccess.DatabaseManager;
 import dataaccess.dao.UserDAO;
 import exception.DataAccessException;
 import model.UserData;
-import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.SQLException;
 
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
 public class SQLUserDAO implements UserDAO {
@@ -18,8 +17,22 @@ public class SQLUserDAO implements UserDAO {
     }
 
     @Override
-    public UserData getUser(String username) throws DataAccessException {
-        return null;
+    public UserData getUser(String username) throws DataAccessException, SQLException {
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "Select username, json FROM UserData WHERE username = ?";
+
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, username);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        var json = rs.getString("json");
+                        return new Gson().fromJson(json, UserData.class)
+                    }
+                } catch (SQLException e) {
+                    throw new SQLException(e);
+                }
+            }
+        }
     }
 
     @Override
@@ -52,6 +65,7 @@ public class SQLUserDAO implements UserDAO {
                     }
                 }
                 ps.executeUpdate();
+                return 0;
             }
         } catch (SQLException e) {
             throw new DataAccessException("could not execute update");
@@ -61,19 +75,19 @@ public class SQLUserDAO implements UserDAO {
     private final String[] createStatements = {
             // UserData, GameData, AuthData
             """
-            CREATE TABLE IF NOT EXISTS  pet (
-              `username` varchar(256) NOT NULL,
+            CREATE TABLE IF NOT EXISTS UserData (
+              `username` varchar(256) NOT NULL PRIMARY KEY,
               `password` varchar(256) NOT NULL,
               `email` varchar(256) NOT NULL,
             ) 
             
-            CREATE TABLE IF NOT EXISTS  pet (
+            CREATE TABLE IF NOT EXISTS GameData (
               `authToken` varchar(256) NOT NULL,
               `username` varchar(256) NOT NULL,
             ) 
             
-            CREATE TABLE IF NOT EXISTS  pet (
-              `gameID` int NOT NULL,
+            CREATE TABLE IF NOT EXISTS AuthData (
+              `gameID` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
               `whiteUsername` varchar(256),
               `blackUsername` varchar(256),
               `gameName` varchar(256) NOT NULL,
@@ -82,16 +96,17 @@ public class SQLUserDAO implements UserDAO {
             """
     };
 
-    private void configureDatabase() throws DataAccessException {
+    private void configureDatabase() throws DataAccessException, SQLException {
         DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
             for (var statement : createStatements) {
                 try (var preparedStatement = conn.prepareStatement(statement)) {
                     preparedStatement.executeUpdate();
+                } catch (SQLException ex) {
+                    throw new DataAccessException("Couldn't configure the database. Error executing statement: \" +" +
+                            "statement + \" | \" + e.getMessage()");
                 }
             }
-        } catch (SQLException ex) {
-            throw new DataAccessException("could not configure the database");
         }
     }
 }

@@ -5,13 +5,11 @@ import dataaccess.sql.SQLUserDAO;
 import dataaccess.sql.SQLGameDAO;
 import dataaccess.sql.SQLAuthDAO;
 import exception.DataAccessException;
+import exception.SQLException;
 import model.GameData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import model.*;
-import org.junit.jupiter.api.BeforeEach;
-
-import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -55,6 +53,7 @@ public class DatabaseUnitTests {
     void getGamePositiveTest() throws DataAccessException {
         GameData gameData = new GameData(1234, "whiteUsername", "blackUsername",
                 "gameName", new ChessGame());
+        sqlGameDAO.addGame(gameData);
         assertNotNull(sqlGameDAO.getGame(1234));
     }
 
@@ -63,6 +62,7 @@ public class DatabaseUnitTests {
         // mismatching gameID
         GameData gameData = new GameData(1234, "whiteUsername", "blackUsername",
                 "gameName", new ChessGame());
+        sqlGameDAO.addGame(gameData);
         assertNull(sqlGameDAO.getGame(123));
     }
 
@@ -120,7 +120,7 @@ public class DatabaseUnitTests {
 
     // region User DAO Tests
     @Test
-    void getUserPositiveTest() throws DataAccessException {
+    void getUserPositiveTest() throws DataAccessException, SQLException {
         UserData userData = new UserData("username", "password", "email.com");
 
         assertNotNull(sqlUserDAO.getUser("username"));
