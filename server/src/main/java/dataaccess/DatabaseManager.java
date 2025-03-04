@@ -2,8 +2,11 @@ package dataaccess;
 
 import exception.DataAccessException;
 
+import javax.xml.crypto.Data;
 import java.sql.*;
 import java.util.Properties;
+
+import static java.sql.Types.NULL;
 
 public class DatabaseManager {
     private static final String DATABASE_NAME;
@@ -14,6 +17,14 @@ public class DatabaseManager {
     /*
      * Load the database information for the db.properties file.
      */
+
+    public void ConfigureDAODatabases() throws DataAccessException {
+        try {
+            configureDatabase();
+        } catch (SQLException e){
+            throw new DataAccessException("couldn't configure the DB");
+        }
+    }
     static {
         try {
             try (var propStream = Thread.currentThread().getContextClassLoader()
@@ -70,6 +81,64 @@ public class DatabaseManager {
             return conn;
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    public static int executeUpdate(String statement, Object... params) throws DataAccessException {
+        try (var conn = getConnection()) {
+            try (var ps = conn.prepareStatement(statement)) {
+                for (var i = 0; i < params.length; i++) {
+                    var param = params[i];
+                    switch (param) {
+                        case String p -> ps.setString(i + 1, p);
+                        case null -> ps.setNull(i + 1, NULL);
+                        default -> {
+                        }
+                    }
+                }
+                ps.executeUpdate();
+                return 0;
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("could not execute update");
+        }
+    }
+
+    private final String[] createStatements = {
+            // UserData, GameData, AuthData
+            """
+            CREATE TABLE IF NOT EXISTS UserData (
+              `username` VARCHAR(256) NOT NULL PRIMARY KEY,
+              `password` VARCHAR(256) NOT NULL,
+              `email` VARCHAR(256) NOT NULL,
+            ) 
+            
+            CREATE TABLE IF NOT EXISTS AuthData (
+              `authToken` VARCHAR(256) NOT NULL PRIMARY KEY,
+              `username` VARCHAR(256) NOT NULL,
+            ) 
+            
+            CREATE TABLE IF NOT EXISTS GameData (
+              `gameID` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+              `whiteUsername` VARCHAR(256),
+              `blackUsername` VARCHAR(256),
+              `gameName` VARCHAR(256) NOT NULL,
+              `game` TEXT NOT NULL
+              )
+            """
+    };
+
+    private void configureDatabase() throws DataAccessException, SQLException {
+        createDatabase();
+        try (var conn = getConnection()) {
+            for (var statement : createStatements) {
+                try (var preparedStatement = conn.prepareStatement(statement)) {
+                    preparedStatement.executeUpdate();
+                } catch (SQLException ex) {
+                    throw new DataAccessException("Couldn't configure the database. Error executing statement: \" +" +
+                            "statement + \" | \" + e.getMessage()");
+                }
+            }
         }
     }
 }
