@@ -1,6 +1,5 @@
 package dataaccess.sql;
 
-import com.google.gson.Gson;
 import dataaccess.DatabaseManager;
 import dataaccess.dao.UserDAO;
 import exception.DataAccessException;
@@ -12,7 +11,7 @@ import static java.sql.Types.NULL;
 
 public class SQLUserDAO implements UserDAO {
 
-    public SQLUserDAO() throws DataAccessException {
+    public SQLUserDAO() throws DataAccessException, SQLException {
         configureDatabase();
     }
 
@@ -24,31 +23,39 @@ public class SQLUserDAO implements UserDAO {
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setString(1, username);
                 try (var rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        var json = rs.getString("json");
-                        return new Gson().fromJson(json, UserData.class)
+                        if (rs.next()) {
+                            return new UserData(
+                                    rs.getString("username"),
+                                    rs.getString("password"),
+                                    rs.getString("email")
+                            );
                     }
                 } catch (SQLException e) {
                     throw new SQLException(e);
                 }
+                return null;
             }
         }
     }
 
     @Override
     public UserData createUser(String username, String password, String email) throws DataAccessException {
-        return null;
+        var statement = "INSERT INTO UserData (username, password, email) VALUES (?, ?, ?, ?)";
+        var userData = new UserData(username, password, email);
+        executeUpdate(statement, username, password, email);
+        return userData;
     }
 
     @Override
     public void clearUserDAO() throws DataAccessException {
-
+        var statement = "TRUNCATE UserData";
+        executeUpdate(statement);
     }
 
-    // add pet?
     @Override
     public void addUser(UserData userData) throws DataAccessException {
-
+        var statement = "INSERT INTO UserData (username, password, email) VALUES (?, ?, ?, ?)";
+        executeUpdate(statement, userData.username(), userData.password(), userData.email());
     }
 
     public static int executeUpdate(String statement, Object... params) throws DataAccessException {
@@ -76,22 +83,22 @@ public class SQLUserDAO implements UserDAO {
             // UserData, GameData, AuthData
             """
             CREATE TABLE IF NOT EXISTS UserData (
-              `username` varchar(256) NOT NULL PRIMARY KEY,
-              `password` varchar(256) NOT NULL,
-              `email` varchar(256) NOT NULL,
+              `username` VARCHAR(256) NOT NULL PRIMARY KEY,
+              `password` VARCHAR(256) NOT NULL,
+              `email` VARCHAR(256) NOT NULL,
             ) 
             
             CREATE TABLE IF NOT EXISTS GameData (
-              `authToken` varchar(256) NOT NULL,
-              `username` varchar(256) NOT NULL,
+              `authToken` VARCHAR(256) NOT NULL,
+              `username` VARCHAR(256) NOT NULL,
             ) 
             
             CREATE TABLE IF NOT EXISTS AuthData (
-              `gameID` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
-              `whiteUsername` varchar(256),
-              `blackUsername` varchar(256),
-              `gameName` varchar(256) NOT NULL,
-              `game` TEXT NOT NULL,
+              `gameID` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+              `whiteUsername` VARCHAR(256),
+              `blackUsername` VARCHAR(256),
+              `gameName` VARCHAR(256) NOT NULL,
+              `game` TEXT NOT NULL
               )
             """
     };
