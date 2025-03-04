@@ -24,12 +24,7 @@ public class Server {
 
     public Server() {
         // SQL Database Instead
-        UserDAO userDAO = null;
-        try {
-            userDAO = new SQLUserDAO();
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
+        UserDAO userDAO = new SQLUserDAO();
         AuthDAO authDAO = new SQLAuthDAO();
         GameDAO gameDAO = new SQLGameDAO();
         this.userService = new UserService(userDAO, authDAO);

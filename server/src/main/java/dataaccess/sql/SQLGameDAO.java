@@ -4,29 +4,32 @@ import com.google.gson.Gson;
 import dataaccess.DatabaseManager;
 import dataaccess.dao.GameDAO;
 import exception.DataAccessException;
+import exception.SQLException;
 import model.AuthData;
 import model.GameData;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static dataaccess.sql.SQLUserDAO.executeUpdate;
-
 public class SQLGameDAO implements GameDAO {
-    // list pets
     @Override
     public Collection<GameData> listGames(Object listGamesRequest) throws DataAccessException {
         var result = new ArrayList<GameData>();
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT gamdID, json FROM GameData";
+            // How are we getting the authToken from listGamesRequest?
+            // TODO: look into this...
+            var statement = "SELECT gamdID, whiteusername, blackusername, gameName, game, json FROM GameData WHERE authToken = ? ";
             try (var ps = conn.prepareStatement(statement)) {
                 try (var rs = ps.executeQuery()) {
                     while (rs.next()) {
-                        var gameID = rs.getInt("gameID");
-                        var json = rs.getString("json");
-                        var game = new Gson().fromJson(json, GameData.class)
-                        result.add(game);
+                        return new GameData(
+                                rs.getInt("gameID"),
+                                rs.getString("whiteusername"),
+                                rs.getString("blackusername"),
+                                rs.getString("gameName"),
+                                rs.getObject("game")
+                        );
+                        return null;
                     }
                 }
             }
@@ -39,26 +42,31 @@ public class SQLGameDAO implements GameDAO {
     @Override
     public GameData getGame(int gameID) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT gameID, json FROM GamdeData WHERE gameID=?";
+            var statement = "SELECT gameID, whiteusername, blackusername, gameName, game, json FROM GamdeData WHERE gameID=?";
             try (var ps = conn.prepareStatement(statement)) {
-                ps.setString(1, gameID);
+                ps.setInt(1, gameID);
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        var json = rs.getString("json");
-                        return new Gson().fromJson(json, AuthData.class);
+                        return new GameData(
+                                rs.getString("whiteusername"),
+                                rs.getString("blackusername"),
+                                rs.getString("gameName"),
+                                rs.getObject("game"),
+                                rs.getString("json")
+                        );
                     }
-                } catch (SQLException e) {
-                    throw new SQLException(e);
                 }
                 return null;
             }
+        } catch (SQLException e) {
+            throw new DataAccessException("issue getting the game");
         }
     }
 
     @Override
     public void clearGameDAO() throws DataAccessException {
         var statement = "TRUNCATE GameData";
-        executeUpdate(statement);
+        DatabaseManager.executeUpdate(statement);
     }
 
     @Override
@@ -73,9 +81,9 @@ public class SQLGameDAO implements GameDAO {
     }
 
     @Override
-    public void addGame(GameData gameData) {
+    public void addGame(GameData gameData) throws DataAccessException  {
         var statement = "INSERT INTO GameData (gameID, whiteUsername, blackUsername, gameName, game)";
-        executeUpdate(statement, gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(),
+        DatabaseManager.executeUpdate(statement, gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(),
                 gameData.gameName(), gameData.game());
     }
 }

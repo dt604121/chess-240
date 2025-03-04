@@ -98,7 +98,7 @@ public class DatabaseUnitTests {
     }
 
     @Test
-    void addGamePositiveTest() {
+    void addGamePositiveTest() throws DataAccessException {
         GameData gameData = new GameData(1234, "whiteUsername", "blackUsername",
                 "gameName", new ChessGame());
         sqlGameDAO.addGame(gameData);
@@ -107,7 +107,7 @@ public class DatabaseUnitTests {
     }
 
     @Test
-    void addGameNegativeTest()  {
+    void addGameNegativeTest() throws DataAccessException {
         // null data
         GameData gameData = new GameData(0, null, null,
                 null, null);
