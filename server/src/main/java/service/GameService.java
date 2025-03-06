@@ -33,7 +33,7 @@ public class GameService {
         return new ListGamesResult(games);
     }
 
-    public int createAndSaveGameID(String gameName) {
+    public int createAndSaveGameID(String gameName) throws DataAccessException {
         randomInt += 1;
         int gameID = 0;
         gameID += randomInt;

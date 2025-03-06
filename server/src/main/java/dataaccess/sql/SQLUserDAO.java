@@ -7,18 +7,18 @@ import model.UserData;
 
 import java.sql.SQLException;
 
+@SuppressWarnings("SqlNoDataSourceInspection")
 public class SQLUserDAO implements UserDAO {
+    private final DatabaseManager databaseManager;
 
-   private DatabaseManager configureDB() {
-       DatabaseManager database = new DatabaseManager();
-       return database.ConfigureDAODatabases();
-   }
+    public SQLUserDAO(DatabaseManager databaseManager) {
+        this.databaseManager = databaseManager;
+    }
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "Select username, password, email FROM UserData WHERE username = ?";
-
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setString(1, username);
                 try (var rs = ps.executeQuery()) {
@@ -29,21 +29,28 @@ public class SQLUserDAO implements UserDAO {
                                 rs.getString("email")
                         );
                     }
-                    return null;
                 }
             }
         } catch (SQLException e) {
             throw new DataAccessException("issue with getting the user");
         }
+        return null;
     }
-
 
     @Override
     public UserData createUser(String username, String password, String email) throws DataAccessException {
-        var statement = "INSERT INTO UserData (username, password, email) VALUES (?, ?, ?, ?)";
-        var userData = new UserData(username, password, email);
-        DatabaseManager.executeUpdate(statement, username, password, email);
-        return userData;
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "INSERT INTO UserData (username, password, email) VALUES (?, ?, ?)";
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.setString(1, username);
+                preparedStatement.setString(2, password);
+                preparedStatement.setString(3, email);
+                preparedStatement.executeUpdate();
+                return new UserData(username, password, email);
+            }
+        } catch (SQLException e){
+            throw new DataAccessException("couldn't create a user");
+        }
     }
 
     @Override
@@ -54,7 +61,7 @@ public class SQLUserDAO implements UserDAO {
 
     @Override
     public void addUser(UserData userData) throws DataAccessException {
-        var statement = "INSERT INTO UserData (username, password, email) VALUES (?, ?, ?, ?)";
+        var statement = "INSERT INTO UserData (username, password, email) VALUES (?, ?, ?)";
         DatabaseManager.executeUpdate(statement, userData.username(), userData.password(), userData.email());
     }
 }

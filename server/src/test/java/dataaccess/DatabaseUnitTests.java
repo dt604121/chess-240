@@ -14,14 +14,10 @@ import model.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class DatabaseUnitTests {
-    SQLGameDAO sqlGameDAO = new SQLGameDAO();
-    SQLUserDAO sqlUserDAO = new SQLUserDAO();
-    SQLAuthDAO sqlAuthDAO = new SQLAuthDAO();
-
-    public DatabaseUnitTests() throws DataAccessException {
-    }
-
-    // TODO: tests implemented correctly (based on pets?)
+    DatabaseManager databaseManager = new DatabaseManager();
+    SQLGameDAO sqlGameDAO = new SQLGameDAO(databaseManager);
+    SQLUserDAO sqlUserDAO = new SQLUserDAO(databaseManager);
+    SQLAuthDAO sqlAuthDAO = new SQLAuthDAO(databaseManager);
 
     @BeforeEach
     void setUP() throws DataAccessException {
@@ -33,7 +29,7 @@ public class DatabaseUnitTests {
 
     //region Game DAO Tests
     @Test
-    void listGamesPositiveTest() throws DataAccessException {
+    void listGamesPositiveTest() throws DataAccessException, java.sql.SQLException {
         GameData gameData = new GameData(1234, "whiteUsername", "blackUsername",
                 "gameName", new ChessGame());
 

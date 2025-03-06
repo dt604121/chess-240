@@ -8,6 +8,11 @@ import model.AuthData;
 import java.sql.SQLException;
 
 public class SQLAuthDAO implements AuthDAO {
+    private final DatabaseManager databaseManager;
+
+    public SQLAuthDAO(DatabaseManager databaseManager) {
+        this.databaseManager = databaseManager;
+    }
     @Override
     public AuthData getAuthToken(String authToken) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
@@ -16,17 +21,14 @@ public class SQLAuthDAO implements AuthDAO {
                 ps.setString(1, authToken);
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        return new AuthData(
-                                rs.getString("authToken"),
-                                rs.getString("username")
-                        );
+                        return new AuthData(authToken, rs.getString("username"));
                     }
-                    return null;
                 }
             }
         } catch (SQLException e) {
             throw new DataAccessException("issue getting the authToken");
         }
+        return null;
     }
 
     @Override
