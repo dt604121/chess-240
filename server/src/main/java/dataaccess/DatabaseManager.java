@@ -2,7 +2,6 @@ package dataaccess;
 
 import exception.DataAccessException;
 
-import javax.xml.crypto.Data;
 import java.sql.*;
 import java.util.Properties;
 
@@ -18,13 +17,18 @@ public class DatabaseManager {
      * Load the database information for the db.properties file.
      */
 
-    public void ConfigureDAODatabases() throws DataAccessException {
+    public void ConfigureDAODatabases(){
         try {
             configureDatabase();
-        } catch (SQLException e){
-            throw new DataAccessException("couldn't configure the DB");
+        } catch (DataAccessException | SQLException e){
+            System.out.println(e.getMessage());
         }
     }
+
+    public DatabaseManager() {
+        ConfigureDAODatabases();
+    }
+
     static {
         try {
             try (var propStream = Thread.currentThread().getContextClassLoader()
@@ -84,12 +88,13 @@ public class DatabaseManager {
         }
     }
 
-    public static int executeUpdate(String statement, Object... params) throws DataAccessException {
+    public static void executeUpdate(String statement, Object... params) throws DataAccessException {
         try (var conn = getConnection()) {
             try (var ps = conn.prepareStatement(statement)) {
                 for (var i = 0; i < params.length; i++) {
                     var param = params[i];
                     switch (param) {
+                        case Integer p -> ps.setInt(i + 1, p);
                         case String p -> ps.setString(i + 1, p);
                         case null -> ps.setNull(i + 1, NULL);
                         default -> {
@@ -97,10 +102,9 @@ public class DatabaseManager {
                     }
                 }
                 ps.executeUpdate();
-                return 0;
             }
         } catch (SQLException e) {
-            throw new DataAccessException("could not execute update");
+            throw new DataAccessException(e.getMessage());
         }
     }
 
@@ -110,21 +114,21 @@ public class DatabaseManager {
             CREATE TABLE IF NOT EXISTS UserData (
               `username` VARCHAR(256) NOT NULL PRIMARY KEY,
               `password` VARCHAR(256) NOT NULL,
-              `email` VARCHAR(256) NOT NULL,
-            ) 
-            
+              `email` VARCHAR(256) NOT NULL
+            );""",
+            """
             CREATE TABLE IF NOT EXISTS AuthData (
               `authToken` VARCHAR(256) NOT NULL PRIMARY KEY,
-              `username` VARCHAR(256) NOT NULL,
-            ) 
-            
+              `username` VARCHAR(256) NOT NULL
+            );""",
+            """
             CREATE TABLE IF NOT EXISTS GameData (
               `gameID` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
               `whiteUsername` VARCHAR(256),
               `blackUsername` VARCHAR(256),
               `gameName` VARCHAR(256) NOT NULL,
               `game` TEXT NOT NULL
-              )
+              );
             """
     };
 
@@ -134,9 +138,6 @@ public class DatabaseManager {
             for (var statement : createStatements) {
                 try (var preparedStatement = conn.prepareStatement(statement)) {
                     preparedStatement.executeUpdate();
-                } catch (SQLException ex) {
-                    throw new DataAccessException("Couldn't configure the database. Error executing statement: \" +" +
-                            "statement + \" | \" + e.getMessage()");
                 }
             }
         }

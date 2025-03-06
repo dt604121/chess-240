@@ -26,7 +26,7 @@ public class SQLAuthDAO implements AuthDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("issue getting the authToken");
+            throw new DataAccessException(e.getMessage());
         }
         return null;
     }

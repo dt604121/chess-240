@@ -7,7 +7,6 @@ import model.UserData;
 
 import java.sql.SQLException;
 
-@SuppressWarnings("SqlNoDataSourceInspection")
 public class SQLUserDAO implements UserDAO {
     private final DatabaseManager databaseManager;
 
@@ -32,7 +31,7 @@ public class SQLUserDAO implements UserDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("issue with getting the user");
+            throw new DataAccessException(e.getMessage());
         }
         return null;
     }
@@ -49,7 +48,7 @@ public class SQLUserDAO implements UserDAO {
                 return new UserData(username, password, email);
             }
         } catch (SQLException e){
-            throw new DataAccessException("couldn't create a user");
+            throw new DataAccessException(e.getMessage());
         }
     }
 

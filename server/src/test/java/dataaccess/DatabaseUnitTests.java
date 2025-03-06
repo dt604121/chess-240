@@ -29,7 +29,7 @@ public class DatabaseUnitTests {
 
     //region Game DAO Tests
     @Test
-    void listGamesPositiveTest() throws DataAccessException, java.sql.SQLException {
+    void listGamesPositiveTest() throws DataAccessException {
         GameData gameData = new GameData(1234, "whiteUsername", "blackUsername",
                 "gameName", new ChessGame());
 
