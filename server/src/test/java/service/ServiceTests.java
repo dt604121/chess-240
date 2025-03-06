@@ -105,7 +105,7 @@ public class ServiceTests {
     // List Games
     @Test
     void listGamesPositiveTest() throws DataAccessException, UnauthorizedException {
-        GameData game1 = new GameData(2,"whiteUsername", "blackUsername",
+        GameData game1 = new GameData(2, "whiteUsername", "blackUsername",
                 "gameName", null);
         memoryGameDAO.addGame(game1);
         AuthData authData = userService.createAndSaveAuthToken("testUser");

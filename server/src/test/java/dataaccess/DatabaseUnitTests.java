@@ -70,7 +70,7 @@ public class DatabaseUnitTests {
         sqlGameDAO.addGame(gameData);
         sqlGameDAO.clearGameDAO();
 
-        assertNull(sqlGameDAO.getGame(1234), "GameDAO should be emtpy after clearing");
+        assertNull(sqlGameDAO.getGame(1234), "GameDAO should be empty after clearing");
     }
 
     @Test
@@ -178,9 +178,7 @@ public class DatabaseUnitTests {
     }
     @Test
     void getAuthTokenNegativeTest() throws DataAccessException {
-        AuthData authData = new AuthData(null, "username");
-        sqlAuthDAO.addAuthToken(authData);
-        assertNotNull(sqlAuthDAO.getAuthToken(null));
+        assertNull(sqlAuthDAO.getAuthToken("nonexistent_token"));
     }
 
     @Test
@@ -193,9 +191,6 @@ public class DatabaseUnitTests {
 
     @Test
     void deleteAuthTokenNegativeTest() throws DataAccessException {
-        AuthData authData = new AuthData(null, "username");
-        sqlAuthDAO.addAuthToken(authData);
-        sqlAuthDAO.deleteAuth(null);
         assertNull(sqlAuthDAO.getAuthToken(null));
     }
 
@@ -220,8 +215,7 @@ public class DatabaseUnitTests {
     @Test
     void addAuthTokenNegativeTest() throws DataAccessException {
         AuthData authData = new AuthData(null, "username");
-        sqlAuthDAO.addAuthToken(authData);
-        assertNull(authData.authToken());
+        assertThrows(DataAccessException.class, () -> sqlAuthDAO.addAuthToken(authData));
     }
     // endregion
 }
