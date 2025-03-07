@@ -17,7 +17,7 @@ public class DatabaseManager {
      * Load the database information for the db.properties file.
      */
 
-    public void ConfigureDAODatabases(){
+    public void configureDAODatabases(){
         try {
             configureDatabase();
         } catch (DataAccessException | SQLException e){
@@ -26,7 +26,7 @@ public class DatabaseManager {
     }
 
     public DatabaseManager() {
-        ConfigureDAODatabases();
+        configureDAODatabases();
     }
 
     static {
@@ -89,8 +89,8 @@ public class DatabaseManager {
     }
 
     public static void executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (var conn = getConnection()) {
-            try (var ps = conn.prepareStatement(statement)) {
+        try (var conn = getConnection();
+             var ps = conn.prepareStatement(statement)) {
                 for (var i = 0; i < params.length; i++) {
                     var param = params[i];
                     switch (param) {
@@ -102,7 +102,6 @@ public class DatabaseManager {
                     }
                 }
                 ps.executeUpdate();
-            }
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
