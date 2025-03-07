@@ -30,19 +30,14 @@ public class DatabaseUnitTests {
     //region Game DAO Tests
     @Test
     void listGamesPositiveTest() throws DataAccessException {
-        GameData gameData = new GameData(1234, "whiteUsername", "blackUsername",
-                "gameName", new ChessGame());
-
-        assertNotNull(sqlGameDAO.listGames(gameData));
+        String validAuthToken = "1234";
+        assertNotNull(sqlGameDAO.listGames(validAuthToken));
     }
 
     @Test
-    void listGamesNegativeTest() throws DataAccessException {
+    void listGamesNegativeTest() {
         // testing null input
-        GameData gameData = new GameData(0, null, null,
-                null, null);
-
-        assert(sqlGameDAO.listGames(gameData).isEmpty());
+        assertThrows(DataAccessException.class, () -> sqlGameDAO.listGames(null));
     }
 
     @Test
@@ -83,14 +78,12 @@ public class DatabaseUnitTests {
     }
 
     @Test
-    void updateGameNegativeTest() throws DataAccessException {
+    void updateGameNegativeTest() {
         // null data
         GameData gameData = new GameData(0, null, null,
                 null, null);
 
-        sqlGameDAO.updateGame(gameData);
-
-        assertNotEquals((gameData.gameID()), 0);
+        assertThrows(DataAccessException.class, () -> sqlGameDAO.updateGame(gameData));
     }
 
     @Test
@@ -103,24 +96,26 @@ public class DatabaseUnitTests {
     }
 
     @Test
-    void addGameNegativeTest() throws DataAccessException {
+    void addGameNegativeTest() {
         // null data
         GameData gameData = new GameData(0, null, null,
                 null, null);
 
-        sqlGameDAO.addGame(gameData);
-
-        assertNotEquals((gameData.gameID()), 0);
+        assertThrows(DataAccessException.class, () -> sqlGameDAO.addGame(gameData));
     }
     // endregion
 
     // region User DAO Tests
     @Test
-    void getUserPositiveTest() throws DataAccessException, SQLException {
+    void getUserPositiveTest() throws DataAccessException {
         UserData userData = new UserData("username", "password", "email.com");
+        sqlUserDAO.addUser(userData);
 
-        assertNotNull(sqlUserDAO.getUser("username"));
-        assertEquals(userData.username(), "username");
+        UserData retrievedUser = sqlUserDAO.getUser("username");
+        assertNotNull(retrievedUser);
+        assertEquals(userData.email(), retrievedUser.email());
+        assertEquals(userData.password(), retrievedUser.password());
+        assertEquals(userData.username(), retrievedUser.username());
     }
 
     @Test
@@ -138,8 +133,9 @@ public class DatabaseUnitTests {
     }
 
     @Test
-    void createUserNegativeTest() throws DataAccessException {
-        assertNull(sqlUserDAO.createUser(null, null, null));
+    void createUserNegativeTest() {
+        assertThrows(DataAccessException.class, () ->
+                sqlUserDAO.createUser("Danica", null, null));
     }
 
     @Test
@@ -162,11 +158,9 @@ public class DatabaseUnitTests {
     }
 
     @Test
-    void addUserNegativeTest() throws DataAccessException {
+    void addUserNegativeTest() {
         UserData userData = new UserData(null, null, null);
-
-        sqlUserDAO.addUser(userData);
-        assertNull(userData.username(), userData.email());
+        assertThrows(DataAccessException.class, () -> sqlUserDAO.addUser(userData));
     } // endregion
 
     // region Auth DAO Tests
@@ -213,7 +207,7 @@ public class DatabaseUnitTests {
     }
 
     @Test
-    void addAuthTokenNegativeTest() throws DataAccessException {
+    void addAuthTokenNegativeTest() {
         AuthData authData = new AuthData(null, "username");
         assertThrows(DataAccessException.class, () -> sqlAuthDAO.addAuthToken(authData));
     }

@@ -38,6 +38,9 @@ public class SQLUserDAO implements UserDAO {
 
     @Override
     public UserData createUser(String username, String password, String email) throws DataAccessException {
+        if (username == null || password == null || email == null) {
+            throw new DataAccessException("Error: username, password, and email cannot be null");
+        }
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "INSERT INTO UserData (username, password, email) VALUES (?, ?, ?)";
             try (var preparedStatement = conn.prepareStatement(statement)) {
@@ -60,6 +63,9 @@ public class SQLUserDAO implements UserDAO {
 
     @Override
     public void addUser(UserData userData) throws DataAccessException {
+        if (userData.username() == null || userData.password() == null || userData.email() == null) {
+            throw new DataAccessException("Error: username, password, and email cannot be null");
+        }
         var statement = "INSERT INTO UserData (username, password, email) VALUES (?, ?, ?)";
         DatabaseManager.executeUpdate(statement, userData.username(), userData.password(), userData.email());
     }
