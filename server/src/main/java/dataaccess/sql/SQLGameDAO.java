@@ -26,7 +26,6 @@ public class SQLGameDAO implements GameDAO {
             throw new DataAccessException("Error: authToken cannot be null or empty");
         }
         try (var conn = DatabaseManager.getConnection()) {
-            // How are we getting the authToken from listGamesRequest?
             var statement = "SELECT gameID, whiteusername, blackusername, gameName, game FROM GameData " +
                     "WHERE ? IN (SELECT authToken FROM AuthData);";
             try (var ps = conn.prepareStatement(statement)) {

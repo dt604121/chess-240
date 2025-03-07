@@ -5,7 +5,6 @@ import dataaccess.sql.SQLUserDAO;
 import dataaccess.sql.SQLGameDAO;
 import dataaccess.sql.SQLAuthDAO;
 import exception.DataAccessException;
-import exception.SQLException;
 import model.GameData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
