@@ -11,6 +11,7 @@ import exception.UnauthorizedException;
 import model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.UUID;
 
@@ -29,7 +30,8 @@ public class ServiceTests {
         memoryUserDAO.clearUserDAO();
         memoryAuthDAO.clearAuthDAO();
         memoryGameDAO.clearGameDAO();
-        UserData userData = new UserData("testUser", "1234", "testUser@email");
+        String hashedPassword = BCrypt.hashpw("1234", BCrypt.gensalt());
+        UserData userData = new UserData("testUser", hashedPassword, "testUser@email");
         memoryUserDAO.addUser(userData);
         assertNotNull(memoryUserDAO.getUser("testUser"), "User should be added before login test");
     }

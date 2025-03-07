@@ -41,6 +41,7 @@ public class SQLUserDAO implements UserDAO {
         if (username == null || password == null || email == null) {
             throw new DataAccessException("Error: username, password, and email cannot be null");
         }
+
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "INSERT INTO UserData (username, password, email) VALUES (?, ?, ?)";
             try (var preparedStatement = conn.prepareStatement(statement)) {
