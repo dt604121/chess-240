@@ -82,10 +82,9 @@ public class SQLGameDAO implements GameDAO {
 
     @Override
     public void updateGame(GameData gameData) throws DataAccessException {
-        if (Objects.isNull(gameData) || Objects.isNull(gameData.whiteUsername()) ||
-                Objects.isNull(gameData.blackUsername()) || Objects.isNull(gameData.gameName()) ||
+        if (Objects.isNull(gameData) || Objects.isNull(gameData.gameName()) ||
                 Objects.isNull(gameData.game())) {
-            throw new DataAccessException("Error: username, password, and email cannot be null");
+            throw new DataAccessException("Error: gameName / game cannot be null");
         }
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement("UPDATE GameData SET whiteusername=?," +
@@ -105,10 +104,9 @@ public class SQLGameDAO implements GameDAO {
 
     @Override
     public void addGame(GameData gameData) throws DataAccessException  {
-        if (Objects.isNull(gameData) || Objects.isNull(gameData.whiteUsername()) ||
-                Objects.isNull(gameData.blackUsername()) || Objects.isNull(gameData.gameName()) ||
+        if (Objects.isNull(gameData) || Objects.isNull(gameData.gameName()) ||
                 Objects.isNull(gameData.game())) {
-            throw new DataAccessException("Error: username, password, and email cannot be null");
+            throw new DataAccessException("Error: game / gameName cannot be null");
         }
         var statement = "INSERT INTO GameData (gameID, whiteUsername, blackUsername, gameName, game)" +
                 "VALUES (?, ?, ?, ?, ?)";

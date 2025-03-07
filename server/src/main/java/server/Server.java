@@ -19,6 +19,7 @@ import service.ClearService;
 import spark.*;
 
 import javax.xml.crypto.Data;
+import java.util.Map;
 
 public class Server {
     private final UserService userService;
@@ -78,7 +79,7 @@ public class Server {
             return "{ \"message\": \"Error: already taken\" }";
         } catch (DataAccessException e) {
             res.status(500);
-            return "{ \"message\": \"Error: (description of error)\" }";
+            return new Gson().toJson(Map.of("message",e.getMessage()));
         }
     }
 
@@ -93,7 +94,7 @@ public class Server {
             return "{ \"message\": \"Error: unauthorized\" }";
         } catch (DataAccessException e) {
             res.status(500);
-            return "{ \"message\": \"Error: (description of error)\" }";
+            return new Gson().toJson(Map.of("message",e.getMessage()));
         }
     }
 
@@ -105,7 +106,7 @@ public class Server {
              return "{}";
          } catch (DataAccessException e) {
              res.status(500);
-             return "{ \"message\": \"Error: (description of error)\" }";
+             return new Gson().toJson(Map.of("message",e.getMessage()));
          } catch (UnauthorizedException e) {
              res.status(401);
              return "{ \"message\": \"Error: unauthorized\" }";
@@ -113,7 +114,7 @@ public class Server {
     }
 
     private Object listGamesHandler(Request req, Response res) throws DataAccessException {
-        String authToken = req.headers("authorization");
+        String authToken = req.headers("Authorization");
         try {
             var listGamesResult = gameService.listGamesService(authToken);
             res.status(200);
@@ -123,7 +124,7 @@ public class Server {
             return "{ \"message\": \"Error: unauthorized\" }";
         } catch (DataAccessException e) {
             res.status(500);
-            return "{ \"message\": \"Error: (description of error)\" }";
+            return new Gson().toJson(Map.of("message",e.getMessage()));
         }
     }
 
@@ -142,7 +143,7 @@ public class Server {
             return "{ \"message\": \"Error: unauthorized\" }";
         } catch (DataAccessException e) {
             res.status(500);
-            return "{ \"message\": \"Error: (description of error)\" }";
+            return new Gson().toJson(Map.of("message",e.getMessage()));
         }
     }
 
@@ -164,7 +165,7 @@ public class Server {
             return "{ \"message\": \"Error: already taken\" }";
         } catch (DataAccessException e) {
             res.status(500);
-            return "{ \"message\": \"Error: (description of error)\" }";
+            return new Gson().toJson(Map.of("message",e.getMessage()));
         }
     }
 

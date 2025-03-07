@@ -35,7 +35,6 @@ public class UserService {
         String hashedPassword = BCrypt.hashpw(registerRequest.password(), BCrypt.gensalt());
         UserData userData = userDAO.createUser(registerRequest.username(), hashedPassword,
                 registerRequest.email());
-        userDAO.addUser(userData);
         AuthData authData = createAndSaveAuthToken(userData.username());
         return new RegisterResult(userData.username(), authData.authToken());
     }
