@@ -1,16 +1,15 @@
 package ui;
-
-import java.util.Arrays;
-
 import client.State;
 import exception.ResponseException;
 
-public class PreLoginClient {
+import java.util.Arrays;
+
+public class GamePlayClient {
     private final ServerFacade serverFacade;
     private final String serverUrl;
-    private State state = State.SIGNEDOUT;
+    private State state = State.SIGNEDIN;
 
-    public PreLoginClient(String serverUrl) {
+    public GamePlayClient(String serverUrl){
         serverFacade = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
     }
@@ -18,36 +17,23 @@ public class PreLoginClient {
     public String eval(String input) {
         try {
             var tokens = input.toLowerCase().split(" ");
-            var cmd = (tokens.length > 0) ? tokens[0] : "help";
+            var cmd = (tokens.length > 0 ) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
-                case "login" -> login(params);
-                case "register" -> register();
+                case "move" -> movePiece();
                 case "quit" -> "quit";
                 default -> help();
-            };
+            }
         } catch (ResponseException ex) {
             return ex.getMessage();
         }
     }
-    public String login(String... params) throws ResponseException {
-        if (params.length >= 1) {
-            state = State.SIGNEDIN;
-        }
-        throw new ResponseException(400, "Expected: <yourname>");
-    }
-
-    public void register() {
-
-    }
 
     public String help() {
         return """
-                login <USERNAME> <PASSWORD> - to play chess
-                register <USERNAME> <PASSWORD> <EMAIL> - to create an account
+                move - a piece 
                 quit - playing chess
                 help - with possible commands
                 """;
     }
-
 }

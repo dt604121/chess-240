@@ -11,7 +11,7 @@ import static ui.EscapeSequences.RESET;
 public class Repl {
     private final PostLoginClient postLoginClient;
     private final PreLoginClient preLoginClient;
-    private final GameplayClient gamePlayClient;
+    private final GamePlayClient gamePlayClient;
 
     public Repl(String serverUrl) {
         postLoginClient = new postLoginClient(serverUrl, this);

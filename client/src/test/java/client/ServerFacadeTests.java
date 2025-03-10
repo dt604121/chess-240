@@ -2,6 +2,7 @@ package client;
 
 import org.junit.jupiter.api.*;
 import server.Server;
+import ui.GamePlayClient;
 import ui.GameplayClient;
 import ui.PostLoginClient;
 import ui.PreLoginClient;
@@ -16,7 +17,7 @@ public class ServerFacadeTests {
     static ServerFacade facade;
     static PostLoginClient postLoginClient;
     static PreLoginClient preLoginClient;
-    static GameplayClient gameplayClient;
+    static GamePlayClient gamePlayClient;
 
     @BeforeAll
     public static void init() {
@@ -33,9 +34,7 @@ public class ServerFacadeTests {
 
     @BeforeEach
     void clear() throws Exception {
-        preLoginClient.clear();
-        postLoginClient.clear();
-        gameplayClient.clear();
+        ServerFacade.clear();
     }
 //
 //    @Test
