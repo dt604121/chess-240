@@ -113,7 +113,7 @@ public class Server {
          }
     }
 
-    private Object listGamesHandler(Request req, Response res) throws DataAccessException {
+    private Object listGamesHandler(Request req, Response res) {
         String authToken = req.headers("Authorization");
         try {
             var listGamesResult = gameService.listGamesService(authToken);
