@@ -31,6 +31,8 @@ public class Repl {
 
             try {
                 result = preLoginClient.eval(line);
+                result = postLoginClient.eval(line);
+                result = gamePlayClient.eval(line);
                 System.out.print(BLUE + result);
             } catch (Throwable e) {
                 var msg = e.toString();

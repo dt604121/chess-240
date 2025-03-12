@@ -6,28 +6,20 @@ import exception.ResponseException;
 import java.io.*;
 import java.net.*;
 
-
-import exception.ResponseException;
-import model.GameData;
-import model.UserData;
+import model.*;
 
 import java.net.URI;
 
 public class ServerFacade {
-    private final String serverUrl;
 
-    public ServerFacade(String url) {
-        serverUrl = url;
-    }
-
-    public UserData registerUser(UserData user) throws ResponseException{
+    public RegisterResult registerUser(UserData user) throws ResponseException{
         var path = "/user";
-        return this.makeRequest("POST", path, user, UserData.class);
+        return this.makeRequest("POST", path, user, RegisterResult.class);
     }
 
-    public UserData loginUser(UserData user) throws ResponseException {
+    public LoginRequest loginUser(UserData user) throws ResponseException {
         var path = "/session";
-        return this.makeRequest("POST", path, user, UserData.class);
+        return this.makeRequest("POST", path, user, LoginRequest.class);
     }
 
     public UserData logoutUser(UserData user) throws ResponseException {
@@ -40,14 +32,14 @@ public class ServerFacade {
         return this.makeRequest("GET", path, game, GameData.class);
     }
 
-    public GameData createGames(GameData game) throws ResponseException {
+    public CreateGameRequest createGames(GameData game) throws ResponseException {
         var path = "/game";
-        return this.makeRequest("POST", path, game, GameData.class);
+        return this.makeRequest("POST", path, game, CreateGameRequest.class);
     }
 
-    public GameData joinGame(GameData game) throws ResponseException {
+    public JoinGamesRequest joinGame(GameData game) throws ResponseException {
         var path = "/game";
-        return this.makeRequest("PUT", path, game, GameData.class);
+        return this.makeRequest("PUT", path, game, JoinGamesRequest.class);
     }
 
     public void clear() throws ResponseException {

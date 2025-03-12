@@ -6,12 +6,10 @@ import java.util.Arrays;
 
 public class GamePlayClient {
     private final ServerFacade serverFacade;
-    private final String serverUrl;
     private State state = State.SIGNEDIN;
 
-    public GamePlayClient(String serverUrl){
-        serverFacade = new ServerFacade(serverUrl);
-        this.serverUrl = serverUrl;
+    public GamePlayClient(){
+        serverFacade = new ServerFacade();
     }
 
     public String eval(String input) {

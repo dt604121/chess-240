@@ -4,14 +4,15 @@ import java.util.Arrays;
 
 import client.State;
 import exception.ResponseException;
+import model.UserData;
 
 public class PreLoginClient {
     private final ServerFacade serverFacade;
-    private final String serverUrl;
     private State state = State.SIGNEDOUT;
+    private final String serverUrl;
 
     public PreLoginClient(String serverUrl) {
-        serverFacade = new ServerFacade(serverUrl);
+        serverFacade = new ServerFacade();
         this.serverUrl = serverUrl;
     }
 
@@ -23,7 +24,7 @@ public class PreLoginClient {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "login" -> login(params);
-                case "register" -> register();
+                case "register" -> register(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -32,14 +33,27 @@ public class PreLoginClient {
         }
     }
     public String login(String... params) throws ResponseException {
+        // TODO: add try / catch block
         if (params.length >= 1) {
             state = State.SIGNEDIN;
         }
+        var name = params[0];
+        var password = params[1];
+        // how is this part different than the loginService we implemneted in the UserService?
+        serverFacade.loginUser();
         throw new ResponseException(400, "Expected: <yourname>");
     }
 
-    public void register() {
-
+    public String register(String... params) throws ResponseException{
+        if (params.length >= 1) {
+            state = State.SIGNEDIN;
+        }
+        var name = params[0];
+        var password = params[1];
+        var email = params[2];
+        var user = new UserData(name, password, email);
+        serverFacade.registerUser(user);
+        throw new ResponseException(400, "Expected: <yourname>");
     }
 
     public String help() {
@@ -50,5 +64,4 @@ public class PreLoginClient {
                 help - with possible commands
                 """;
     }
-
 }

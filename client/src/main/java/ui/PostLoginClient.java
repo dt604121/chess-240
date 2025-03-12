@@ -6,12 +6,10 @@ import java.util.Arrays;
 
 public class PostLoginClient {
     private final ServerFacade serverFacade;
-    private final String serverUrl;
     private State state = State.SIGNEDIN;
 
-    public PostLoginClient(String serverUrl){
-        serverFacade = new ServerFacade(serverUrl);
-        this.serverUrl = serverUrl;
+    public PostLoginClient(){
+        serverFacade = new ServerFacade();
     }
 
     public String eval(String input) {
@@ -21,10 +19,10 @@ public class PostLoginClient {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "logout" -> logout();
-                case "create" -> createGame();
+                case "create" -> createGame(params);
                 case "list" -> listGames();
-                case "observe" -> observeGame();
-                case "join" -> joinGame();
+                case "observe" -> observeGame(params);
+                case "join" -> joinGame(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -33,23 +31,59 @@ public class PostLoginClient {
         }
     }
 
-    private String joinGame() throws ResponseException {
+    public String joinGame(String... params) throws ResponseException {
+        assertSignedIn();
+        // TODO: add try / catch block
+        if (params.length >= 1) {
+            state = State.SIGNEDIN;
+        }
+        var id = params[0];
+        var color = params[1];
+
+        // how is this part different than the joinGame we implemneted in the UserService?
+        serverFacade.joinGame();
+        throw new ResponseException(400, "Expected: <id> [color]");
         return "";
     }
 
-    private String observeGame() throws ResponseException {
+    public String observeGame(String... params) throws ResponseException {
+        assertSignedIn();
+        // TODO: add try / catch block
+        if (params.length >= 1) {
+            state = State.SIGNEDIN;
+        }
+        var id = params[0];
+        var color = params[1];
+
+        // how is this part different than the joinGame we implemneted in the UserService?
+        // call observe game
+        throw new ResponseException(400, "Expected: <id>");
         return "";
     }
 
-    private String listGames() throws ResponseException {
+    public String listGames() throws ResponseException {
+        assertSignedIn();
+        serverFacade.listGames();
         return "";
     }
 
-    private String createGame()  throws ResponseException {
+    public String createGame(String... params)  throws ResponseException {
+        assertSignedIn();
+        // TODO: add try / catch block
+        if (params.length == 1) {
+            state = State.SIGNEDIN;
+        }
+        var name = params[0];
+
+        // how is this part different than the joinGame we implemneted in the UserService?
+        serverFacade.createGames();
+        throw new ResponseException(400, "Expected: name");
         return "";
     }
 
-    private String logout()  throws ResponseException {
+    public String logout()  throws ResponseException {
+        assertSignedIn();
+        serverFacade.logoutUser();
         return "";
     }
 
@@ -63,5 +97,11 @@ public class PostLoginClient {
                 quit - playing chess
                 help - with possible commands
                 """;
+    }
+
+    private void assertSignedIn() throws ResponseException {
+        if (state == State.SIGNEDOUT) {
+            throw new ResponseException(400, "You must sign in");
+        }
     }
 }
