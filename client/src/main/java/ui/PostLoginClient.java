@@ -27,10 +27,30 @@ public class PostLoginClient {
                 case "join" -> joinGame();
                 case "quit" -> "quit";
                 default -> help();
-            }
+            };
         } catch (ResponseException ex) {
             return ex.getMessage();
         }
+    }
+
+    private String joinGame() throws ResponseException {
+        return "";
+    }
+
+    private String observeGame() throws ResponseException {
+        return "";
+    }
+
+    private String listGames() throws ResponseException {
+        return "";
+    }
+
+    private String createGame()  throws ResponseException {
+        return "";
+    }
+
+    private String logout()  throws ResponseException {
+        return "";
     }
 
     public String help() {

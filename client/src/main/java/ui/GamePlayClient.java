@@ -20,10 +20,10 @@ public class GamePlayClient {
             var cmd = (tokens.length > 0 ) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
-                case "move" -> movePiece();
+//                case "move" -> movePiece();
                 case "quit" -> "quit";
                 default -> help();
-            }
+            };
         } catch (ResponseException ex) {
             return ex.getMessage();
         }

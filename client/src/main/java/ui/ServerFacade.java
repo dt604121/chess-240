@@ -10,7 +10,6 @@ import java.net.*;
 import exception.ResponseException;
 import model.GameData;
 import model.UserData;
-import server.Server;
 
 import java.net.URI;
 
@@ -51,7 +50,7 @@ public class ServerFacade {
         return this.makeRequest("PUT", path, game, GameData.class);
     }
 
-    public static void clear() throws ResponseException {
+    public void clear() throws ResponseException {
         var path = "/db";
         this.makeRequest("DELETE", path, null, null);
     }

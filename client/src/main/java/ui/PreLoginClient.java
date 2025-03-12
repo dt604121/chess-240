@@ -15,6 +15,7 @@ public class PreLoginClient {
         this.serverUrl = serverUrl;
     }
 
+    // scan in the input and then call the correct function
     public String eval(String input) {
         try {
             var tokens = input.toLowerCase().split(" ");
