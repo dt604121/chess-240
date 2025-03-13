@@ -1,5 +1,5 @@
 package ui;
-import client.State;
+import chess.ChessBoard;
 import exception.ResponseException;
 
 import java.util.Arrays;
@@ -7,9 +7,11 @@ import java.util.Arrays;
 public class PostLoginClient {
     private final ServerFacade serverFacade;
     private State state = State.SIGNEDIN;
+    private final String serverUrl;
 
-    public PostLoginClient(){
-        serverFacade = new ServerFacade();
+    public PostLoginClient(String serverUrl){
+        serverFacade = new ServerFacade(serverUrl);
+        this.serverUrl = serverUrl;
     }
 
     public String eval(String input) {
@@ -40,7 +42,7 @@ public class PostLoginClient {
         var id = params[0];
         var color = params[1];
 
-        // how is this part different than the joinGame we implemneted in the UserService?
+        // add chessboardUI
         serverFacade.joinGame();
         throw new ResponseException(400, "Expected: <id> [color]");
         return "";
@@ -49,8 +51,6 @@ public class PostLoginClient {
     public String observeGame(String... params) throws ResponseException {
         assertSignedIn();
 
-        // TODO: add try / catch block
-
         if (params.length < 1) {
             throw new ResponseException(400, "Expected: <id>");
         }
@@ -58,7 +58,8 @@ public class PostLoginClient {
 
         boolean whitePerspective = true;
 
-        // how do we grab the board to actually display it?
+        ChessBoard board = new ChessBoard();
+        board.resetBoard();
         ChessBoardUI.drawChessBoard(System.out, board, whitePerspective);
 
         // call observeGame()

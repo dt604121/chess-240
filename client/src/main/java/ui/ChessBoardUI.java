@@ -1,5 +1,7 @@
 package ui;
 
+import chess.ChessBoard;
+
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import static ui.EscapeSequences.*;
@@ -10,7 +12,8 @@ public class ChessBoardUI {
     public static void main(String[] args) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
-        String[][] board = initializeBoard();
+        ChessBoard board = new ChessBoard();
+        board.resetBoard();
         boolean whitePerspective = true;
         drawChessBoard(out, board, whitePerspective);
     }
@@ -59,46 +62,5 @@ public class ChessBoardUI {
                 out.print(RESET);
             }
         }
-    }
-
-    // set board to be empty
-    public static String[][] initializeBoard() {
-        String[][] board = new String[BOARD_SIZE][BOARD_SIZE];
-
-        for (int row = 0; row < BOARD_SIZE; row++) {
-            for (int col = 0; col < BOARD_SIZE; col++) {
-                board[row][col] = EMPTY;
-            }
-        }
-
-        board[0][0] = BLACK_ROOK;
-        board[0][1] = BLACK_KNIGHT;
-        board[0][2] = BLACK_BISHOP;
-        board[0][3] = BLACK_QUEEN;
-        board[0][4] = BLACK_KING;
-        board[0][5] = BLACK_BISHOP;
-        board[0][6] = BLACK_KNIGHT;
-        board[0][7] = BLACK_ROOK;
-
-        // Black Pawns
-        for (int col = 0; col < BOARD_SIZE; col++) {
-            board[1][col] = BLACK_PAWN;
-        }
-
-        // White Pawns
-        for (int col = 0; col < BOARD_SIZE; col++) {
-            board[6][col] = WHITE_PAWN;
-        }
-
-        board[7][0] = WHITE_ROOK;
-        board[7][1] = WHITE_KNIGHT;
-        board[7][2] = WHITE_BISHOP;
-        board[7][3] = WHITE_QUEEN;
-        board[7][4] = WHITE_KING;
-        board[7][5] = WHITE_BISHOP;
-        board[7][6] = WHITE_KNIGHT;
-        board[7][7] = WHITE_ROOK;
-
-        return board;
     }
 }

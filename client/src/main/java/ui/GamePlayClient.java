@@ -1,5 +1,4 @@
 package ui;
-import client.State;
 import exception.ResponseException;
 
 import java.util.Arrays;
@@ -7,9 +6,12 @@ import java.util.Arrays;
 public class GamePlayClient {
     private final ServerFacade serverFacade;
     private State state = State.SIGNEDIN;
+    private final String serverUrl;
 
-    public GamePlayClient(){
-        serverFacade = new ServerFacade();
+    public GamePlayClient(String serverUrl){
+        serverFacade = new ServerFacade(serverUrl);
+        this.serverUrl = serverUrl;
+
     }
 
     public String eval(String input) {

@@ -11,14 +11,20 @@ import model.*;
 import java.net.URI;
 
 public class ServerFacade {
-    public RegisterResult registerUser(UserData user) throws ResponseException{
+    private final String serverUrl;
+
+    public ServerFacade(String url) {
+        serverUrl = url;
+    }
+
+    public RegisterResult registerUser(UserData user) throws ResponseException {
         var path = "/user";
         return this.makeRequest("POST", path, user, RegisterResult.class);
     }
 
-    public LoginRequest loginUser(UserData user) throws ResponseException {
+    public LoginResult loginUser(LoginRequest user) throws ResponseException {
         var path = "/session";
-        return this.makeRequest("POST", path, user, LoginRequest.class);
+        return this.makeRequest("POST", path, user, LoginResult.class);
     }
 
     public UserData logoutUser(UserData user) throws ResponseException {
@@ -26,19 +32,19 @@ public class ServerFacade {
         return this.makeRequest("DELETE", path, user, UserData.class);
     }
 
-    public GameData listGames(GameData game) throws ResponseException {
+    public ListGamesResult listGames(GameData game) throws ResponseException {
         var path = "/game";
-        return this.makeRequest("GET", path, game, GameData.class);
+        return this.makeRequest("GET", path, game, ListGamesResult.class);
     }
 
-    public CreateGameRequest createGames(GameData game) throws ResponseException {
+    public CreateGameResult createGames(GameData game) throws ResponseException {
         var path = "/game";
-        return this.makeRequest("POST", path, game, CreateGameRequest.class);
+        return this.makeRequest("POST", path, game, CreateGameResult.class);
     }
 
-    public JoinGamesRequest joinGame(GameData game) throws ResponseException {
+    public GameData joinGame(GameData game) throws ResponseException {
         var path = "/game";
-        return this.makeRequest("PUT", path, game, JoinGamesRequest.class);
+        return this.makeRequest("PUT", path, game, GameData.class);
     }
 
     public void clear() throws ResponseException {
@@ -54,6 +60,7 @@ public class ServerFacade {
             http.setDoOutput(true);
 
             writeBody(request, http);
+            writeHeader(request, http);
             http.connect();
             throwIfNotSuccessful(http);
             return readBody(http, responseClass);
@@ -64,8 +71,19 @@ public class ServerFacade {
         }
     }
 
-
     private static void writeBody(Object request, HttpURLConnection http) throws IOException {
+        if (request != null) {
+            http.addRequestProperty("Content-Type", "application/json");
+            String reqData = new Gson().toJson(request);
+            try (OutputStream reqBody = http.getOutputStream()) {
+                reqBody.write(reqData.getBytes());
+            }
+        }
+    }
+
+    // TODO: Implement writeHeader
+    // this is where we use the results from the headers and actually save stuff like the authTokens
+    private static void writeHeader(Object request, HttpURLConnection http) throws IOException {
         if (request != null) {
             http.addRequestProperty("Content-Type", "application/json");
             String reqData = new Gson().toJson(request);

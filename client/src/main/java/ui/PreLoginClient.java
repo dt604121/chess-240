@@ -2,7 +2,6 @@ package ui;
 
 import java.util.Arrays;
 
-import client.State;
 import exception.ResponseException;
 import model.UserData;
 
@@ -12,7 +11,7 @@ public class PreLoginClient {
     private final String serverUrl;
 
     public PreLoginClient(String serverUrl) {
-        serverFacade = new ServerFacade();
+        serverFacade = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
     }
 
@@ -39,7 +38,7 @@ public class PreLoginClient {
         }
         var name = params[0];
         var password = params[1];
-        // how is this part different than the loginService we implemneted in the UserService?
+
         serverFacade.loginUser();
         throw new ResponseException(400, "Expected: <yourname>");
     }
