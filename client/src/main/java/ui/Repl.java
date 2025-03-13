@@ -1,7 +1,5 @@
 package ui;
 
-import service.GameService;
-
 import java.util.Scanner;
 
 import static java.awt.Color.BLUE;
@@ -12,11 +10,12 @@ public class Repl {
     private final PostLoginClient postLoginClient;
     private final PreLoginClient preLoginClient;
     private final GamePlayClient gamePlayClient;
+    private final State state = State.SIGNEDOUT;
 
     public Repl(String serverUrl) {
-        postLoginClient = new postLoginClient(serverUrl, this);
-        preLoginClient = new preLoginClient(serverUrl, this);
-        gamePlayClient = new gamePlayClient(serverUrl, this);
+        postLoginClient = new PostLoginClient(serverUrl);
+        preLoginClient = new PreLoginClient(serverUrl);
+        gamePlayClient = new GamePlayClient(serverUrl);
     }
 
     public void run() {
@@ -28,11 +27,16 @@ public class Repl {
         while (!result.equals("quit")) {
             printPrompt();
             String line = scanner.nextLine();
-
             try {
-                result = preLoginClient.eval(line);
-                result = postLoginClient.eval(line);
-                result = gamePlayClient.eval(line);
+                if (state == State.SIGNEDOUT){
+                    result = preLoginClient.eval(line);
+                }
+                else if (state == State.SIGNEDIN) {
+                    result = postLoginClient.eval(line);
+                }
+                else if (state == State.GAMEPLAY) {
+                    result = gamePlayClient.eval(line);
+                }
                 System.out.print(BLUE + result);
             } catch (Throwable e) {
                 var msg = e.toString();
@@ -45,5 +49,4 @@ public class Repl {
     private void printPrompt() {
         System.out.print("\n" + RESET + ">>> " + GREEN);
     }
-
 }
