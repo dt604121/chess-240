@@ -1,7 +1,6 @@
 package client;
 
 import exception.ResponseException;
-import model.*;
 import org.junit.jupiter.api.*;
 import server.Server;
 import ui.GamePlayClient;
@@ -53,7 +52,6 @@ public class ServerFacadeTests {
         state = client.State.SIGNEDOUT;
         ResponseException exception = assertThrows(ResponseException.class,
                 () -> preLoginClient.register(null, null, null));
-        assertEquals(400, exception);
         assertEquals("Expected: <yourname>", exception.getMessage());
     }
 
@@ -66,8 +64,9 @@ public class ServerFacadeTests {
     @Test
     void loginUserNegativeTest() throws Exception{
         state = client.State.SIGNEDOUT;
-        var result = assertThrows(() -> preLoginClient.login(null, null, null));
-        assertNull(result);
+        ResponseException exception = assertThrows(ResponseException.class, () ->
+                preLoginClient.login(null, null, null));
+        assertEquals("You must sign in", exception.getMessage());
     }
 
     @Test
@@ -80,8 +79,9 @@ public class ServerFacadeTests {
     @Test
     void logoutUserNegativeTest() throws Exception {
         state = client.State.SIGNEDOUT;
-        var result = assertThrows(() -> postLoginClient.logout());
-        assertEquals("You must sign in", result);
+        ResponseException exception = assertThrows(ResponseException.class, () ->
+                postLoginClient.logout());
+        assertEquals("You must sign in", exception.getMessage());
     }
 
     @Test
@@ -94,8 +94,9 @@ public class ServerFacadeTests {
     @Test
     void listGamesNegativeTest() throws Exception {
         state = client.State.SIGNEDOUT;
-        var result = assertThrows(() -> postLoginClient.listGames());
-        assertEquals("You must sign in", result);
+        ResponseException exception = assertThrows(ResponseException.class, () ->
+                postLoginClient.listGames());
+        assertEquals("You must sign in", exception.getMessage());
     }
 
     @Test
@@ -108,8 +109,9 @@ public class ServerFacadeTests {
     @Test
     void createGamesNegativeTest() throws Exception {
         state = client.State.SIGNEDOUT;
-        var result = assertThrows(() -> postLoginClient.createGame());
-        assertEquals("You must sign in", result);
+        ResponseException exception = assertThrows(ResponseException.class, () ->
+                postLoginClient.createGame(null, null));
+        assertEquals("You must sign in", exception.getMessage());
     }
 
     @Test
@@ -122,8 +124,9 @@ public class ServerFacadeTests {
     @Test
     void joinGameNegativeTest() throws Exception {
         state = client.State.SIGNEDOUT;
-        var result = assertThrows(() -> postLoginClient.joinGame());
-        assertEquals("You must sign in", result);
+        ResponseException exception = assertThrows(ResponseException.class, () ->
+                postLoginClient.joinGame(null, null, null));
+        assertEquals("You must sign in", exception.getMessage());
     }
 
     @Test

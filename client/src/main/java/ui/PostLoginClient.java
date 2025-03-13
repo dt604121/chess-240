@@ -48,17 +48,22 @@ public class PostLoginClient {
 
     public String observeGame(String... params) throws ResponseException {
         assertSignedIn();
+
         // TODO: add try / catch block
-        if (params.length >= 1) {
-            state = State.SIGNEDIN;
+
+        if (params.length < 1) {
+            throw new ResponseException(400, "Expected: <id>");
         }
         var id = params[0];
-        var color = params[1];
 
-        // how is this part different than the joinGame we implemneted in the UserService?
-        // call observe game
-        throw new ResponseException(400, "Expected: <id>");
-        return "";
+        boolean whitePerspective = true;
+
+        // how do we grab the board to actually display it?
+        ChessBoardUI.drawChessBoard(System.out, board, whitePerspective);
+
+        // call observeGame()
+
+        return "Observing game " + id;
     }
 
     public String listGames() throws ResponseException {

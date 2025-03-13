@@ -11,13 +11,11 @@ public class ChessBoardUI {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
         String[][] board = initializeBoard();
-        drawChessBoard(out, board, true);
-
-        // black perspective:
-        // drawChessBoard(out, board, false);
+        boolean whitePerspective = true;
+        drawChessBoard(out, board, whitePerspective);
     }
 
-    private static void drawChessBoard(PrintStream out, String[][] board, boolean whitePerspective) {
+    public static void drawChessBoard(PrintStream out, String[][] board, boolean whitePerspective) {
         if (whitePerspective) {
             out.println("    a   b   c   d   e   f   g   h");
         } else {
@@ -35,24 +33,36 @@ public class ChessBoardUI {
                 int actualCol = whitePerspective ? col : (BOARD_SIZE - 1 - col);
                 // determine if (row + col) is even or odd -> use bool and mod to alternate -> set background color
                 boolean isLightSquare = ((actualCol + actualRow) % 2 == 0);
+                // if even -> light square color
                 if (isLightSquare) {
                     out.print(SET_BG_COLOR_WHITE + SET_TEXT_COLOR_BLACK);
                 }
-                else {
-                    out.print(SET_BG_COLOR_BLACK + )
-                }
-                // if even -> light square color
                 // if odd -> dark square color
+                else {
+                    out.print(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE);
+                }
                 // print the board[row][col] with that background color
-                // print rank number again
+                out.print(" " + board[actualRow][actualCol] + " ");
+                out.print(RESET);
 
-                // print column header:   "   a   b   c   d   e   f   g   h"
+                // print rank number again
+                out.print(" " + rankLabel);
+                out.println();
+
+                // print column header (below)
+                if (whitePerspective) {
+                    out.println("    a   b   c   d   e   f   g   h");
+                } else {
+                    out.println("    h   g   f   e   d   c   b   a");
+                }
+
+                out.print(RESET);
             }
         }
     }
 
     // set board to be empty
-    private static String[][] initializeBoard() {
+    public static String[][] initializeBoard() {
         String[][] board = new String[BOARD_SIZE][BOARD_SIZE];
 
         for (int row = 0; row < BOARD_SIZE; row++) {
