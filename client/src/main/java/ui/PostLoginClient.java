@@ -35,7 +35,6 @@ public class PostLoginClient {
 
     public String joinGame(String... params) throws ResponseException {
         assertSignedIn();
-        // TODO: add try / catch block
         if (params.length >= 1) {
             state = State.SIGNEDIN;
         }
@@ -75,7 +74,6 @@ public class PostLoginClient {
 
     public String createGame(String... params)  throws ResponseException {
         assertSignedIn();
-        // TODO: add try / catch block
         if (params.length == 1) {
             state = State.SIGNEDIN;
         }

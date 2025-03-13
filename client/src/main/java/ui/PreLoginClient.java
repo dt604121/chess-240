@@ -32,27 +32,31 @@ public class PreLoginClient {
         }
     }
     public String login(String... params) throws ResponseException {
-        // TODO: add try / catch block
         if (params.length >= 1) {
             state = State.SIGNEDIN;
-        }
-        var name = params[0];
-        var password = params[1];
+            var name = params[0];
+            var password = params[1];
 
-        serverFacade.loginUser();
+            serverFacade.loginUser();
+        }
         throw new ResponseException(400, "Expected: <yourname>");
     }
 
     public String register(String... params) throws ResponseException{
         if (params.length >= 1) {
             state = State.SIGNEDIN;
+
+            var name = params[0];
+            var password = params[1];
+            var email = params[2];
+
+            var user = new UserData(name, password, email);
+
+            serverFacade.registerUser(user);
+
+            return String.format("You registered as %s.", name);
         }
-        var name = params[0];
-        var password = params[1];
-        var email = params[2];
-        var user = new UserData(name, password, email);
-        serverFacade.registerUser(user);
-        throw new ResponseException(400, "Expected: <yourname>");
+        throw new ResponseException(400, "Expected: <name> <password> <email>");
     }
 
     public String help() {

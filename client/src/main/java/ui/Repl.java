@@ -19,7 +19,8 @@ public class Repl {
     }
 
     public void run() {
-        System.out.println("\uD83D\uDC36 Welcome to the pet store. Sign in to start.");
+        System.out.println("\uD83D\uDC36 Welcome to Chess240! Type help to get started");
+        // "[Logged Out] >>> "
         System.out.print(preLoginClient.help());
 
         Scanner scanner = new Scanner(System.in);
