@@ -60,7 +60,7 @@ public class ServerFacade {
             http.setDoOutput(true);
 
             writeBody(request, http);
-            writeHeader(request, http);
+            writeHeader(http);
             http.connect();
             throwIfNotSuccessful(http);
             return readBody(http, responseClass);
@@ -82,15 +82,10 @@ public class ServerFacade {
     }
 
     // TODO: Implement writeHeader
-    // this is where we use the results from the headers and actually save stuff like the authTokens
-    private static void writeHeader(Object request, HttpURLConnection http) throws IOException {
-        if (request != null) {
-            http.addRequestProperty("Content-Type", "application/json");
-            String reqData = new Gson().toJson(request);
-            try (OutputStream reqBody = http.getOutputStream()) {
-                reqBody.write(reqData.getBytes());
-            }
-        }
+    // this is where we use the results from the headers and actually save stuff e.g. the authTokens
+    private static void writeHeader(HttpURLConnection http) throws IOException {
+        // save the authToken
+        String authToken = http.getHeaderField("Authorization");
     }
 
     private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {

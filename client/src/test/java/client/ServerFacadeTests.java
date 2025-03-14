@@ -41,6 +41,11 @@ public class ServerFacadeTests {
     }
 
     @Test
+    void register() throws Exception {
+        var authData = preLoginClient.register("player1", "password", "p1@email.com");
+        assertTrue(authData.authToken().length() > 10);
+    }
+    @Test
     void registerUserPositiveTest() throws Exception {
         state = ui.State.SIGNEDOUT;
         var result = assertDoesNotThrow(() -> preLoginClient.register("joe", "password", "email@gmail.com"));
