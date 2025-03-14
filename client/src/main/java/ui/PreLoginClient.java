@@ -3,6 +3,8 @@ package ui;
 import java.util.Arrays;
 
 import exception.ResponseException;
+import model.LoginRequest;
+import model.LoginResult;
 import model.UserData;
 
 public class PreLoginClient {
@@ -33,13 +35,23 @@ public class PreLoginClient {
     }
     public String login(String... params) throws ResponseException {
         if (params.length >= 1) {
-            state = State.SIGNEDIN;
             var name = params[0];
             var password = params[1];
 
-            serverFacade.loginUser();
+            var loginRequest = new LoginRequest(name, password);
+
+            try {
+                LoginResult loginResult = serverFacade.loginUser(loginRequest);
+                // TODO: What do we do with the authToken?
+                String authToken = loginResult.authToken();
+                state = State.SIGNEDIN;
+                return String.format("You logged in as %s", name);
+            } catch (Exception e) {
+                throw new ResponseException(401, "Login failed: " + e.getMessage());
+            }
+
         }
-        throw new ResponseException(400, "Expected: <yourname>");
+        throw new ResponseException(400, "Expected: <name> <password>");
     }
 
     public String register(String... params) throws ResponseException{

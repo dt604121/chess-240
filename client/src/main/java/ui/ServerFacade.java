@@ -20,6 +20,9 @@ public class ServerFacade {
     public RegisterResult registerUser(UserData user) throws ResponseException {
         var path = "/user";
         return this.makeRequest("POST", path, user, RegisterResult.class);
+        // idk - make the above equal to the responseBody Deserialize response as a Map and extract authToken
+        // Map<String, String> responseMap = new Gson().fromJson(responseBody, Map.class);
+        // return responseMap.get("authToken");  // Extract the token directly
     }
 
     public LoginResult loginUser(LoginRequest user) throws ResponseException {

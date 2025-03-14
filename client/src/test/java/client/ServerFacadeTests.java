@@ -1,6 +1,7 @@
 package client;
 
 import exception.ResponseException;
+import model.AuthData;
 import org.junit.jupiter.api.*;
 import server.Server;
 import ui.PostLoginClient;
@@ -40,11 +41,12 @@ public class ServerFacadeTests {
         facade.clear();
     }
 
-    @Test
-    void register() throws Exception {
-        var authData = preLoginClient.register("player1", "password", "p1@email.com");
-        assertTrue(authData.authToken().length() > 10);
-    }
+//    @Test
+//    void register() throws Exception {
+//        var authData = preLoginClient.register("player1", "password", "p1@email.com");
+//        assertTrue(authData.authToken().length() > 10);
+//    }
+
     @Test
     void registerUserPositiveTest() throws Exception {
         state = ui.State.SIGNEDOUT;
