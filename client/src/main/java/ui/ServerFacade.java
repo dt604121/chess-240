@@ -40,9 +40,9 @@ public class ServerFacade {
         return this.makeRequest("GET", path, null, ListGamesResult.class);
     }
 
-    public CreateGameResult createGames(CreateGameRequest game) throws ResponseException {
+    public CreateGameResult createGames(CreateGameRequest request) throws ResponseException {
         var path = "/game";
-        return this.makeRequest("POST", path, game, CreateGameResult.class);
+        return this.makeRequest("POST", path, request, CreateGameResult.class);
     }
 
     public GameData joinGame(JoinGamesRequest request) throws ResponseException {

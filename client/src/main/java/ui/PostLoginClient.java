@@ -1,10 +1,7 @@
 package ui;
 import chess.ChessBoard;
 import exception.ResponseException;
-import model.GameData;
-import model.JoinGamesRequest;
-import model.ListGamesResult;
-import model.UserData;
+import model.*;
 
 import java.util.Arrays;
 
@@ -60,8 +57,10 @@ public class PostLoginClient {
         var name = params[0];
 
         try {
-            serverFacade.createGames(name);
-            return String.format("You created a game as %s.", name);
+            CreateGameRequest request = new CreateGameRequest(name);
+            CreateGameResult result = serverFacade.createGames(request);
+            int gameId = result.gameID();
+            return String.format("You created a game as %s with an id of %d", name, gameId);
         } catch (ResponseException ex) {
             throw new ResponseException(401, ex.getMessage());
         }

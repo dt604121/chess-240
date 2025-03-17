@@ -18,7 +18,6 @@ import service.UserService;
 import service.ClearService;
 import spark.*;
 
-import javax.xml.crypto.Data;
 import java.util.Map;
 
 public class Server {

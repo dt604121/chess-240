@@ -1,6 +1,8 @@
 package ui;
 
 import chess.ChessBoard;
+import chess.ChessPiece;
+import chess.ChessPosition;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -45,7 +47,9 @@ public class ChessBoardUI {
                     out.print(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE);
                 }
                 // print the board[row][col] with that background color
-                out.print(" " + board[actualRow][actualCol] + " ");
+                ChessPiece piece = board.getPiece(new ChessPosition(actualRow + 1, actualCol + 1));
+                String pieceSymbol = (piece != null) ? piece.toString() : " ";
+                out.print(" " + pieceSymbol + " ");
                 out.print(RESET);
 
                 // print rank number again

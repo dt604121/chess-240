@@ -14,7 +14,7 @@ public class GamePlayClient {
 
     }
 
-    public String eval(String input) {
+    public String eval(String input) throws ResponseException {
         try {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0 ) ? tokens[0] : "help";
@@ -24,8 +24,8 @@ public class GamePlayClient {
                 case "quit" -> "quit";
                 default -> help();
             };
-        } catch (ResponseException ex) {
-            return ex.getMessage();
+        } catch (Exception ex) {
+            throw new ResponseException(401, ex.getMessage());
         }
     }
 

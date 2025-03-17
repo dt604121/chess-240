@@ -9,7 +9,6 @@ import exception.UnauthorizedException;
 import model.*;
 import org.mindrot.jbcrypt.BCrypt;
 
-import java.util.Objects;
 import java.util.UUID;
 
 public class UserService {
