@@ -18,7 +18,7 @@ public class ChessBoardUI {
         drawChessBoard(out, board, whitePerspective);
     }
 
-    public static void drawChessBoard(PrintStream out, String[][] board, boolean whitePerspective) {
+    public static void drawChessBoard(PrintStream out, ChessBoard board, boolean whitePerspective) {
         if (whitePerspective) {
             out.println("    a   b   c   d   e   f   g   h");
         } else {

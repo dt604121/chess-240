@@ -122,17 +122,32 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void joinGamePositiveTest() throws Exception {
+    void playGamePositiveTest() throws Exception {
         state = ui.State.SIGNEDIN;
         var result = assertDoesNotThrow(() -> postLoginClient.joinGame());
         assertNotNull(result);
     }
 
     @Test
-    void joinGameNegativeTest() throws Exception {
+    void playGameNegativeTest() throws Exception {
         state = State.SIGNEDOUT;
         ResponseException exception = assertThrows(ResponseException.class, () ->
                 postLoginClient.joinGame(null, null, null));
+        assertEquals("You must sign in", exception.getMessage());
+    }
+
+    @Test
+    void observeGamePositiveTest() throws Exception {
+        state = ui.State.SIGNEDIN;
+        var result = assertDoesNotThrow(() -> postLoginClient.observeGame());
+        assertNotNull(result);
+    }
+
+    @Test
+    void observeGameNegativeTest() throws Exception {
+        state = State.SIGNEDOUT;
+        ResponseException exception = assertThrows(ResponseException.class, () ->
+                postLoginClient.observeGame(null, null, null));
         assertEquals("You must sign in", exception.getMessage());
     }
 

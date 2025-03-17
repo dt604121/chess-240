@@ -1,6 +1,10 @@
 package ui;
 import chess.ChessBoard;
 import exception.ResponseException;
+import model.GameData;
+import model.JoinGamesRequest;
+import model.ListGamesResult;
+import model.UserData;
 
 import java.util.Arrays;
 
@@ -8,6 +12,7 @@ public class PostLoginClient {
     private final ServerFacade serverFacade;
     private State state = State.SIGNEDIN;
     private final String serverUrl;
+    private UserData user;
 
     public PostLoginClient(String serverUrl){
         serverFacade = new ServerFacade(serverUrl);
@@ -24,7 +29,7 @@ public class PostLoginClient {
                 case "create" -> createGame(params);
                 case "list" -> listGames();
                 case "observe" -> observeGame(params);
-                case "join" -> joinGame(params);
+                case "play" -> joinGame(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -33,18 +38,71 @@ public class PostLoginClient {
         }
     }
 
+    public String logout()  throws ResponseException {
+        assertSignedIn();
+        state = State.SIGNEDOUT;
+
+        try {
+            serverFacade.logoutUser(this.user);
+            this.user = null;  // Clear the user data after logging out
+            this.state = State.SIGNEDOUT;
+            return String.format("%s, you have signed out. Come back soon!", this.user.username());
+        } catch (Exception e) {
+            throw new ResponseException(401, "Logout failed: " + e.getMessage());
+        }
+    }
+
+    public String createGame(String... params)  throws ResponseException {
+        assertSignedIn();
+        if (params.length != 1) {
+            throw new ResponseException(400, "Expected: name");
+        }
+        var name = params[0];
+
+        try {
+            serverFacade.createGames(name);
+            return String.format("You created a game as %s.", name);
+        } catch (ResponseException ex) {
+            throw new ResponseException(401, ex.getMessage());
+        }
+    }
+
+    public String listGames() throws ResponseException {
+        assertSignedIn();
+
+        try {
+            ListGamesResult result = serverFacade.listGames();
+            if (result.games().isEmpty()){
+                return "No active games found.";
+            }
+            return result.toString();
+        } catch (ResponseException ex) {
+            throw new ResponseException(401, "Failed to list games" + ex.getMessage());
+        }
+
+    }
+
     public String joinGame(String... params) throws ResponseException {
         assertSignedIn();
-        if (params.length >= 1) {
-            state = State.SIGNEDIN;
+        if (params.length < 1) {
+            throw new ResponseException(400, "Expected: <id> [color]");
         }
-        var id = params[0];
+        var id = Integer.parseInt(params[0]);
         var color = params[1];
 
-        // add chessboardUI
-        serverFacade.joinGame();
-        throw new ResponseException(400, "Expected: <id> [color]");
-        return "";
+        JoinGamesRequest request = new JoinGamesRequest(color, id);
+
+        try {
+            boolean whitePerspective = true;
+            ChessBoard board = new ChessBoard();
+            board.resetBoard();
+            ChessBoardUI.drawChessBoard(System.out, board, whitePerspective);
+            GameData gameData = serverFacade.joinGame(request);
+            return String.format("You have joined the game as %s!", color);
+
+        } catch (ResponseException ex) {
+            throw new ResponseException(401, "failed to join game" +ex.getMessage());
+        }
     }
 
     public String observeGame(String... params) throws ResponseException {
@@ -53,42 +111,22 @@ public class PostLoginClient {
         if (params.length < 1) {
             throw new ResponseException(400, "Expected: <id>");
         }
-        var id = params[0];
+        var id = Integer.parseInt(params[0]);
 
-        boolean whitePerspective = true;
+        try {
+            GameData gameData = serverFacade.observeGame(id);
 
-        ChessBoard board = new ChessBoard();
-        board.resetBoard();
-        ChessBoardUI.drawChessBoard(System.out, board, whitePerspective);
+            boolean whitePerspective = true;
 
-        // call observeGame()
+            ChessBoard board = gameData.game().getBoard();
+            board.resetBoard();
+            ChessBoardUI.drawChessBoard(System.out, board, whitePerspective);
 
-        return "Observing game " + id;
-    }
+            return String.format("Observing game %d", id);
 
-    public String listGames() throws ResponseException {
-        assertSignedIn();
-        serverFacade.listGames();
-        return "";
-    }
-
-    public String createGame(String... params)  throws ResponseException {
-        assertSignedIn();
-        if (params.length == 1) {
-            state = State.SIGNEDIN;
+        } catch (ResponseException ex) {
+            throw new ResponseException(401, ex.getMessage());
         }
-        var name = params[0];
-
-        // how is this part different than the joinGame we implemneted in the UserService?
-        serverFacade.createGames();
-        throw new ResponseException(400, "Expected: name");
-        return "";
-    }
-
-    public String logout()  throws ResponseException {
-        assertSignedIn();
-        serverFacade.logoutUser();
-        return "";
     }
 
     public String help() {
