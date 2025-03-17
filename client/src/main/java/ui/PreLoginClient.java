@@ -42,8 +42,6 @@ public class PreLoginClient {
 
             try {
                 LoginResult loginResult = serverFacade.loginUser(loginRequest);
-                // TODO: What do we do with the authToken?
-                String authToken = loginResult.authToken();
                 state = State.SIGNEDIN;
                 return String.format("You logged in as %s", name);
             } catch (Exception e) {

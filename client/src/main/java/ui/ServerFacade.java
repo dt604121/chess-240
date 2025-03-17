@@ -67,8 +67,8 @@ public class ServerFacade {
             http.setRequestMethod(method);
             http.setDoOutput(true);
 
-            writeBody(request, http);
             writeHeader(http);
+            writeBody(request, http);
             http.connect();
             throwIfNotSuccessful(http);
             return readBody(http, responseClass);
@@ -89,11 +89,11 @@ public class ServerFacade {
         }
     }
 
-    // TODO: Implement writeHeader
     // this is where we use the results from the headers and actually save stuff e.g. the authTokens
     private static void writeHeader(HttpURLConnection http) throws IOException {
         // save the authToken
         String authToken = http.getHeaderField("Authorization");
+
     }
 
     private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {

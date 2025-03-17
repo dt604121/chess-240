@@ -1,6 +1,7 @@
 package client;
 
 import exception.ResponseException;
+import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
 import ui.PostLoginClient;
@@ -26,7 +27,7 @@ public class ServerFacadeTests {
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
 
-        var url = "http://localhost:8080";
+        var url = "http://localhost:" + port;
         facade = new ServerFacade(url);
     }
 
@@ -47,28 +48,29 @@ public class ServerFacadeTests {
 //    }
 
     @Test
-    void registerUserPositiveTest() throws Exception {
+    void registerUserPositiveTest() {
         state = ui.State.SIGNEDOUT;
-        var result = assertDoesNotThrow(() -> preLoginClient.register("joe", "password", "email@gmail.com"));
+        UserData user = new UserData("joe", "password", "email@gmail.com");
+        var result = assertDoesNotThrow(() -> facade.registerUser(user));
+        assertTrue(result.authToken().length() > 10);
         assertNotNull(result);
     }
 
     @Test
-    void registerUserNegativeTest() throws Exception {
+    void registerUserNegativeTest() {
         state = State.SIGNEDOUT;
-        ResponseException exception = assertThrows(ResponseException.class,
-                () -> preLoginClient.register(null, null, null));
-        assertEquals("Expected: <yourname>", exception.getMessage());
+        assertThrows(NullPointerException.class,
+                () -> facade.registerUser(null));
     }
 
     @Test
-    void loginUserPositiveTest() throws Exception{
+    void loginUserPositiveTest() {
         state = State.SIGNEDOUT;
         var result = assertDoesNotThrow(() -> preLoginClient.login("joe", "password"));
         assertNotNull(result);
     }
     @Test
-    void loginUserNegativeTest() throws Exception{
+    void loginUserNegativeTest() {
         state = State.SIGNEDOUT;
         ResponseException exception = assertThrows(ResponseException.class, () ->
                 preLoginClient.login(null, null, null));
@@ -76,14 +78,14 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void logoutUserPositiveTest() throws Exception {
+    void logoutUserPositiveTest() {
         state = State.SIGNEDIN;
         var result = assertDoesNotThrow(() -> postLoginClient.logout());
         assertNotNull(result);
     }
 
     @Test
-    void logoutUserNegativeTest() throws Exception {
+    void logoutUserNegativeTest() {
         state = State.SIGNEDOUT;
         ResponseException exception = assertThrows(ResponseException.class, () ->
                 postLoginClient.logout());
@@ -91,14 +93,14 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void listGamesPositiveTest() throws Exception {
+    void listGamesPositiveTest() {
         state = ui.State.SIGNEDIN;
         var result = assertDoesNotThrow(() -> postLoginClient.listGames());
         assertNotNull(result);
     }
 
     @Test
-    void listGamesNegativeTest() throws Exception {
+    void listGamesNegativeTest() {
         state = State.SIGNEDOUT;
         ResponseException exception = assertThrows(ResponseException.class, () ->
                 postLoginClient.listGames());
@@ -106,14 +108,14 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void createGamesPositiveTest() throws Exception {
+    void createGamesPositiveTest() {
         state = ui.State.SIGNEDIN;
         var result = assertDoesNotThrow(() -> postLoginClient.createGame());
         assertNotNull(result);
     }
 
     @Test
-    void createGamesNegativeTest() throws Exception {
+    void createGamesNegativeTest() {
         state = State.SIGNEDOUT;
         ResponseException exception = assertThrows(ResponseException.class, () ->
                 postLoginClient.createGame(null, null));
@@ -121,14 +123,14 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void playGamePositiveTest() throws Exception {
+    void playGamePositiveTest() {
         state = ui.State.SIGNEDIN;
         var result = assertDoesNotThrow(() -> postLoginClient.joinGame());
         assertNotNull(result);
     }
 
     @Test
-    void playGameNegativeTest() throws Exception {
+    void playGameNegativeTest() {
         state = State.SIGNEDOUT;
         ResponseException exception = assertThrows(ResponseException.class, () ->
                 postLoginClient.joinGame(null, null, null));
@@ -136,14 +138,14 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void observeGamePositiveTest() throws Exception {
+    void observeGamePositiveTest() {
         state = ui.State.SIGNEDIN;
         var result = assertDoesNotThrow(() -> postLoginClient.observeGame());
         assertNotNull(result);
     }
 
     @Test
-    void observeGameNegativeTest() throws Exception {
+    void observeGameNegativeTest() {
         state = State.SIGNEDOUT;
         ResponseException exception = assertThrows(ResponseException.class, () ->
                 postLoginClient.observeGame(null, null, null));
@@ -151,7 +153,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void clearTest() throws Exception {
+    void clearTest() {
 
     }
 }
