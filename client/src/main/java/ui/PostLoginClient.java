@@ -54,7 +54,11 @@ public class PostLoginClient {
         if (params.length != 1) {
             throw new ResponseException(400, "Expected: name");
         }
+
         var name = params[0];
+        if (name.isEmpty()) {
+            throw new ResponseException(400, "Invalid game name. Cannot be left blank.");
+        }
 
         try {
             CreateGameRequest request = new CreateGameRequest(name);

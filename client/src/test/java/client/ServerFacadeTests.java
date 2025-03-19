@@ -1,6 +1,9 @@
 package client;
 
 import exception.ResponseException;
+import model.CreateGameRequest;
+import model.JoinGamesRequest;
+import model.LoginRequest;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
@@ -18,7 +21,7 @@ public class ServerFacadeTests {
     static ServerFacade facade;
     static PostLoginClient postLoginClient;
     static PreLoginClient preLoginClient;
-    private ui.State state = ui.State.SIGNEDIN;
+    public UserData user;
 
     @BeforeAll
     public static void init() {
@@ -39,121 +42,115 @@ public class ServerFacadeTests {
     @BeforeEach
     void clear() throws Exception {
         facade.clear();
+        user = new UserData("Cami", "cutie", "bestie@gmail.com");
+        assertDoesNotThrow(() -> facade.registerUser(user));
     }
-
-//    @Test
-//    void register() throws Exception {
-//        var authData = preLoginClient.register("player1", "password", "p1@email.com");
-//        assertTrue(authData.authToken().length() > 10);
-//    }
 
     @Test
     void registerUserPositiveTest() {
-        state = ui.State.SIGNEDOUT;
-        UserData user = new UserData("joe", "password", "email@gmail.com");
         var result = assertDoesNotThrow(() -> facade.registerUser(user));
-        assertTrue(result.authToken().length() > 10);
         assertNotNull(result);
+        assertTrue(result.authToken().length() > 10);
     }
 
     @Test
     void registerUserNegativeTest() {
-        state = State.SIGNEDOUT;
-        assertThrows(NullPointerException.class,
-                () -> facade.registerUser(null));
+        UserData nullUser = new UserData(null, null, null);
+        assertThrows(ResponseException.class, () -> facade.registerUser(nullUser));
     }
 
     @Test
     void loginUserPositiveTest() {
-        state = State.SIGNEDOUT;
-        var result = assertDoesNotThrow(() -> preLoginClient.login("joe", "password"));
+        var loginRequest = new LoginRequest("Cami", "cutie");
+        var result = assertDoesNotThrow(() -> facade.loginUser(loginRequest));
         assertNotNull(result);
-    }
-    @Test
-    void loginUserNegativeTest() {
-        state = State.SIGNEDOUT;
-        ResponseException exception = assertThrows(ResponseException.class, () ->
-                preLoginClient.login(null, null, null));
-        assertEquals("You must sign in", exception.getMessage());
+        assertEquals("Cami", result.username());
     }
 
     @Test
-    void logoutUserPositiveTest() {
-        state = State.SIGNEDIN;
-        var result = assertDoesNotThrow(() -> postLoginClient.logout());
-        assertNotNull(result);
+    void loginUserNegativeTest() {
+        var loginRequest = new LoginRequest("wrongUser", "wrongPass");
+        assertThrows(ResponseException.class, () -> facade.loginUser(loginRequest));
+    }
+
+    @Test
+    void logoutUserPositiveTest() throws ResponseException {
+        UserData testUser = new UserData("Cami", "cutie", "email");
+        facade.registerUser(testUser);
+
+        LoginRequest loginRequest = new LoginRequest("Cami", "cutie");
+        var loginResult = facade.loginUser(loginRequest);
+
+        assertDoesNotThrow(() -> facade.logoutUser(testUser));
+        assertNull(loginResult.authToken());
     }
 
     @Test
     void logoutUserNegativeTest() {
-        state = State.SIGNEDOUT;
-        ResponseException exception = assertThrows(ResponseException.class, () ->
-                postLoginClient.logout());
+        ResponseException exception = assertThrows(ResponseException.class, () -> facade.logoutUser(null));
         assertEquals("You must sign in", exception.getMessage());
     }
 
     @Test
     void listGamesPositiveTest() {
-        state = ui.State.SIGNEDIN;
-        var result = assertDoesNotThrow(() -> postLoginClient.listGames());
+        var result = assertDoesNotThrow(() -> facade.listGames());
         assertNotNull(result);
     }
 
     @Test
     void listGamesNegativeTest() {
-        state = State.SIGNEDOUT;
         ResponseException exception = assertThrows(ResponseException.class, () ->
-                postLoginClient.listGames());
+                facade.listGames());
         assertEquals("You must sign in", exception.getMessage());
     }
 
     @Test
-    void createGamesPositiveTest() {
-        state = ui.State.SIGNEDIN;
-        var result = assertDoesNotThrow(() -> postLoginClient.createGame());
+    void createGamesPositiveTest() throws ResponseException {
+        LoginRequest loginRequest = new LoginRequest("cami", "cutie");
+        facade.loginUser(loginRequest);
+        CreateGameRequest request = new CreateGameRequest("Danica");
+        var result = assertDoesNotThrow(() -> facade.createGames(request));
         assertNotNull(result);
     }
 
     @Test
     void createGamesNegativeTest() {
-        state = State.SIGNEDOUT;
-        ResponseException exception = assertThrows(ResponseException.class, () ->
-                postLoginClient.createGame(null, null));
-        assertEquals("You must sign in", exception.getMessage());
+        CreateGameRequest request = new CreateGameRequest("");
+        ResponseException exception = assertThrows(ResponseException.class, () -> facade.createGames(request));
+        assertEquals("Invalid game name. Cannot be left blank.", exception.getMessage());
     }
 
     @Test
     void playGamePositiveTest() {
-        state = ui.State.SIGNEDIN;
-        var result = assertDoesNotThrow(() -> postLoginClient.joinGame());
+        JoinGamesRequest request = new JoinGamesRequest("BLACK", 1234);
+        var result = assertDoesNotThrow(() -> facade.joinGame(request));
         assertNotNull(result);
     }
 
     @Test
     void playGameNegativeTest() {
-        state = State.SIGNEDOUT;
-        ResponseException exception = assertThrows(ResponseException.class, () ->
-                postLoginClient.joinGame(null, null, null));
+        ResponseException exception = assertThrows(ResponseException.class, () -> facade.joinGame(null));
         assertEquals("You must sign in", exception.getMessage());
     }
 
     @Test
     void observeGamePositiveTest() {
-        state = ui.State.SIGNEDIN;
-        var result = assertDoesNotThrow(() -> postLoginClient.observeGame());
+        var result = assertDoesNotThrow(() -> facade.observeGame(-1));
         assertNotNull(result);
     }
 
     @Test
     void observeGameNegativeTest() {
-        state = State.SIGNEDOUT;
         ResponseException exception = assertThrows(ResponseException.class, () ->
-                postLoginClient.observeGame(null, null, null));
-        assertEquals("You must sign in", exception.getMessage());
+                facade.observeGame(1234));
+        assertEquals(400, exception.getStatusCode());
     }
 
     @Test
     void clearTest() {
+        assertDoesNotThrow(() -> facade.clear());
 
+        var result = assertDoesNotThrow(() -> facade.listGames());
+        assertTrue(result.games().isEmpty());
     }
 }
