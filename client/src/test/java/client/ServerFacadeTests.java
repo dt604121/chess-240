@@ -56,7 +56,8 @@ public class ServerFacadeTests {
     @Test
     void registerUserNegativeTest() {
         UserData nullUser = new UserData(null, null, null);
-        assertThrows(ResponseException.class, () -> facade.registerUser(nullUser));
+        var result = assertThrows(ResponseException.class, () -> facade.registerUser(nullUser));
+        assertNull(result);
     }
 
     @Test

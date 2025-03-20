@@ -1,8 +1,6 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -10,30 +8,33 @@ import static ui.EscapeSequences.*;
 
 public class ChessBoardUI {
     private static final int BOARD_SIZE = 8;
+    private static final String SET_BG_GRAY = "\u001B[48;5;240m";
 
     public static void main(String[] args) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
+
         ChessBoard board = new ChessBoard();
         board.resetBoard();
+
         boolean whitePerspective = true;
         drawChessBoard(out, board, whitePerspective);
     }
 
     public static void drawChessBoard(PrintStream out, ChessBoard board, boolean whitePerspective) {
-        if (whitePerspective) {
-            out.println("    a   b   c   d   e   f   g   h");
-        } else {
-            out.println("    h   g   f   e   d   c   b   a");
-        }
+        out.print(SET_BG_GRAY);
 
-        // for loop to repeat the rows so we get the board (col in 0..7:)
+        printColumnHeaders(out, whitePerspective);
+
+        // iterate over rows 0..7
         for (int row = 0; row < BOARD_SIZE; row++) {
             int actualRow = whitePerspective ? (BOARD_SIZE - 1 - row) : row;
             // print rank number (row+1 or 8-row)
             int rankLabel = whitePerspective ? (row + 1) : (BOARD_SIZE - row);
-            out.print(rankLabel + "  ");
-            // for col in 0..7 loop for a row of alternating black/white squares
+
+            out.printf("%s%2d ", SET_BG_GRAY, rankLabel);
+
+            // alternating black/white squares
             for (int col = 0; col < BOARD_SIZE; col++) {
                 int actualCol = whitePerspective ? col : (BOARD_SIZE - 1 - col);
                 // determine if (row + col) is even or odd -> use bool and mod to alternate -> set background color
@@ -48,23 +49,43 @@ public class ChessBoardUI {
                 }
                 // print the board[row][col] with that background color
                 ChessPiece piece = board.getPiece(new ChessPosition(actualRow + 1, actualCol + 1));
-                String pieceSymbol = (piece != null) ? piece.toString() : " ";
-                out.print(" " + pieceSymbol + " ");
-                out.print(RESET);
-
-                // print rank number again
-                out.print(" " + rankLabel);
-                out.println();
-
-                // print column header (below)
-                if (whitePerspective) {
-                    out.println("    a   b   c   d   e   f   g   h");
-                } else {
-                    out.println("    h   g   f   e   d   c   b   a");
-                }
-
-                out.print(RESET);
+                String pieceSymbol = (piece != null) ? getPieceSymbol(piece) : EMPTY;
+                out.print(" " + pieceSymbol + " " + RESET);
             }
+            out.printf("%s %2d\n", SET_BG_GRAY, rankLabel);
         }
+        printColumnHeaders(out, whitePerspective);
+
+        out.print(RESET);
+        System.out.println();
+    }
+
+    private static void printColumnHeaders(PrintStream out, boolean whitePerspective) {
+        out.print(SET_BG_GRAY);
+        if (whitePerspective) {
+            out.println(EMPTY + "  "  + "a" + EMPTY + " " + "b" + EMPTY + " " +  "c" + EMPTY + " " + "d" + EMPTY + " "
+                    + "e" + EMPTY + " " + "f" + EMPTY + " " + "g" + EMPTY + " "  + "h" + EMPTY + " " );
+        } else {
+            out.println(EMPTY + "  "  + "h" + EMPTY + " " + "g" + EMPTY + " " +  "f" + EMPTY + " " + "e" + EMPTY + " "
+                    + "d" + EMPTY + " " + "c" + EMPTY + " " + "b" + EMPTY + " "  + "a" + EMPTY + " " );
+        }
+    }
+
+    private static String getPieceSymbol(ChessPiece piece) {
+        if (piece == null) {
+            return EMPTY;
+        }
+
+        boolean isWhite = (piece.getTeamColor() == ChessGame.TeamColor.WHITE);
+        return switch (piece.getPieceType()) {
+            case KING -> isWhite ? WHITE_KING : BLACK_KING;
+            case QUEEN -> isWhite ? WHITE_QUEEN : BLACK_QUEEN;
+            case ROOK -> isWhite ? WHITE_ROOK : BLACK_ROOK;
+            case BISHOP -> isWhite ? WHITE_BISHOP : BLACK_BISHOP;
+            case KNIGHT -> isWhite ? WHITE_KNIGHT : BLACK_KNIGHT;
+            case PAWN -> isWhite ? WHITE_PAWN : BLACK_PAWN;
+            default -> EMPTY;
+        };
+
     }
 }
