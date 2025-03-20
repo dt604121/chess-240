@@ -2,8 +2,6 @@ package ui;
 
 import java.util.Scanner;
 
-import static java.awt.Color.BLUE;
-import static java.awt.Color.GREEN;
 import static ui.EscapeSequences.RESET;
 
 public class Repl {
@@ -19,8 +17,7 @@ public class Repl {
     }
 
     public void run() {
-        System.out.println("\uD83D\uDC36 Welcome to Chess240! Type help to get started");
-        // "[Logged Out] >>> "
+        System.out.println("\uDC36 Welcome to Chess240! Type help to get started");
         System.out.print(preLoginClient.help());
 
         Scanner scanner = new Scanner(System.in);
@@ -38,7 +35,7 @@ public class Repl {
                 else if (state == State.GAMEPLAY) {
                     result = gamePlayClient.eval(line);
                 }
-                System.out.print(BLUE + result);
+                System.out.print(result);
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg);
@@ -47,7 +44,16 @@ public class Repl {
         System.out.println();
     }
 
+
     private void printPrompt() {
-        System.out.print("\n" + RESET + ">>> " + GREEN);
+        System.out.print("\n" + RESET + ">>> ");
+    }
+
+    public static class Main {
+        public static void main(String[] args) {
+            String serverUrl = "http://localhost:8080";
+            Repl repl = new Repl(serverUrl);
+            repl.run();
+        }
     }
 }

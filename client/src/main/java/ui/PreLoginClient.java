@@ -41,7 +41,7 @@ public class PreLoginClient {
             var loginRequest = new LoginRequest(name, password);
 
             try {
-                LoginResult loginResult = serverFacade.loginUser(loginRequest);
+                serverFacade.loginUser(loginRequest);
                 state = State.SIGNEDIN;
                 return String.format("You logged in as %s", name);
             } catch (Exception e) {

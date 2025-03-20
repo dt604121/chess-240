@@ -10,7 +10,6 @@ import server.Server;
 import ui.PostLoginClient;
 import ui.PreLoginClient;
 import ui.ServerFacade;
-import ui.State;
 
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -30,7 +30,7 @@ public class ChessBoardUI {
         for (int row = 0; row < BOARD_SIZE; row++) {
             int actualRow = whitePerspective ? (BOARD_SIZE - 1 - row) : row;
             // print rank number (row+1 or 8-row)
-            int rankLabel = whitePerspective ? (row + 1) : (BOARD_SIZE - row);
+            int rankLabel = whitePerspective ? (BOARD_SIZE - row) : (row + 1);
 
             out.printf("%s%2d ", SET_BG_GRAY, rankLabel);
 
@@ -45,10 +45,11 @@ public class ChessBoardUI {
                 }
                 // if odd -> dark square color
                 else {
-                    out.print(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE);
+                    out.print(SET_BG_COLOR_BLACK  + SET_TEXT_COLOR_WHITE);
                 }
                 // print the board[row][col] with that background color
                 ChessPiece piece = board.getPiece(new ChessPosition(actualRow + 1, actualCol + 1));
+                // makes non piece squares, square : "  ";
                 String pieceSymbol = (piece != null) ? getPieceSymbol(piece) : EMPTY;
                 out.print(" " + pieceSymbol + " " + RESET);
             }
@@ -73,7 +74,7 @@ public class ChessBoardUI {
 
     private static String getPieceSymbol(ChessPiece piece) {
         if (piece == null) {
-            return EMPTY;
+            return " ";
         }
 
         boolean isWhite = (piece.getTeamColor() == ChessGame.TeamColor.WHITE);
@@ -84,7 +85,7 @@ public class ChessBoardUI {
             case BISHOP -> isWhite ? WHITE_BISHOP : BLACK_BISHOP;
             case KNIGHT -> isWhite ? WHITE_KNIGHT : BLACK_KNIGHT;
             case PAWN -> isWhite ? WHITE_PAWN : BLACK_PAWN;
-            default -> EMPTY;
+            default -> " ";
         };
 
     }

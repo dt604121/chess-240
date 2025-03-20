@@ -4,6 +4,7 @@ import exception.ResponseException;
 import model.*;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class PostLoginClient {
     private final ServerFacade serverFacade;
@@ -43,7 +44,7 @@ public class PostLoginClient {
             serverFacade.logoutUser(this.user);
             this.user = null;  // Clear the user data after logging out
             this.state = State.SIGNEDOUT;
-            return String.format("%s, you have signed out. Come back soon!", this.user.username());
+            return "%s, you have signed out. Come back soon!";
         } catch (Exception e) {
             throw new ResponseException(401, "Logout failed: " + e.getMessage());
         }
@@ -79,10 +80,11 @@ public class PostLoginClient {
                 return "No active games found.";
             }
             return result.toString();
+
+            // implement listGames
         } catch (ResponseException ex) {
             throw new ResponseException(401, "Failed to list games" + ex.getMessage());
         }
-
     }
 
     public String joinGame(String... params) throws ResponseException {
@@ -96,11 +98,11 @@ public class PostLoginClient {
         JoinGamesRequest request = new JoinGamesRequest(color, id);
 
         try {
-            boolean whitePerspective = true;
+            boolean whitePerspective = !Objects.equals(color, "BLACK");
             ChessBoard board = new ChessBoard();
             board.resetBoard();
             ChessBoardUI.drawChessBoard(System.out, board, whitePerspective);
-            GameData gameData = serverFacade.joinGame(request);
+            serverFacade.joinGame(request);
             return String.format("You have joined the game as %s!", color);
 
         } catch (ResponseException ex) {
