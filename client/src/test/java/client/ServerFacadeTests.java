@@ -13,13 +13,10 @@ import ui.ServerFacade;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
 public class ServerFacadeTests {
 
     private static Server server;
     static ServerFacade facade;
-    static PostLoginClient postLoginClient;
-    static PreLoginClient preLoginClient;
     public UserData user;
 
     @BeforeAll

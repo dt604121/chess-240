@@ -37,9 +37,9 @@ public class PreLoginClient {
         if (isUserLoggedIn()) {
             throw new ResponseException(400, "Already connected");
         }
-        if (params.length >= 1) {
-            var name = params[0];
-            var password = params[1];
+        if (params.length == 2) {
+            var name = params[0].trim();
+            var password = params[1].trim();
 
             var loginRequest = new LoginRequest(name, password);
 
@@ -56,23 +56,35 @@ public class PreLoginClient {
     }
 
     public String register(String... params) throws ResponseException{
-        if (isUserLoggedIn()) {
-            throw new ResponseException(400, "Already connected");
-        }
-        if (params.length >= 1) {
-            state = State.SIGNEDIN;
+        try {
+            if (params.length != 3) {
+                return "Error: Expected format: <name> <password> <email>";
+            }
 
-            var name = params[0];
-            var password = params[1];
-            var email = params[2];
+            var name = params[0].trim();
+            var password = params[1].trim();
+            var email = params[2].trim();
+
+            if (name.isEmpty() || password.isEmpty() || email.isEmpty()) {
+                return "Error: name, password, and email cannot be empty";
+            }
+
+            if (isUserLoggedIn()) {
+                throw new ResponseException(400, "Already connected");
+            }
 
             var user = new UserData(name, password, email);
 
             serverFacade.registerUser(user);
 
+            state = State.SIGNEDIN;
+
             return String.format("You registered as %s.", name);
+        } catch (ResponseException e) {
+            return "Registration failed: " + e.getMessage();
+        } catch (Exception e) {
+            return "Unexpected error occurred during registration." + e.getMessage();
         }
-        throw new ResponseException(400, "Expected: <name> <password> <email>");
     }
 
     public String help() {
