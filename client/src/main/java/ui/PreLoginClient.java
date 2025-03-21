@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import exception.ResponseException;
 import model.LoginRequest;
-import model.LoginResult;
 import model.UserData;
 
 public class PreLoginClient {
@@ -34,31 +33,39 @@ public class PreLoginClient {
         }
     }
     public String login(String... params) throws ResponseException {
-        if (isUserLoggedIn()) {
-            throw new ResponseException(400, "Already connected");
-        }
-        if (params.length == 2) {
+        try {
+            if (params.length != 2) {
+                return "Error. Expected <name> <password>";
+            }
             var name = params[0].trim();
             var password = params[1].trim();
 
-            var loginRequest = new LoginRequest(name, password);
-
-            try {
-                serverFacade.loginUser(loginRequest);
-                state = State.SIGNEDIN;
-                return String.format("You logged in as %s", name);
-            } catch (Exception e) {
-                throw new ResponseException(401, "Login failed: " + e.getMessage());
+            if (name.isEmpty() || password.isEmpty()) {
+                return "Error: name, and password cannot be empty";
             }
 
+            if (isUserLoggedIn()) {
+                throw new ResponseException(400, "Already connected");
+            }
+
+            var loginRequest = new LoginRequest(name, password);
+
+            serverFacade.loginUser(loginRequest);
+
+            state = State.SIGNEDIN;
+
+            return String.format("You logged in as %s", name);
+        } catch (ResponseException e) {
+            throw new ResponseException(401, "Login failed: " + e.getMessage());
+        } catch (Exception e) {
+            return "Unexpected error occurred during login." + e.getMessage();
         }
-        throw new ResponseException(400, "Expected: <name> <password>");
     }
 
     public String register(String... params) throws ResponseException{
         try {
             if (params.length != 3) {
-                return "Error: Expected format: <name> <password> <email>";
+                return "Error. Expected: <name> <password> <email>";
             }
 
             var name = params[0].trim();

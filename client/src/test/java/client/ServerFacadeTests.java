@@ -7,8 +7,6 @@ import model.LoginRequest;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
-import ui.PostLoginClient;
-import ui.PreLoginClient;
 import ui.ServerFacade;
 
 import static org.junit.jupiter.api.Assertions.*;

@@ -38,12 +38,12 @@ public class PostLoginClient {
 
     public String logout()  throws ResponseException {
         assertSignedIn();
-        state = State.SIGNEDOUT;
 
         try {
             serverFacade.logoutUser(this.user);
+            state = State.SIGNEDOUT;
             this.user = null;  // Clear the user data after logging out
-            return "%s, you have signed out. Come back soon!";
+            return "You have signed out. Come back soon!";
         } catch (Exception e) {
             throw new ResponseException(401, "Logout failed: " + e.getMessage());
         }
@@ -51,20 +51,26 @@ public class PostLoginClient {
 
     public String createGame(String... params)  throws ResponseException {
         assertSignedIn();
-        if (params.length != 1) {
-            throw new ResponseException(400, "Expected: name");
-        }
-
-        var name = params[0];
-        if (name.isEmpty()) {
-            throw new ResponseException(400, "Invalid game name. Cannot be left blank.");
-        }
 
         try {
+            if (params.length != 1) {
+                throw new ResponseException(400, "Expected: name");
+            }
+
+            var name = params[0].trim();
+
+            if (name.isEmpty()) {
+                throw new ResponseException(400, "Invalid game name. Cannot be left blank.");
+            }
+
             CreateGameRequest request = new CreateGameRequest(name);
+
             CreateGameResult result = serverFacade.createGames(request);
+
             int gameId = result.gameID();
+
             return String.format("You created a game as %s with an id of %d", name, gameId);
+
         } catch (ResponseException ex) {
             throw new ResponseException(401, ex.getMessage());
         }
@@ -75,12 +81,14 @@ public class PostLoginClient {
 
         try {
             ListGamesResult result = serverFacade.listGames();
-            if (result.games().isEmpty()){
+
+            if (result == null || result.games() == null || result.games().isEmpty()) {
                 return "No active games found.";
             }
+
             return result.toString();
 
-            // implement listGames
+            // TODO: implement listGames
         } catch (ResponseException ex) {
             throw new ResponseException(401, "Failed to list games" + ex.getMessage());
         }
@@ -88,20 +96,35 @@ public class PostLoginClient {
 
     public String joinGame(String... params) throws ResponseException {
         assertSignedIn();
-        if (params.length < 1) {
-            throw new ResponseException(400, "Expected: <id> [color]");
-        }
-        var id = Integer.parseInt(params[0]);
-        var color = params[1];
-
-        JoinGamesRequest request = new JoinGamesRequest(color, id);
 
         try {
-            boolean whitePerspective = !Objects.equals(color, "BLACK");
+            if (params.length != 2) {
+                throw new ResponseException(400, "Expected: <id> [color]");
+            }
+            int id;
+
+            try {
+                id = Integer.parseInt(params[0]);
+            } catch (NumberFormatException e) {
+                return "Error: Game ID must be a number.";
+            }
+
+            var color = params[1].trim().toUpperCase();
+            if (!color.equals("WHITE") && !color.equals("BLACK")) {
+                return "Error: Color must be 'WHITE' or 'BLACK'.";
+            }
+
+            JoinGamesRequest request = new JoinGamesRequest(color, id);
+
+            serverFacade.joinGame(request);
+
+            boolean whitePerspective = Objects.equals(color, "WHITE");
+
             ChessBoard board = new ChessBoard();
             board.resetBoard();
+
             ChessBoardUI.drawChessBoard(System.out, board, whitePerspective);
-            serverFacade.joinGame(request);
+
             return String.format("You have joined the game as %s!", color);
 
         } catch (ResponseException ex) {
@@ -112,17 +135,24 @@ public class PostLoginClient {
     public String observeGame(String... params) throws ResponseException {
         assertSignedIn();
 
-        if (params.length < 1) {
-            throw new ResponseException(400, "Expected: <id>");
-        }
-        var id = Integer.parseInt(params[0]);
-
         try {
+            if (params.length != 1) {
+                throw new ResponseException(400, "Expected: <id>");
+            }
+
+            int id;
+            try {
+                id = Integer.parseInt(params[0]);
+            } catch (NumberFormatException e) {
+                return "Error: Game ID must be a number.";
+            }
+
             GameData gameData = serverFacade.observeGame(id);
 
             boolean whitePerspective = true;
 
             ChessBoard board = gameData.game().getBoard();
+
             board.resetBoard();
             ChessBoardUI.drawChessBoard(System.out, board, whitePerspective);
 
