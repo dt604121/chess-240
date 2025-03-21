@@ -34,6 +34,9 @@ public class PreLoginClient {
         }
     }
     public String login(String... params) throws ResponseException {
+        if (isUserLoggedIn()) {
+            throw new ResponseException(400, "Already connected");
+        }
         if (params.length >= 1) {
             var name = params[0];
             var password = params[1];
@@ -53,6 +56,9 @@ public class PreLoginClient {
     }
 
     public String register(String... params) throws ResponseException{
+        if (isUserLoggedIn()) {
+            throw new ResponseException(400, "Already connected");
+        }
         if (params.length >= 1) {
             state = State.SIGNEDIN;
 
@@ -76,5 +82,9 @@ public class PreLoginClient {
                 quit - playing chess
                 help - with possible commands
                 """;
+    }
+
+    public boolean isUserLoggedIn() {
+        return state == State.SIGNEDIN;
     }
 }

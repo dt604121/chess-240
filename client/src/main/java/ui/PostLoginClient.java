@@ -43,7 +43,6 @@ public class PostLoginClient {
         try {
             serverFacade.logoutUser(this.user);
             this.user = null;  // Clear the user data after logging out
-            this.state = State.SIGNEDOUT;
             return "%s, you have signed out. Come back soon!";
         } catch (Exception e) {
             throw new ResponseException(401, "Logout failed: " + e.getMessage());
