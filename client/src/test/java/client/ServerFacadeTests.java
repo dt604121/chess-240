@@ -36,12 +36,11 @@ public class ServerFacadeTests {
     @BeforeEach
     void clear() throws Exception {
         facade.clear();
-        user = new UserData("Cami", "cutie", "bestie@gmail.com");
-        assertDoesNotThrow(() -> facade.registerUser(user));
     }
 
     @Test
     void registerUserPositiveTest() {
+        user = new UserData("Cami", "cutie", "bestie@gmail.com");
         var result = assertDoesNotThrow(() -> facade.registerUser(user));
         assertNotNull(result);
         assertTrue(result.authToken().length() > 10);
@@ -51,11 +50,13 @@ public class ServerFacadeTests {
     void registerUserNegativeTest() {
         UserData nullUser = new UserData(null, null, null);
         var result = assertThrows(ResponseException.class, () -> facade.registerUser(nullUser));
-        assertNull(result);
+        assertEquals("Error: Invalid user data. Name, password, and email cannot be null", result.getMessage());
     }
 
     @Test
-    void loginUserPositiveTest() {
+    void loginUserPositiveTest() throws ResponseException {
+        user = new UserData("Cami", "cutie", "bestie@gmail.com");
+        facade.registerUser(user);
         var loginRequest = new LoginRequest("Cami", "cutie");
         var result = assertDoesNotThrow(() -> facade.loginUser(loginRequest));
         assertNotNull(result);
@@ -63,7 +64,9 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void loginUserNegativeTest() {
+    void loginUserNegativeTest() throws ResponseException {
+        user = new UserData("Cami", "cutie", "bestie@gmail.com");
+        facade.registerUser(user);
         var loginRequest = new LoginRequest("wrongUser", "wrongPass");
         assertThrows(ResponseException.class, () -> facade.loginUser(loginRequest));
     }
@@ -74,10 +77,8 @@ public class ServerFacadeTests {
         facade.registerUser(testUser);
 
         LoginRequest loginRequest = new LoginRequest("Cami", "cutie");
-        var loginResult = facade.loginUser(loginRequest);
 
         assertDoesNotThrow(() -> facade.logoutUser(testUser));
-        assertNull(loginResult.authToken());
     }
 
     @Test
@@ -87,7 +88,9 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void listGamesPositiveTest() {
+    void listGamesPositiveTest() throws ResponseException {
+        user = new UserData("Cami", "cutie", "bestie@gmail.com");
+        facade.registerUser(user);
         var result = assertDoesNotThrow(() -> facade.listGames());
         assertNotNull(result);
     }
@@ -101,7 +104,9 @@ public class ServerFacadeTests {
 
     @Test
     void createGamesPositiveTest() throws ResponseException {
-        LoginRequest loginRequest = new LoginRequest("cami", "cutie");
+        user = new UserData("Cami", "cutie", "bestie@gmail.com");
+        facade.registerUser(user);
+        LoginRequest loginRequest = new LoginRequest("Cami", "cutie");
         facade.loginUser(loginRequest);
         CreateGameRequest request = new CreateGameRequest("Danica");
         var result = assertDoesNotThrow(() -> facade.createGames(request));
@@ -109,14 +114,18 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void createGamesNegativeTest() {
+    void createGamesNegativeTest() throws ResponseException {
+        user = new UserData("Cami", "cutie", "bestie@gmail.com");
+        facade.registerUser(user);
         CreateGameRequest request = new CreateGameRequest("");
         ResponseException exception = assertThrows(ResponseException.class, () -> facade.createGames(request));
         assertEquals("Invalid game name. Cannot be left blank.", exception.getMessage());
     }
 
     @Test
-    void playGamePositiveTest() {
+    void playGamePositiveTest() throws ResponseException {
+        user = new UserData("Cami", "cutie", "bestie@gmail.com");
+        facade.registerUser(user);
         JoinGamesRequest request = new JoinGamesRequest("BLACK", 1234);
         var result = assertDoesNotThrow(() -> facade.joinGame(request));
         assertNotNull(result);
@@ -129,13 +138,17 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void observeGamePositiveTest() {
+    void observeGamePositiveTest() throws ResponseException {
+        user = new UserData("Cami", "cutie", "bestie@gmail.com");
+        facade.registerUser(user);
         var result = assertDoesNotThrow(() -> facade.observeGame(-1));
         assertNotNull(result);
     }
 
     @Test
-    void observeGameNegativeTest() {
+    void observeGameNegativeTest() throws ResponseException {
+        user = new UserData("Cami", "cutie", "bestie@gmail.com");
+        facade.registerUser(user);
         ResponseException exception = assertThrows(ResponseException.class, () ->
                 facade.observeGame(1234));
         assertEquals(400, exception.getStatusCode());

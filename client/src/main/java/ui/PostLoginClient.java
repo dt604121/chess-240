@@ -3,8 +3,7 @@ import chess.ChessBoard;
 import exception.ResponseException;
 import model.*;
 
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.*;
 
 public class PostLoginClient {
     private final ServerFacade serverFacade;
@@ -76,6 +75,7 @@ public class PostLoginClient {
         }
     }
 
+    private final Map<Integer, Integer> gameList = new HashMap<>();
     public String listGames() throws ResponseException {
         assertSignedIn();
 
@@ -86,9 +86,21 @@ public class PostLoginClient {
                 return "No active games found.";
             }
 
-            return result.toString();
+            gameList.clear(); // reset
 
-            // TODO: implement listGames
+            Collection<GameData> games = result.games();
+            StringBuilder sb = new StringBuilder("Active Games:\n" );
+
+            int index = 1;
+            for (GameData game : games) {
+                gameList.put(index, game.gameID());
+
+                sb.append(String.format("%d. %s (White: %s, Black: %s)\n", index++, game.gameName(),
+                        game.whiteUsername() == null ? "Open" : game.whiteUsername(),
+                        game.blackUsername() == null ? "Open" : game.blackUsername()));
+            }
+            return sb.toString();
+
         } catch (ResponseException ex) {
             throw new ResponseException(401, "Failed to list games" + ex.getMessage());
         }
@@ -101,12 +113,17 @@ public class PostLoginClient {
             if (params.length != 2) {
                 throw new ResponseException(400, "Expected: <id> [color]");
             }
-            int id;
+            int gameNumber;
 
             try {
-                id = Integer.parseInt(params[0]);
+                gameNumber = Integer.parseInt(params[0]);
             } catch (NumberFormatException e) {
                 return "Error: Game ID must be a number.";
+            }
+
+            Integer gameID = gameList.get(gameNumber);
+            if (gameID == null) {
+                return "Error: Invalid game number. Please list the games again and choose a valid number.";
             }
 
             var color = params[1].trim().toUpperCase();
@@ -114,15 +131,13 @@ public class PostLoginClient {
                 return "Error: Color must be 'WHITE' or 'BLACK'.";
             }
 
-            JoinGamesRequest request = new JoinGamesRequest(color, id);
-
+            JoinGamesRequest request = new JoinGamesRequest(color, gameNumber);
             serverFacade.joinGame(request);
 
             boolean whitePerspective = Objects.equals(color, "WHITE");
 
             ChessBoard board = new ChessBoard();
             board.resetBoard();
-
             ChessBoardUI.drawChessBoard(System.out, board, whitePerspective);
 
             return String.format("You have joined the game as %s!", color);
@@ -140,23 +155,25 @@ public class PostLoginClient {
                 throw new ResponseException(400, "Expected: <id>");
             }
 
-            int id;
+            int gameNumber;
             try {
-                id = Integer.parseInt(params[0]);
+                gameNumber = Integer.parseInt(params[0]);
             } catch (NumberFormatException e) {
-                return "Error: Game ID must be a number.";
+                return "Error: Game Number must be a number.";
             }
 
-            GameData gameData = serverFacade.observeGame(id);
+            Integer gameID = gameList.get(gameNumber);
+            if (gameID == null) {
+                return "Error: Invalid game number. Please list the games again and choose a valid number";
+            }
 
-            boolean whitePerspective = true;
-
+            GameData gameData = serverFacade.observeGame(gameNumber);
             ChessBoard board = gameData.game().getBoard();
 
             board.resetBoard();
-            ChessBoardUI.drawChessBoard(System.out, board, whitePerspective);
+            ChessBoardUI.drawChessBoard(System.out, board, true);
 
-            return String.format("Observing game %d", id);
+            return String.format("Observing game %d", gameNumber);
 
         } catch (ResponseException ex) {
             throw new ResponseException(401, ex.getMessage());
