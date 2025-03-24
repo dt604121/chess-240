@@ -89,6 +89,7 @@ public class ServerFacade {
     }
 
     // this is where we use the results from the headers and actually save stuff e.g. the authTokens
+    // TODO: write header
     private static void writeHeader(HttpURLConnection http) throws IOException {
         // save the authToken
         String authToken = http.getHeaderField("Authorization");

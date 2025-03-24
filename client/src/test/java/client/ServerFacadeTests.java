@@ -76,8 +76,6 @@ public class ServerFacadeTests {
         UserData testUser = new UserData("Cami", "cutie", "email");
         facade.registerUser(testUser);
 
-        LoginRequest loginRequest = new LoginRequest("Cami", "cutie");
-
         assertDoesNotThrow(() -> facade.logoutUser(testUser));
     }
 

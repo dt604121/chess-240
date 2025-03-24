@@ -48,10 +48,6 @@ public class PreLoginClient {
                 return "Error: name, password, and email cannot be empty";
             }
 
-            if (name == null|| password == null || email == null) {
-                return "Error: Invalid user data. Name, password, and email cannot be null";
-            }
-
             if (isUserLoggedIn()) {
                 throw new ResponseException(400, "Already connected");
             }
