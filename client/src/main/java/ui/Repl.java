@@ -34,6 +34,9 @@ public class Repl {
                 }
                 else if (state == State.SIGNEDIN) {
                     result = postLoginClient.eval(line);
+                    if (result.equals("You have signed out. Come back soon!")) {
+                        state = State.SIGNEDOUT;
+                    }
                 }
                 else if (state == State.GAMEPLAY) {
                     result = gamePlayClient.eval(line);

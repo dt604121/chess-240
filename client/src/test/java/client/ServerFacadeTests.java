@@ -50,7 +50,7 @@ public class ServerFacadeTests {
     void registerUserNegativeTest() {
         UserData nullUser = new UserData(null, null, null);
         var result = assertThrows(ResponseException.class, () -> facade.registerUser(nullUser));
-        assertEquals("Error: Invalid user data. Name, password, and email cannot be null", result.getMessage());
+        assertEquals("Error: name, password, and email cannot be empty", result.getMessage());
     }
 
     @Test

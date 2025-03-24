@@ -28,7 +28,9 @@ public class ServerFacade {
 
     public LoginResult loginUser(LoginRequest user) throws ResponseException {
         var path = "/session";
-        return this.makeRequest("POST", path, user, LoginResult.class);
+        LoginResult loginResult = this.makeRequest("POST", path, user, LoginResult.class);
+        authToken = loginResult.authToken();
+        return loginResult;
     }
 
     public void logoutUser(UserData user) throws ResponseException {
@@ -43,7 +45,8 @@ public class ServerFacade {
 
     public CreateGameResult createGames(CreateGameRequest request) throws ResponseException {
         var path = "/game";
-        return this.makeRequest("POST", path, request, CreateGameResult.class);
+        CreateGameResult createGameResult = this.makeRequest("POST", path, request, CreateGameResult.class);
+        return createGameResult;
     }
 
     public GameData joinGame(JoinGamesRequest request) throws ResponseException {

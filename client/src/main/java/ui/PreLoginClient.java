@@ -55,10 +55,8 @@ public class PreLoginClient {
             var user = new UserData(name, password, email);
 
             serverFacade.registerUser(user);
-            System.out.println("Current state: " + state);
 
             state = State.SIGNEDIN;
-            System.out.println("Current state: " + state);
 
             return String.format("You registered as %s.", name);
         } catch (ResponseException e) {

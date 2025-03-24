@@ -51,6 +51,8 @@ public class PostLoginClient {
     public String createGame(String... params)  throws ResponseException {
         assertSignedIn();
 
+        // already taken check..
+
         try {
             if (params.length != 1) {
                 throw new ResponseException("Expected: name");
@@ -86,7 +88,7 @@ public class PostLoginClient {
                 return "No active games found.";
             }
 
-            gameList.clear(); // reset
+            gameList.clear();
 
             Collection<GameData> games = result.games();
             StringBuilder sb = new StringBuilder("Active Games:\n" );
