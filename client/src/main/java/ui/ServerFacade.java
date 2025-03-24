@@ -66,7 +66,9 @@ public class ServerFacade {
 
             writeHeader(http);
             writeBody(request, http);
+
             http.connect();
+
             throwIfNotSuccessful(http);
             return readBody(http, responseClass);
         } catch (ResponseException ex) {

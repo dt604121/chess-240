@@ -8,7 +8,7 @@ public class Repl {
     private final PostLoginClient postLoginClient;
     private final PreLoginClient preLoginClient;
     private final GamePlayClient gamePlayClient;
-    private final State state = State.SIGNEDOUT;
+    private State state = State.SIGNEDOUT;
 
     public Repl(String serverUrl) {
         postLoginClient = new PostLoginClient(serverUrl);
@@ -17,7 +17,7 @@ public class Repl {
     }
 
     public void run() {
-        System.out.println("\uDC36 Welcome to Chess240! Type help to get started");
+        System.out.println("Welcome to Chess240! Type help to get started");
         System.out.print(preLoginClient.help());
 
         Scanner scanner = new Scanner(System.in);
@@ -28,6 +28,9 @@ public class Repl {
             try {
                 if (state == State.SIGNEDOUT){
                     result = preLoginClient.eval(line);
+                    if (result.startsWith("You logged in as")) {
+                        state = State.SIGNEDIN;
+                    }
                 }
                 else if (state == State.SIGNEDIN) {
                     result = postLoginClient.eval(line);
@@ -47,13 +50,5 @@ public class Repl {
 
     private void printPrompt() {
         System.out.print("\n" + RESET + ">>> ");
-    }
-
-    public static class Main {
-        public static void main(String[] args) {
-            String serverUrl = "http://localhost:8080";
-            Repl repl = new Repl(serverUrl);
-            repl.run();
-        }
     }
 }
