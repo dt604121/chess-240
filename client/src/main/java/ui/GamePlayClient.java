@@ -25,7 +25,7 @@ public class GamePlayClient {
                 default -> help();
             };
         } catch (Exception ex) {
-            throw new ResponseException(401, ex.getMessage());
+            throw new ResponseException(ex.getMessage());
         }
     }
 

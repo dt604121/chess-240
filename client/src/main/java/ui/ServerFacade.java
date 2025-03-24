@@ -18,17 +18,12 @@ public class ServerFacade {
         serverUrl = url;
     }
 
-    public static void setAuthToken(String token) {
-        authToken = token;
-    }
-
-    public static String getAuthToken() {
-        return authToken;
-    }
-
     public RegisterResult registerUser(UserData user) throws ResponseException {
         var path = "/user";
-        return this.makeRequest("POST", path, user, RegisterResult.class);
+
+        RegisterResult registerResult = this.makeRequest("POST", path, user, RegisterResult.class);
+        authToken = registerResult.authToken();
+        return registerResult;
     }
 
     public LoginResult loginUser(LoginRequest user) throws ResponseException {
@@ -84,7 +79,7 @@ public class ServerFacade {
         } catch (ResponseException ex) {
             throw ex;
         } catch (Exception ex) {
-            throw new ResponseException(500, ex.getMessage());
+            throw new ResponseException(ex.getMessage());
         }
     }
 
@@ -99,13 +94,8 @@ public class ServerFacade {
     }
 
     // this is where we use the results from the headers and actually save stuff e.g. the authTokens
-    private static void writeHeader(HttpURLConnection http) throws IOException {
-        String authToken = http.getHeaderField("Authorization");
-
-        if (authToken != null) {
-            ServerFacade.setAuthToken(authToken);
-        }
-
+    private static void writeHeader(HttpURLConnection http) {
+        http.addRequestProperty("Authorization", authToken);
     }
 
     private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {
@@ -117,7 +107,7 @@ public class ServerFacade {
                 }
             }
 
-            throw new ResponseException(status, "other failure: " + status);
+            throw new ResponseException("other failure: ");
         }
     }
 

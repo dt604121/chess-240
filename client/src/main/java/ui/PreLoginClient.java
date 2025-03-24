@@ -49,7 +49,7 @@ public class PreLoginClient {
             }
 
             if (isUserLoggedIn()) {
-                throw new ResponseException(400, "Already connected");
+                throw new ResponseException("Already connected");
             }
 
             var user = new UserData(name, password, email);
@@ -81,7 +81,7 @@ public class PreLoginClient {
             }
 
             if (isUserLoggedIn()) {
-                throw new ResponseException(400, "Already connected");
+                throw new ResponseException("Already connected");
             }
 
             var loginRequest = new LoginRequest(name, password);
@@ -92,7 +92,7 @@ public class PreLoginClient {
 
             return String.format("You logged in as %s", name);
         } catch (ResponseException e) {
-            throw new ResponseException(401, "Login failed: " + e.getMessage());
+            throw new ResponseException("Login failed: " + e.getMessage());
         } catch (Exception e) {
             return "Unexpected error occurred during login." + e.getMessage();
         }

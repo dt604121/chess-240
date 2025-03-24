@@ -44,7 +44,7 @@ public class PostLoginClient {
             this.user = null;  // Clear the user data after logging out
             return "You have signed out. Come back soon!";
         } catch (Exception e) {
-            throw new ResponseException(401, "Logout failed: " + e.getMessage());
+            throw new ResponseException("Logout failed: " + e.getMessage());
         }
     }
 
@@ -53,13 +53,13 @@ public class PostLoginClient {
 
         try {
             if (params.length != 1) {
-                throw new ResponseException(400, "Expected: name");
+                throw new ResponseException("Expected: name");
             }
 
             var name = params[0].trim();
 
             if (name.isEmpty()) {
-                throw new ResponseException(400, "Invalid game name. Cannot be left blank.");
+                throw new ResponseException("Invalid game name. Cannot be left blank.");
             }
 
             CreateGameRequest request = new CreateGameRequest(name);
@@ -71,7 +71,7 @@ public class PostLoginClient {
             return String.format("You created a game as %s with an id of %d", name, gameId);
 
         } catch (ResponseException ex) {
-            throw new ResponseException(401, ex.getMessage());
+            throw new ResponseException(ex.getMessage());
         }
     }
 
@@ -102,7 +102,7 @@ public class PostLoginClient {
             return sb.toString();
 
         } catch (ResponseException ex) {
-            throw new ResponseException(401, "Failed to list games" + ex.getMessage());
+            throw new ResponseException("Failed to list games" + ex.getMessage());
         }
     }
 
@@ -111,7 +111,7 @@ public class PostLoginClient {
 
         try {
             if (params.length != 2) {
-                throw new ResponseException(400, "Expected: <id> [color]");
+                throw new ResponseException("Expected: <id> [color]");
             }
             int gameNumber;
 
@@ -143,7 +143,7 @@ public class PostLoginClient {
             return String.format("You have joined the game as %s!", color);
 
         } catch (ResponseException ex) {
-            throw new ResponseException(401, "failed to join game" +ex.getMessage());
+            throw new ResponseException("failed to join game" +ex.getMessage());
         }
     }
 
@@ -152,7 +152,7 @@ public class PostLoginClient {
 
         try {
             if (params.length != 1) {
-                throw new ResponseException(400, "Expected: <id>");
+                throw new ResponseException("Expected: <id>");
             }
 
             int gameNumber;
@@ -176,7 +176,7 @@ public class PostLoginClient {
             return String.format("Observing game %d", gameNumber);
 
         } catch (ResponseException ex) {
-            throw new ResponseException(401, ex.getMessage());
+            throw new ResponseException(ex.getMessage());
         }
     }
 
@@ -194,7 +194,7 @@ public class PostLoginClient {
 
     private void assertSignedIn() throws ResponseException {
         if (state == State.SIGNEDOUT) {
-            throw new ResponseException(400, "You must sign in");
+            throw new ResponseException("You must sign in");
         }
     }
 }

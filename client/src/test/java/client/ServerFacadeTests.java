@@ -149,7 +149,6 @@ public class ServerFacadeTests {
         facade.registerUser(user);
         ResponseException exception = assertThrows(ResponseException.class, () ->
                 facade.observeGame(1234));
-        assertEquals(400, exception.getStatusCode());
     }
 
     @Test
