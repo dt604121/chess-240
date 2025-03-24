@@ -21,9 +21,16 @@ public class ServerFacade {
     public RegisterResult registerUser(UserData user) throws ResponseException {
         var path = "/user";
 
-        RegisterResult registerResult = this.makeRequest("POST", path, user, RegisterResult.class);
-        authToken = registerResult.authToken();
-        return registerResult;
+        try {
+            RegisterResult registerResult = this.makeRequest("POST", path, user, RegisterResult.class);
+            authToken = registerResult.authToken();
+            return registerResult;
+        } catch (ResponseException e) {
+            if (e.getMessage().contains("already taken")) {
+                throw new ResponseException("Registration failed: Error: already taken");
+            }
+            throw e;
+        }
     }
 
     public LoginResult loginUser(LoginRequest user) throws ResponseException {

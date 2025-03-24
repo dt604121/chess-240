@@ -44,6 +44,20 @@ public class PreLoginClient {
             var password = params[1].trim();
             var email = params[2].trim();
 
+            boolean nameIsEmail = name.contains("@");
+            boolean passwordIsEmail = password.contains("@");
+            boolean emailIsEmail = email.contains("@");
+
+            if (nameIsEmail && !emailIsEmail) {
+                return "Error: It looks like you entered the email first. " +
+                        "The correct order is: <username> <password> <email>.";
+            }
+
+            if (!nameIsEmail && passwordIsEmail) {
+                return "Error: It looks like you swapped the password and email. " +
+                        "The correct order is: <username> <password> <email>.";
+            }
+
             if (name.isEmpty() || password.isEmpty() || email.isEmpty()) {
                 return "Error: name, password, and email cannot be empty";
             }
@@ -60,7 +74,14 @@ public class PreLoginClient {
 
             return String.format("You registered as %s.", name);
         } catch (ResponseException e) {
-            return "Registration failed: " + e.getMessage();
+            String message = e.getMessage().toLowerCase();
+            if (message.contains("already taken")) {
+                return "Error: That username is already taken. Please choose another.";
+            } else if (message.contains("invalid email")) {
+                return "Error: The email format is incorrect.";
+            } else {
+                return "Registration failed: " + e.getMessage();
+            }
         } catch (Exception e) {
             return "Unexpected error occurred during registration." + e.getMessage();
         }
