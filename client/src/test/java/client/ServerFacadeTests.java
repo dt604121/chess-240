@@ -1,7 +1,10 @@
 package client;
 
 import exception.ResponseException;
-import model.*;
+import model.CreateGameRequest;
+import model.JoinGamesRequest;
+import model.LoginRequest;
+import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
 import ui.ServerFacade;
@@ -37,68 +40,61 @@ public class ServerFacadeTests {
 
     @Test
     void registerUserPositiveTest() {
-        RegisterRequest request = new RegisterRequest("Cami", "cutie", "bestie@gmail.com");
-        var result = assertDoesNotThrow(() -> facade.registerUser(request));
+        user = new UserData("Cami", "cutie", "bestie@gmail.com");
+        var result = assertDoesNotThrow(() -> facade.registerUser(user));
         assertNotNull(result);
         assertTrue(result.authToken().length() > 10);
     }
 
     @Test
     void registerUserNegativeTest() {
-        RegisterRequest request = new RegisterRequest("", "", "");
-        var result = assertThrows(ResponseException.class, () -> facade.registerUser(request));
-        assertEquals("\"Error: name, password, and email cannot be empty", result.getMessage());
+        UserData nullUser = new UserData(null, null, null);
+        var result = assertThrows(ResponseException.class, () -> facade.registerUser(nullUser));
+        assertEquals("Error: Invalid user data. Name, password, and email cannot be null", result.getMessage());
     }
 
     @Test
     void loginUserPositiveTest() throws ResponseException {
-        RegisterRequest request = new RegisterRequest("Cami", "cutie", "bestie@gmail.com");
-        facade.registerUser(request);
+        user = new UserData("Cami", "cutie", "bestie@gmail.com");
+        facade.registerUser(user);
         var loginRequest = new LoginRequest("Cami", "cutie");
         var result = assertDoesNotThrow(() -> facade.loginUser(loginRequest));
         assertNotNull(result);
         assertEquals("Cami", result.username());
     }
 
-    // TODO: fix the typing to be request instead of user?!
-//    @Test
-//    void loginUserNegativeTest() throws ResponseException {
-//        RegisterRequest request = new RegisterRequest("Cami", "cutie", "bestie@gmail.com");
-//        facade.registerUser(request);
-//        var loginRequest = new LoginRequest("wrongUser", "wrongPass");
-//        assertThrows(ResponseException.class, () -> facade.loginUser(loginRequest));
-//    }
+    @Test
+    void loginUserNegativeTest() throws ResponseException {
+        user = new UserData("Cami", "cutie", "bestie@gmail.com");
+        facade.registerUser(user);
+        var loginRequest = new LoginRequest("wrongUser", "wrongPass");
+        assertThrows(ResponseException.class, () -> facade.loginUser(loginRequest));
+    }
 
     @Test
     void logoutUserPositiveTest() throws ResponseException {
-        RegisterRequest request = new RegisterRequest("Cami", "cutie", "email");
-        RegisterResult result = facade.registerUser(request);
+        UserData testUser = new UserData("Cami", "cutie", "email");
+        facade.registerUser(testUser);
 
-        assertDoesNotThrow(() -> facade.logoutUser(result));
+        assertDoesNotThrow(() -> facade.logoutUser(testUser));
     }
 
     @Test
     void logoutUserNegativeTest() {
-        UserData notSignedInUser = new UserData("UnknownUser", "password", "email");
-
-        ResponseException exception = assertThrows(ResponseException.class, () -> facade.logoutUser(notSignedInUser));
-
+        ResponseException exception = assertThrows(ResponseException.class, () -> facade.logoutUser(null));
         assertEquals("You must sign in", exception.getMessage());
     }
 
     @Test
     void listGamesPositiveTest() throws ResponseException {
-        RegisterRequest request = new RegisterRequest("Cami", "cutie", "bestie@gmail.com");
-        facade.registerUser(request);
+        user = new UserData("Cami", "cutie", "bestie@gmail.com");
+        facade.registerUser(user);
         var result = assertDoesNotThrow(() -> facade.listGames());
         assertNotNull(result);
     }
 
     @Test
-    void listGamesNegativeTest() throws ResponseException {
-        RegisterRequest request = new RegisterRequest("Cami", "cutie", "bestie@gmail.com");
-        RegisterResult result = facade.registerUser(request);
-        facade.logoutUser(result);
+    void listGamesNegativeTest() {
         ResponseException exception = assertThrows(ResponseException.class, () ->
                 facade.listGames());
         assertEquals("You must sign in", exception.getMessage());
@@ -106,57 +102,51 @@ public class ServerFacadeTests {
 
     @Test
     void createGamesPositiveTest() throws ResponseException {
-        RegisterRequest request = new RegisterRequest("Cami", "cutie", "bestie@gmail.com");
-        facade.registerUser(request);
+        user = new UserData("Cami", "cutie", "bestie@gmail.com");
+        facade.registerUser(user);
         LoginRequest loginRequest = new LoginRequest("Cami", "cutie");
         facade.loginUser(loginRequest);
-        CreateGameRequest gameRequest = new CreateGameRequest("Danica");
-        var result = assertDoesNotThrow(() -> facade.createGames(gameRequest));
+        CreateGameRequest request = new CreateGameRequest("Danica");
+        var result = assertDoesNotThrow(() -> facade.createGames(request));
         assertNotNull(result);
     }
 
     @Test
     void createGamesNegativeTest() throws ResponseException {
-        RegisterRequest request = new RegisterRequest("Cami", "cutie", "bestie@gmail.com");
-        facade.registerUser(request);
-        CreateGameRequest gameRequest = new CreateGameRequest("");
-        ResponseException exception = assertThrows(ResponseException.class, () -> facade.createGames(gameRequest));
+        user = new UserData("Cami", "cutie", "bestie@gmail.com");
+        facade.registerUser(user);
+        CreateGameRequest request = new CreateGameRequest("");
+        ResponseException exception = assertThrows(ResponseException.class, () -> facade.createGames(request));
         assertEquals("Invalid game name. Cannot be left blank.", exception.getMessage());
     }
 
     @Test
     void playGamePositiveTest() throws ResponseException {
-        RegisterRequest request = new RegisterRequest("Cami", "cutie", "bestie@gmail.com");
-        facade.registerUser(request);
-        JoinGamesRequest joinGamesRequest = new JoinGamesRequest("BLACK", 1234);
-        var result = assertDoesNotThrow(() -> facade.joinGame(joinGamesRequest));
+        user = new UserData("Cami", "cutie", "bestie@gmail.com");
+        facade.registerUser(user);
+        JoinGamesRequest request = new JoinGamesRequest("BLACK", 1234);
+        var result = assertDoesNotThrow(() -> facade.joinGame(request));
         assertNotNull(result);
     }
 
     @Test
-    void playGameNegativeTest() throws ResponseException {
-        RegisterRequest request = new RegisterRequest("Cami", "cutie", "bestie@gmail.com");
-        var result = facade.registerUser(request);
-        facade.logoutUser(result);
-
-        JoinGamesRequest params = new JoinGamesRequest("BLACK", 1234);
-        ResponseException exception = assertThrows(ResponseException.class, () -> facade.joinGame(params));
-
+    void playGameNegativeTest() {
+        ResponseException exception = assertThrows(ResponseException.class, () -> facade.joinGame(null));
         assertEquals("You must sign in", exception.getMessage());
     }
 
     @Test
     void observeGamePositiveTest() throws ResponseException {
-        RegisterRequest request = new RegisterRequest("Cami", "cutie", "bestie@gmail.com");
-        facade.registerUser(request);
+        user = new UserData("Cami", "cutie", "bestie@gmail.com");
+        facade.registerUser(user);
         var result = assertDoesNotThrow(() -> facade.observeGame(-1));
         assertNotNull(result);
     }
 
     @Test
     void observeGameNegativeTest() throws ResponseException {
-        RegisterRequest request = new RegisterRequest("Cami", "cutie", "bestie@gmail.com");
-        facade.registerUser(request);
+        user = new UserData("Cami", "cutie", "bestie@gmail.com");
+        facade.registerUser(user);
         ResponseException exception = assertThrows(ResponseException.class, () ->
                 facade.observeGame(1234));
         assertEquals(400, exception.getStatusCode());

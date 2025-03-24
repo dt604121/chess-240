@@ -35,14 +35,6 @@ public class PostLoginClient {
         }
     }
 
-    public UserData getCurrentUser() throws ResponseException {
-        if (this.user == null) {
-            // Call the server to retrieve the user from the session (or token)
-            this.user = serverFacade.getCurrentUser();
-        }
-        return this.user;
-    }
-
     public String logout()  throws ResponseException {
         assertSignedIn();
 
