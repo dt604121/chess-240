@@ -22,13 +22,9 @@ public class ServerFacade {
         authToken = token;
     }
 
-    public static String getAuthToken() {
-        return authToken;
-    }
-
-    public RegisterResult registerUser(UserData user) throws ResponseException {
+    public RegisterResult registerUser(RegisterRequest request) throws ResponseException {
         var path = "/user";
-        return this.makeRequest("POST", path, user, RegisterResult.class);
+        return this.makeRequest("POST", path, request, RegisterResult.class);
     }
 
     public LoginResult loginUser(LoginRequest user) throws ResponseException {
@@ -36,9 +32,9 @@ public class ServerFacade {
         return this.makeRequest("POST", path, user, LoginResult.class);
     }
 
-    public void logoutUser(UserData user) throws ResponseException {
+    public void logoutUser(RegisterResult user) throws ResponseException {
         var path = "/session";
-        this.makeRequest("DELETE", path, user, UserData.class);
+        this.makeRequest("DELETE", path, user, RegisterResult.class);
     }
 
     public ListGamesResult listGames() throws ResponseException {
@@ -99,7 +95,7 @@ public class ServerFacade {
     }
 
     // this is where we use the results from the headers and actually save stuff e.g. the authTokens
-    private static void writeHeader(HttpURLConnection http) throws IOException {
+    private static void writeHeader(HttpURLConnection http) {
         String authToken = http.getHeaderField("Authorization");
 
         if (authToken != null) {

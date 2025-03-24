@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import exception.ResponseException;
 import model.LoginRequest;
+import model.RegisterRequest;
 import model.UserData;
 
 public class PreLoginClient {
@@ -52,9 +53,9 @@ public class PreLoginClient {
                 throw new ResponseException(400, "Already connected");
             }
 
-            var user = new UserData(name, password, email);
+            RegisterRequest request = new RegisterRequest(name, password, email);
 
-            serverFacade.registerUser(user);
+            serverFacade.registerUser(request);
             System.out.println("Current state: " + state);
 
             state = State.SIGNEDIN;
