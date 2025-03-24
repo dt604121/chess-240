@@ -80,9 +80,9 @@ public class PreLoginClient {
                 return "Error: name, and password cannot be empty";
             }
 
-//            if (isUserLoggedIn()) {
-//                throw new ResponseException(400, "Already connected");
-//            }
+            if (isUserLoggedIn()) {
+                throw new ResponseException(400, "Already connected");
+            }
 
             var loginRequest = new LoginRequest(name, password);
 

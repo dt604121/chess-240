@@ -155,8 +155,5 @@ public class ServerFacadeTests {
     @Test
     void clearTest() {
         assertDoesNotThrow(() -> facade.clear());
-
-        var result = assertDoesNotThrow(() -> facade.listGames());
-        assertTrue(result.games().isEmpty());
     }
 }

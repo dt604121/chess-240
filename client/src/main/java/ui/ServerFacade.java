@@ -12,9 +12,18 @@ import java.net.URI;
 
 public class ServerFacade {
     private final String serverUrl;
+    private static String authToken;
 
     public ServerFacade(String url) {
         serverUrl = url;
+    }
+
+    public static void setAuthToken(String token) {
+        authToken = token;
+    }
+
+    public static String getAuthToken() {
+        return authToken;
     }
 
     public RegisterResult registerUser(UserData user) throws ResponseException {
@@ -61,6 +70,7 @@ public class ServerFacade {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
+
             http.setRequestMethod(method);
             http.setDoOutput(true);
 
@@ -89,10 +99,12 @@ public class ServerFacade {
     }
 
     // this is where we use the results from the headers and actually save stuff e.g. the authTokens
-    // TODO: write header
     private static void writeHeader(HttpURLConnection http) throws IOException {
-        // save the authToken
         String authToken = http.getHeaderField("Authorization");
+
+        if (authToken != null) {
+            ServerFacade.setAuthToken(authToken);
+        }
 
     }
 
