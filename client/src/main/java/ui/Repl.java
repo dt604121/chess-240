@@ -51,6 +51,6 @@ public class Repl {
     }
 
     private void printPrompt() {
-        System.out.print("\n" + RESET + state + ">>> ");
+        System.out.print("\n" + RESET + state + " >>> ");
     }
 }

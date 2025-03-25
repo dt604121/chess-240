@@ -192,7 +192,7 @@ public class PostLoginClient {
                 logout - when you're done
                 list - games
                 create <NAME> - a game
-                join <ID> [WHITE][BLACK] - a game
+                play <ID> [WHITE][BLACK] - a game
                 observe <ID> - a game
                 quit - playing chess
                 help - with possible commands

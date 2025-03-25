@@ -46,13 +46,15 @@ public class ServerFacade {
     public void logoutUser(UserData user) throws ResponseException {
         var path = "/session";
 
+        if (authToken == null || authToken.isEmpty()) {
+            throw new ResponseException("You must sign in.");
+        }
+
         try {
-            authToken = null;
             this.makeRequest("DELETE", path, user, UserData.class);
+            authToken = null;
         } catch (ResponseException e) {
-            if (user == null) {
-                throw new ResponseException("You must sign in.");
-            }
+                throw e;
         }
     }
 
@@ -64,7 +66,7 @@ public class ServerFacade {
             }
             return this.makeRequest("GET", path, null, ListGamesResult.class);
         } catch (ResponseException e) {
-            throw new ResponseException("You must sign in.");
+            throw e;
         }
     }
 
