@@ -23,6 +23,9 @@ public class ServerFacade {
 
         try {
             RegisterResult registerResult = this.makeRequest("POST", path, user, RegisterResult.class);
+            if (user.username().isEmpty() || user.email().isEmpty() || user.password().isEmpty()) {
+                throw new ResponseException("Registration failed: Username, email, and password are required.");
+            }
             authToken = registerResult.authToken();
             return registerResult;
         } catch (ResponseException e) {
@@ -42,23 +45,57 @@ public class ServerFacade {
 
     public void logoutUser(UserData user) throws ResponseException {
         var path = "/session";
-        authToken = null;
-        this.makeRequest("DELETE", path, user, UserData.class);
+
+        try {
+            authToken = null;
+            this.makeRequest("DELETE", path, user, UserData.class);
+        } catch (ResponseException e) {
+            if (user == null) {
+                throw new ResponseException("You must sign in.");
+            }
+        }
     }
 
     public ListGamesResult listGames() throws ResponseException {
         var path = "/game";
-        return this.makeRequest("GET", path, null, ListGamesResult.class);
+        try {
+            if (authToken == null || authToken.isEmpty()) {
+                throw new ResponseException("You must sign in.");
+            }
+            return this.makeRequest("GET", path, null, ListGamesResult.class);
+        } catch (ResponseException e) {
+            throw new ResponseException("You must sign in.");
+        }
     }
 
     public CreateGameResult createGames(CreateGameRequest request) throws ResponseException {
         var path = "/game";
-        return this.makeRequest("POST", path, request, CreateGameResult.class);
+        try {
+            if (request.gameName().isEmpty()) {
+                throw new ResponseException("Invalid game name. Cannot be left blank.");
+            }
+            if (authToken == null || authToken.isEmpty()) {
+                throw new ResponseException("You must sign in.");
+            }
+            return this.makeRequest("POST", path, request, CreateGameResult.class);
+        } catch (ResponseException e) {
+            if (e.getMessage().contains("already taken")) {
+                throw new ResponseException("You must sign in.");
+            }
+            throw e;
+        }
     }
 
     public GameData joinGame(JoinGamesRequest request) throws ResponseException {
         var path = "/game";
-        return this.makeRequest("PUT", path, request, GameData.class);
+        try {
+            if (authToken == null || authToken.isEmpty()) {
+                throw new ResponseException("You must sign in.");
+            }
+            return this.makeRequest("PUT", path, request, GameData.class);
+        } catch (ResponseException e) {
+            throw new ResponseException("You must sign in.");
+        }
     }
 
 //    public GameData observeGame(int gameId) throws ResponseException {

@@ -48,9 +48,9 @@ public class ServerFacadeTests {
 
     @Test
     void registerUserNegativeTest() {
-        UserData nullUser = new UserData(null, null, null);
-        var result = assertThrows(ResponseException.class, () -> facade.registerUser(nullUser));
-        assertEquals("Error: name, password, and email cannot be empty", result.getMessage());
+        UserData empty = new UserData("", "", "");
+        var result = assertThrows(ResponseException.class, () -> facade.registerUser(empty));
+        assertEquals("Registration failed: Username, email, and password are required.", result.getMessage());
     }
 
     @Test
@@ -71,20 +71,22 @@ public class ServerFacadeTests {
         assertThrows(ResponseException.class, () -> facade.loginUser(loginRequest));
     }
 
-    // TODO: pos test
     @Test
     void logoutUserPositiveTest() throws ResponseException {
         UserData testUser = new UserData("Cami", "cutie", "email");
-        facade.registerUser(testUser);
+        var result = facade.registerUser(testUser);
+        assertNotNull(result.authToken());
+
+        LoginRequest loginRequest = new LoginRequest("Cami", "cutie");
+        facade.loginUser(loginRequest);
 
         assertDoesNotThrow(() -> facade.logoutUser(testUser));
     }
 
-    // TODO: neg test
     @Test
     void logoutUserNegativeTest() {
         ResponseException exception = assertThrows(ResponseException.class, () -> facade.logoutUser(null));
-        assertEquals("You must sign in", exception.getMessage());
+        assertEquals("You must sign in.", exception.getMessage());
     }
 
     @Test
@@ -95,14 +97,19 @@ public class ServerFacadeTests {
         assertNotNull(result);
     }
 
-    // TODO: pos test
     @Test
     void listGamesNegativeTest() throws ResponseException {
         user = new UserData("Cami", "cutie", "bestie@gmail.com");
         facade.registerUser(user);
+
+        LoginRequest loginRequest = new LoginRequest("Cami", "cutie");
+        facade.loginUser(loginRequest);
+
+        facade.logoutUser(user);
+
         ResponseException exception = assertThrows(ResponseException.class, () ->
                 facade.listGames());
-        assertEquals("You must sign in", exception.getMessage());
+        assertEquals("You must sign in.", exception.getMessage());
     }
 
     @Test
@@ -116,7 +123,6 @@ public class ServerFacadeTests {
         assertNotNull(result);
     }
 
-    // TODO: neg test
     @Test
     void createGamesNegativeTest() throws ResponseException {
         user = new UserData("Cami", "cutie", "bestie@gmail.com");
@@ -126,18 +132,20 @@ public class ServerFacadeTests {
         assertEquals("Invalid game name. Cannot be left blank.", exception.getMessage());
     }
 
-    // TODO: play pos test
     @Test
     void playGamePositiveTest() throws ResponseException {
         user = new UserData("Cami", "cutie", "bestie@gmail.com");
         facade.registerUser(user);
+
         LoginRequest loginRequest = new LoginRequest("Cami", "cutie");
         facade.loginUser(loginRequest);
+
         CreateGameRequest createRequest = new CreateGameRequest("Cami'sGame");
-        facade.createGames(createRequest);
-        JoinGamesRequest request = new JoinGamesRequest("BLACK", 1234);
-        var result = facade.joinGame(request);
-        assertNotNull(result);
+        var result = facade.createGames(createRequest);
+
+        JoinGamesRequest request = new JoinGamesRequest("BLACK", result.gameID());
+        var result2 = facade.joinGame(request);
+        assertNotNull(result2);
     }
 
     @Test
