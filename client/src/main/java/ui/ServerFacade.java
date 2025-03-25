@@ -42,6 +42,7 @@ public class ServerFacade {
 
     public void logoutUser(UserData user) throws ResponseException {
         var path = "/session";
+        authToken = null;
         this.makeRequest("DELETE", path, user, UserData.class);
     }
 
@@ -52,8 +53,7 @@ public class ServerFacade {
 
     public CreateGameResult createGames(CreateGameRequest request) throws ResponseException {
         var path = "/game";
-        CreateGameResult createGameResult = this.makeRequest("POST", path, request, CreateGameResult.class);
-        return createGameResult;
+        return this.makeRequest("POST", path, request, CreateGameResult.class);
     }
 
     public GameData joinGame(JoinGamesRequest request) throws ResponseException {
@@ -61,10 +61,10 @@ public class ServerFacade {
         return this.makeRequest("PUT", path, request, GameData.class);
     }
 
-    public GameData observeGame(int gameId) throws ResponseException {
-        var path = "/game";
-        return this.makeRequest("PUT", path, gameId, GameData.class);
-    }
+//    public GameData observeGame(int gameId) throws ResponseException {
+//        var path = "/game";
+//        return this.makeRequest("PUT", path, gameId, GameData.class);
+//    }
 
     public void clear() throws ResponseException {
         var path = "/db";

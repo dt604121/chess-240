@@ -164,14 +164,19 @@ public class PostLoginClient {
                 return "Error: Game Number must be a number.";
             }
 
+            if (gameNumber <= 0) {
+                return "Error: Game Number must be greater than 0";
+            }
+
             Integer gameID = gameList.get(gameNumber);
             if (gameID == null) {
                 return "Error: Invalid game number. Please list the games again and choose a valid number";
             }
 
-            GameData gameData = serverFacade.observeGame(gameNumber);
-            ChessBoard board = gameData.game().getBoard();
+//            GameData gameData = serverFacade.observeGame(gameNumber);
+//            ChessBoard board = gameData.game().getBoard();
 
+            ChessBoard board = new ChessBoard();
             board.resetBoard();
             ChessBoardUI.drawChessBoard(System.out, board, true);
 

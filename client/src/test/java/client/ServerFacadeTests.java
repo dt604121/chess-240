@@ -71,6 +71,7 @@ public class ServerFacadeTests {
         assertThrows(ResponseException.class, () -> facade.loginUser(loginRequest));
     }
 
+    // TODO: pos test
     @Test
     void logoutUserPositiveTest() throws ResponseException {
         UserData testUser = new UserData("Cami", "cutie", "email");
@@ -79,6 +80,7 @@ public class ServerFacadeTests {
         assertDoesNotThrow(() -> facade.logoutUser(testUser));
     }
 
+    // TODO: neg test
     @Test
     void logoutUserNegativeTest() {
         ResponseException exception = assertThrows(ResponseException.class, () -> facade.logoutUser(null));
@@ -93,8 +95,11 @@ public class ServerFacadeTests {
         assertNotNull(result);
     }
 
+    // TODO: pos test
     @Test
-    void listGamesNegativeTest() {
+    void listGamesNegativeTest() throws ResponseException {
+        user = new UserData("Cami", "cutie", "bestie@gmail.com");
+        facade.registerUser(user);
         ResponseException exception = assertThrows(ResponseException.class, () ->
                 facade.listGames());
         assertEquals("You must sign in", exception.getMessage());
@@ -111,6 +116,7 @@ public class ServerFacadeTests {
         assertNotNull(result);
     }
 
+    // TODO: neg test
     @Test
     void createGamesNegativeTest() throws ResponseException {
         user = new UserData("Cami", "cutie", "bestie@gmail.com");
@@ -120,36 +126,51 @@ public class ServerFacadeTests {
         assertEquals("Invalid game name. Cannot be left blank.", exception.getMessage());
     }
 
+    // TODO: play pos test
     @Test
     void playGamePositiveTest() throws ResponseException {
         user = new UserData("Cami", "cutie", "bestie@gmail.com");
         facade.registerUser(user);
+        LoginRequest loginRequest = new LoginRequest("Cami", "cutie");
+        facade.loginUser(loginRequest);
+        CreateGameRequest createRequest = new CreateGameRequest("Cami'sGame");
+        facade.createGames(createRequest);
         JoinGamesRequest request = new JoinGamesRequest("BLACK", 1234);
-        var result = assertDoesNotThrow(() -> facade.joinGame(request));
+        var result = facade.joinGame(request);
         assertNotNull(result);
     }
 
     @Test
-    void playGameNegativeTest() {
-        ResponseException exception = assertThrows(ResponseException.class, () -> facade.joinGame(null));
-        assertEquals("You must sign in", exception.getMessage());
-    }
-
-    @Test
-    void observeGamePositiveTest() throws ResponseException {
+    void playGameNegativeTest() throws ResponseException {
         user = new UserData("Cami", "cutie", "bestie@gmail.com");
         facade.registerUser(user);
-        var result = assertDoesNotThrow(() -> facade.observeGame(-1));
-        assertNotNull(result);
+        LoginRequest loginRequest = new LoginRequest("Cami", "cutie");
+        facade.loginUser(loginRequest);
+        JoinGamesRequest request = new JoinGamesRequest("BLACK", 1234);
+        assertThrows(ResponseException.class, () ->
+                facade.joinGame(request));
     }
 
-    @Test
-    void observeGameNegativeTest() throws ResponseException {
-        user = new UserData("Cami", "cutie", "bestie@gmail.com");
-        facade.registerUser(user);
-        ResponseException exception = assertThrows(ResponseException.class, () ->
-                facade.observeGame(1234));
-    }
+//    @Test
+//    void observeGamePositiveTest() throws ResponseException {
+////        user = new UserData("Cami", "cutie", "bestie@gmail.com");
+////        facade.registerUser(user);
+////        LoginRequest loginRequest = new LoginRequest("Cami", "cutie");
+////        facade.loginUser(loginRequest);
+////        CreateGameRequest createGameRequest = new CreateGameRequest("TestGame");
+////        facade.createGames(createGameRequest);
+////        var result = assertDoesNotThrow(() -> facade.observeGame(1));
+////        assertNotNull(result);
+//    }
+//
+//    @Test
+//    void observeGameNegativeTest() throws ResponseException {
+//        // user = new UserData("Cami", "cutie", "bestie@gmail.com");
+////        facade.registerUser(user);
+////        assertThrows(ResponseException.class, () ->
+////                facade.observeGame(1234));
+//
+//    }
 
     @Test
     void clearTest() {
