@@ -19,6 +19,7 @@ public class Repl {
     public void run() {
         System.out.println("Welcome to Chess240! Type help to get started");
         System.out.print(preLoginClient.help());
+        System.out.println("[DEBUG] Current state" + state);
 
         Scanner scanner = new Scanner(System.in);
         var result = "";

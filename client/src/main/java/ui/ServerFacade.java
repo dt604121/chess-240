@@ -50,54 +50,36 @@ public class ServerFacade {
             throw new ResponseException("You must sign in.");
         }
 
-        try {
-            this.makeRequest("DELETE", path, user, UserData.class);
-            authToken = null;
-        } catch (ResponseException e) {
-                throw e;
-        }
+        this.makeRequest("DELETE", path, user, UserData.class);
+        authToken = null;
     }
 
     public ListGamesResult listGames() throws ResponseException {
         var path = "/game";
-        try {
-            if (authToken == null || authToken.isEmpty()) {
-                throw new ResponseException("You must sign in.");
-            }
-            return this.makeRequest("GET", path, null, ListGamesResult.class);
-        } catch (ResponseException e) {
-            throw e;
+        if (authToken == null || authToken.isEmpty()) {
+            throw new ResponseException("You must sign in.");
         }
+        return this.makeRequest("GET", path, null, ListGamesResult.class);
     }
 
     public CreateGameResult createGames(CreateGameRequest request) throws ResponseException {
         var path = "/game";
-        try {
-            if (request.gameName().isEmpty()) {
-                throw new ResponseException("Invalid game name. Cannot be left blank.");
-            }
-            if (authToken == null || authToken.isEmpty()) {
-                throw new ResponseException("You must sign in.");
-            }
-            return this.makeRequest("POST", path, request, CreateGameResult.class);
-        } catch (ResponseException e) {
-            if (e.getMessage().contains("already taken")) {
-                throw new ResponseException("You must sign in.");
-            }
-            throw e;
+        if (request.gameName().isEmpty()) {
+            throw new ResponseException("Invalid game name. Cannot be left blank.");
         }
-    }
-
-    public GameData joinGame(JoinGamesRequest request) throws ResponseException {
-        var path = "/game";
-        try {
-            if (authToken == null || authToken.isEmpty()) {
-                throw new ResponseException("You must sign in.");
-            }
-            return this.makeRequest("PUT", path, request, GameData.class);
-        } catch (ResponseException e) {
+        if (authToken == null || authToken.isEmpty()) {
             throw new ResponseException("You must sign in.");
         }
+        return this.makeRequest("POST", path, request, CreateGameResult.class);
+    }
+
+    // TODO: check git commits for changes here..
+    public GameData joinGame(JoinGamesRequest request) throws ResponseException {
+        var path = "/game";
+        if (authToken == null || authToken.isEmpty()) {
+            throw new ResponseException("You must sign in.");
+        }
+        return this.makeRequest("PUT", path, request, GameData.class);
     }
 
 //    public GameData observeGame(int gameId) throws ResponseException {
@@ -144,7 +126,9 @@ public class ServerFacade {
 
     // this is where we use the results from the headers and actually save stuff e.g. the authTokens
     private static void writeHeader(HttpURLConnection http) {
-        http.addRequestProperty("Authorization", authToken);
+        if (authToken != null && !authToken.isEmpty()) {
+            http.addRequestProperty("Authorization", authToken);
+        }
     }
 
     private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {
