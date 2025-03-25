@@ -7,7 +7,6 @@ import java.util.*;
 
 public class PostLoginClient {
     private final ServerFacade serverFacade;
-    private State state = State.SIGNEDIN;
     private final String serverUrl;
     private UserData user;
 
@@ -40,7 +39,7 @@ public class PostLoginClient {
 
         try {
             serverFacade.logoutUser(this.user);
-            state = State.SIGNEDOUT;
+            Repl.state = State.SIGNEDOUT;
             this.user = null;  // Clear the user data after logging out
             return "You have signed out. Come back soon!";
         } catch (Exception e) {
@@ -200,7 +199,8 @@ public class PostLoginClient {
     }
 
     private void assertSignedIn() throws ResponseException {
-        if (state == State.SIGNEDOUT) {
+        System.out.println(Repl.state);
+        if (Repl.state == State.SIGNEDOUT) {
             throw new ResponseException("You must sign in");
         }
     }

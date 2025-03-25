@@ -8,7 +8,7 @@ public class Repl {
     private final PostLoginClient postLoginClient;
     private final PreLoginClient preLoginClient;
     private final GamePlayClient gamePlayClient;
-    private State state = State.SIGNEDOUT;
+    public static State state = State.SIGNEDOUT;
 
     public Repl(String serverUrl) {
         postLoginClient = new PostLoginClient(serverUrl);
@@ -19,7 +19,6 @@ public class Repl {
     public void run() {
         System.out.println("Welcome to Chess240! Type help to get started");
         System.out.print(preLoginClient.help());
-        System.out.println("[DEBUG] Current state" + state);
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -29,7 +28,7 @@ public class Repl {
             try {
                 if (state == State.SIGNEDOUT){
                     result = preLoginClient.eval(line);
-                    if (result.startsWith("You logged in as")) {
+                    if (result.startsWith("You logged in as") || result.startsWith("You registered as")) {
                         state = State.SIGNEDIN;
                     }
                 }

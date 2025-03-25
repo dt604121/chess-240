@@ -8,7 +8,6 @@ import model.UserData;
 
 public class PreLoginClient {
     private final ServerFacade serverFacade;
-    private State state = State.SIGNEDOUT;
     private final String serverUrl;
 
     public PreLoginClient(String serverUrl) {
@@ -18,7 +17,7 @@ public class PreLoginClient {
 
     // scan in the input and then call the correct function
     public String eval(String input) {
-        state = State.SIGNEDOUT;
+        Repl.state = State.SIGNEDOUT;
         try {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
@@ -70,7 +69,7 @@ public class PreLoginClient {
 
             serverFacade.registerUser(user);
 
-            state = State.SIGNEDIN;
+            Repl.state = State.SIGNEDIN;
 
             return String.format("You registered as %s.", name);
         } catch (ResponseException e) {
@@ -107,7 +106,7 @@ public class PreLoginClient {
 
             serverFacade.loginUser(loginRequest);
 
-            state = State.SIGNEDIN;
+            Repl.state = State.SIGNEDIN;
 
             return String.format("You logged in as %s", name);
         } catch (ResponseException e) {
@@ -127,6 +126,6 @@ public class PreLoginClient {
     }
 
     public boolean isUserLoggedIn() {
-        return state == State.SIGNEDIN;
+        return Repl.state == State.SIGNEDIN;
     }
 }
