@@ -82,11 +82,6 @@ public class ServerFacade {
         return this.makeRequest("PUT", path, request, GameData.class);
     }
 
-//    public GameData observeGame(int gameId) throws ResponseException {
-//        var path = "/game";
-//        return this.makeRequest("PUT", path, gameId, GameData.class);
-//    }
-
     public void clear() throws ResponseException {
         var path = "/db";
         this.makeRequest("DELETE", path, null, null);
