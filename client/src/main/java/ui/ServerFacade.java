@@ -73,7 +73,6 @@ public class ServerFacade {
         return this.makeRequest("POST", path, request, CreateGameResult.class);
     }
 
-    // TODO: check git commits for changes here..
     public GameData joinGame(JoinGamesRequest request) throws ResponseException {
         var path = "/game";
         if (authToken == null || authToken.isEmpty()) {

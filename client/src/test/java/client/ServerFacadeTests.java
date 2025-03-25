@@ -86,7 +86,7 @@ public class ServerFacadeTests {
     @Test
     void logoutUserNegativeTest() {
         ResponseException exception = assertThrows(ResponseException.class, () -> facade.logoutUser(null));
-        assertEquals("You must sign in.", exception.getMessage());
+        assertEquals("Error: unauthorized", exception.getMessage());
     }
 
     @Test
@@ -158,27 +158,6 @@ public class ServerFacadeTests {
         assertThrows(ResponseException.class, () ->
                 facade.joinGame(request));
     }
-
-//    @Test
-//    void observeGamePositiveTest() throws ResponseException {
-////        user = new UserData("Cami", "cutie", "bestie@gmail.com");
-////        facade.registerUser(user);
-////        LoginRequest loginRequest = new LoginRequest("Cami", "cutie");
-////        facade.loginUser(loginRequest);
-////        CreateGameRequest createGameRequest = new CreateGameRequest("TestGame");
-////        facade.createGames(createGameRequest);
-////        var result = assertDoesNotThrow(() -> facade.observeGame(1));
-////        assertNotNull(result);
-//    }
-//
-//    @Test
-//    void observeGameNegativeTest() throws ResponseException {
-//        // user = new UserData("Cami", "cutie", "bestie@gmail.com");
-////        facade.registerUser(user);
-////        assertThrows(ResponseException.class, () ->
-////                facade.observeGame(1234));
-//
-//    }
 
     @Test
     void clearTest() {
