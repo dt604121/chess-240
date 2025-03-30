@@ -1,10 +1,14 @@
 package ui;
 
+import websocket.messages.Notification;
+
 import java.util.Scanner;
 
+import static java.awt.Color.RED;
 import static ui.EscapeSequences.RESET;
+import ui.websocket.NotificationHandler;
 
-public class Repl {
+public class Repl implements NotificationHandler{
     private final PostLoginClient postLoginClient;
     private final PreLoginClient preLoginClient;
     private final GamePlayClient gamePlayClient;
@@ -13,7 +17,7 @@ public class Repl {
     public Repl(String serverUrl) {
         postLoginClient = new PostLoginClient(serverUrl);
         preLoginClient = new PreLoginClient(serverUrl);
-        gamePlayClient = new GamePlayClient(serverUrl);
+        gamePlayClient = new GamePlayClient(serverUrl, this);
     }
 
     public void run() {
@@ -40,6 +44,10 @@ public class Repl {
                 }
                 else if (state == State.GAMEPLAY) {
                     result = gamePlayClient.eval(line);
+                    // TODO: change this to match what it says..
+                    if (result.equals("You have left the game. Come back soon!")) {
+                        state = State.SIGNEDIN;
+                    }
                 }
                 System.out.print(result);
             } catch (Throwable e) {
@@ -52,5 +60,10 @@ public class Repl {
 
     private void printPrompt() {
         System.out.print("\n" + RESET + state + " >>> ");
+    }
+
+    public void notify(Notification notification) {
+        System.out.println(RED + notification.message());
+        printPrompt();
     }
 }

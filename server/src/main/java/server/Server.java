@@ -2,20 +2,12 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.DatabaseManager;
-import dataaccess.dao.AuthDAO;
-import dataaccess.dao.GameDAO;
-import dataaccess.dao.UserDAO;
-import dataaccess.sql.SQLAuthDAO;
-import dataaccess.sql.SQLGameDAO;
-import dataaccess.sql.SQLUserDAO;
-import exception.AlreadyTakenException;
-import exception.BadRequestException;
-import exception.DataAccessException;
-import exception.UnauthorizedException;
+import dataaccess.dao.*;
+import dataaccess.sql.*;
+import exception.*;
 import model.*;
-import service.GameService;
-import service.UserService;
-import service.ClearService;
+import org.eclipse.jetty.websocket.server.WebSocketHandler;
+import service.*;
 import spark.*;
 
 import java.util.Map;
@@ -24,6 +16,7 @@ public class Server {
     private final UserService userService;
     private final GameService gameService;
     private final ClearService clearService;
+    private final WebSocketHandler webSocketHandler;
 
     public Server() {
         // SQL Database Instead
@@ -34,12 +27,16 @@ public class Server {
         this.userService = new UserService(userDAO, authDAO);
         this.gameService = new GameService(gameDAO, authDAO);
         this.clearService = new ClearService(userDAO, authDAO, gameDAO);
+        webSocketHandler = new WebSocketHandler();
     }
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
+        // TODO: web vs public?
         Spark.staticFiles.location("web");
+
+        Spark.webSocket("/ws", webSocketHandler);
 
         // Register your endpoints and handle exceptions here.
         Spark.post("/user", this::registerHandler);
@@ -50,10 +47,8 @@ public class Server {
         Spark.put("/game", this::joinGameHandler);
         Spark.delete("/db", this::clearHandler);
 
-        // This line initializes the server and can be removed once you have a functioning endpoint
-        Spark.init();
-
         Spark.awaitInitialization();
+
         return Spark.port();
     }
 

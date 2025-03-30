@@ -134,12 +134,11 @@ public class PostLoginClient {
 
             JoinGamesRequest request = new JoinGamesRequest(color, gameNumber);
             serverFacade.joinGame(request);
-
-            boolean whitePerspective = Objects.equals(color, "WHITE");
-
-            ChessBoard board = new ChessBoard();
-            board.resetBoard();
-            ChessBoardUI.drawChessBoard(System.out, board, whitePerspective);
+            // TODO: add notification -> player’s name playing as COLOR.
+            // WebSocket connection with the server (using the /ws endpoint) so it can send and receive gameplay messages.
+            // Send a CONNECT WebSocket message to the server.
+            // Transition to the gameplay UI.
+            Repl.state = State.GAMEPLAY;
 
             return String.format("You have joined the game as %s!", color);
 
@@ -172,12 +171,16 @@ public class PostLoginClient {
                 return "Error: Invalid game number. Please list the games again and choose a valid number";
             }
 
-//            GameData gameData = serverFacade.observeGame(gameNumber);
-//            ChessBoard board = gameData.game().getBoard();
-
-            ChessBoard board = new ChessBoard();
+            // TODO: how to grab actual board
+            GameData gameData = serverFacade.joinGame(gameNumber);
+            ChessBoard board = gameData.game().getBoard();
             board.resetBoard();
             ChessBoardUI.drawChessBoard(System.out, board, true);
+            // TODO: notification -> observer’s name
+            // WebSocket connection with the server (using the /ws endpoint) so it can send and receive gameplay messages.
+            // Send a CONNECT WebSocket message to the server.
+            // Transition to the gameplay UI.
+            Repl.state = State.GAMEPLAY;
 
             return String.format("Observing game %d", gameNumber);
 
