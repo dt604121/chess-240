@@ -7,15 +7,16 @@ import java.io.*;
 import java.net.*;
 
 import model.*;
+import websocket.messages.ServerMessage;
 
 import java.net.URI;
 
 public class ServerFacade {
     private final String serverUrl;
-    private static String authToken;
+    private String authToken;
 
     public ServerFacade(String url) {
-        serverUrl = url;
+        this.serverUrl = url;
     }
 
     public RegisterResult registerUser(UserData user) throws ResponseException {

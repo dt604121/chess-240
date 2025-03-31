@@ -5,14 +5,19 @@ import java.util.Arrays;
 import exception.ResponseException;
 import model.LoginRequest;
 import model.UserData;
+import ui.websocket.NotificationHandler;
+import ui.websocket.WebSocketFacade;
 
 public class PreLoginClient {
     private final ServerFacade serverFacade;
     private final String serverUrl;
+    private final NotificationHandler notificationHandler;
+    private WebSocketFacade ws;
 
-    public PreLoginClient(String serverUrl) {
+    public PreLoginClient(String serverUrl, NotificationHandler notificationHandler) {
         serverFacade = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
+        this.notificationHandler = notificationHandler;
     }
 
     // scan in the input and then call the correct function
@@ -66,12 +71,15 @@ public class PreLoginClient {
             }
 
             var user = new UserData(name, password, email);
+            ws = new WebSocketFacade(serverUrl, notificationHandler);
 
             serverFacade.registerUser(user);
+            ws.enterChess(user.username());
 
             Repl.state = State.SIGNEDIN;
 
             return String.format("You registered as %s.", name);
+
         } catch (ResponseException e) {
             String message = e.getMessage().toLowerCase();
             if (message.contains("already taken")) {

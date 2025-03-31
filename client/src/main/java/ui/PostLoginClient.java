@@ -2,6 +2,8 @@ package ui;
 import chess.ChessBoard;
 import exception.ResponseException;
 import model.*;
+import ui.websocket.NotificationHandler;
+import ui.websocket.WebSocketFacade;
 
 import java.util.*;
 
@@ -9,10 +11,13 @@ public class PostLoginClient {
     private final ServerFacade serverFacade;
     private final String serverUrl;
     private UserData user;
+    private final NotificationHandler notificationHandler;
+    private WebSocketFacade ws;
 
-    public PostLoginClient(String serverUrl){
+    public PostLoginClient(String serverUrl, NotificationHandler notificationHandler){
         serverFacade = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
+        this.notificationHandler = notificationHandler;
     }
 
     public String eval(String input) {
@@ -49,8 +54,6 @@ public class PostLoginClient {
 
     public String createGame(String... params)  throws ResponseException {
         assertSignedIn();
-
-        // already taken check..
 
         try {
             if (params.length != 1) {
@@ -176,7 +179,7 @@ public class PostLoginClient {
             ChessBoard board = gameData.game().getBoard();
             board.resetBoard();
             ChessBoardUI.drawChessBoard(System.out, board, true);
-            // TODO: notification -> observer’s name
+            // TODO: notification -> observer’s name is observing the game.
             // WebSocket connection with the server (using the /ws endpoint) so it can send and receive gameplay messages.
             // Send a CONNECT WebSocket message to the server.
             // Transition to the gameplay UI.

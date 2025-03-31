@@ -15,8 +15,8 @@ public class Repl implements NotificationHandler{
     public static State state = State.SIGNEDOUT;
 
     public Repl(String serverUrl) {
-        postLoginClient = new PostLoginClient(serverUrl);
-        preLoginClient = new PreLoginClient(serverUrl);
+        postLoginClient = new PostLoginClient(serverUrl, this);
+        preLoginClient = new PreLoginClient(serverUrl, this);
         gamePlayClient = new GamePlayClient(serverUrl, this);
     }
 
@@ -44,8 +44,7 @@ public class Repl implements NotificationHandler{
                 }
                 else if (state == State.GAMEPLAY) {
                     result = gamePlayClient.eval(line);
-                    // TODO: change this to match what it says..
-                    if (result.equals("You have left the game. Come back soon!")) {
+                    if (result.equals("You have left the game. Come back soon!") || result.equals("You have resigned from the game.")) {
                         state = State.SIGNEDIN;
                     }
                 }

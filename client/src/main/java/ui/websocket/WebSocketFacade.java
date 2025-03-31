@@ -2,7 +2,9 @@ package ui.websocket;
 
 import com.google.gson.Gson;
 import exception.ResponseException;
+import websocket.commands.*;
 import websocket.messages.Notification;
+import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
 import java.io.IOException;
@@ -11,12 +13,14 @@ import java.net.URISyntaxException;
 
 //need to extend Endpoint for websocket to work properly
 public class WebSocketFacade extends Endpoint {
-
     Session session;
     NotificationHandler notificationHandler;
+    private ServerMessage serverMessage;
 
+    public WebSocketFacade(String url, NotificationHandler notificationHandler, ServerMessage message) throws ResponseException {
+        this.serverMessage = message;
+        this.notificationHandler = notificationHandler;
 
-    public WebSocketFacade(String url, NotificationHandler notificationHandler) throws ResponseException {
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/ws");
@@ -34,7 +38,7 @@ public class WebSocketFacade extends Endpoint {
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
-            throw new ResponseException(500, ex.getMessage());
+            throw new ResponseException(ex.getMessage());
         }
     }
 
@@ -43,22 +47,22 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void enterPetShop(String visitorName) throws ResponseException {
+    public void enterChess(String visitorName) throws ResponseException {
         try {
-            var action = new Action(Action.Type.ENTER, visitorName);
+            var action = new Connect(Connect, visitorName);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
         } catch (IOException ex) {
-            throw new ResponseException(500, ex.getMessage());
+            throw new ResponseException(ex.getMessage());
         }
     }
 
-    public void leavePetShop(String visitorName) throws ResponseException {
+    public void leaveChess(String visitorName) throws ResponseException {
         try {
-            var action = new Action(Action.Type.EXIT, visitorName);
+            var action = new Leave(Leave, visitorName);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
             this.session.close();
         } catch (IOException ex) {
-            throw new ResponseException(500, ex.getMessage());
+            throw new ResponseException(ex.getMessage());
         }
     }
 

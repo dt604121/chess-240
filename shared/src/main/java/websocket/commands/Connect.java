@@ -7,6 +7,12 @@ public class Connect extends UserGameCommand {
         super(commandType, authToken, gameID);
     }
 
+    public enum Type {
+        ENTER
+    }
+
+    // Used for a user to make a WebSocket connection as a player or observer.
+
     public String toString() {
         return new Gson().toJson(this);
     }
