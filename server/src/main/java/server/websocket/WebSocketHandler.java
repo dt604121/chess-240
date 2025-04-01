@@ -27,11 +27,11 @@ public class WebSocketHandler {
             saveSession(command.getGameID(), session);
 
             switch (command.getCommandType()) {
-                // TODO: write the following methods
-                case CONNECT -> connect(session, username, (ConnectCommand) command);
-                case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command);
-                case LEAVE -> leaveGame(session, username, (LeaveGameCommand) command);
-                case RESIGN -> resign(session, username, (ResignCommand) command);
+                // TODO: write the following methods (have them send the error, loadgame, and notification servermes
+                case CONNECT -> connect(session, username, (ConnectCommand) command); // load game.. + notification
+                case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command); // load game.. + notification
+                case LEAVE -> leaveGame(session, username, (LeaveGameCommand) command);  // notification
+                case RESIGN -> resign(session, username, (ResignCommand) command); // notification
             }
         } catch (UnauthorizedException ex) {
             sendsMessage(session.getRemote(), new Error("Error: Unauthorized"));
@@ -55,10 +55,17 @@ public class WebSocketHandler {
         connections.broadcast(visitorName, notification);
     }
 
-    public void makeNoise(String petName, String sound) throws ResponseException {
+    private void resign(String visitorName) throws IOException {
+        connections.remove(visitorName);
+        var message = String.format("%s resigned from the chess game", visitorName);
+        var notification = new Notification(Notification.Type.RESIGN, message);
+        connections.broadcast(visitorName, notification);
+    }
+
+    public void makeMove(String player, String move) throws ResponseException {
         try {
-            var message = String.format("%s says %s", petName, sound);
-            var notification = new Notification(Notification.Type.NOISE, message);
+            var message = String.format("%s moved from here %s", player, move);
+            var notification = new Notification(Notification.Type.MOVE, message);
             connections.broadcast("", notification);
         } catch (Exception ex) {
             throw new ResponseException(ex.getMessage());

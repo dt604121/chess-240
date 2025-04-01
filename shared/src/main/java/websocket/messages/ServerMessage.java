@@ -8,8 +8,10 @@ import java.util.Objects;
  * Note: You can add to this class, but you should not alter the existing
  * methods.
  */
-public class ServerMessage {
+public abstract class ServerMessage {
     ServerMessageType serverMessageType;
+
+    public abstract void notify(ServerMessage message);
 
     public enum ServerMessageType {
         LOAD_GAME,
@@ -23,14 +25,6 @@ public class ServerMessage {
 
     public ServerMessageType getServerMessageType() {
         return this.serverMessageType;
-    }
-    @Override
-    public void notify(ServerMessage message) {
-        switch (message.getServerMessageType()) {
-            case NOTIFICATION -> displayNotification(((NotificationMessage) message).getMessage());
-            case ERROR -> displayError(((Error) message).getError());
-            case LOAD_GAME -> loadGame(((LoadGameMessage) message).getGame());
-        }
     }
 
     @Override

@@ -7,6 +7,8 @@ import model.LoginRequest;
 import model.UserData;
 import ui.websocket.NotificationHandler;
 import ui.websocket.WebSocketFacade;
+import websocket.commands.Connect;
+import websocket.messages.ServerMessage;
 
 public class PreLoginClient {
     private final ServerFacade serverFacade;
@@ -20,7 +22,6 @@ public class PreLoginClient {
         this.notificationHandler = notificationHandler;
     }
 
-    // scan in the input and then call the correct function
     public String eval(String input) {
         Repl.state = State.SIGNEDOUT;
         try {
@@ -71,10 +72,10 @@ public class PreLoginClient {
             }
 
             var user = new UserData(name, password, email);
-            ws = new WebSocketFacade(serverUrl, notificationHandler);
 
             serverFacade.registerUser(user);
             ws.enterChess(user.username());
+            // TODO: add websocket here!
 
             Repl.state = State.SIGNEDIN;
 
@@ -109,10 +110,12 @@ public class PreLoginClient {
             if (isUserLoggedIn()) {
                 throw new ResponseException("Already connected");
             }
+//            var loginRequest = new LoginRequest(name, password);
+//
+//            serverFacade.loginUser(loginRequest);
 
-            var loginRequest = new LoginRequest(name, password);
-
-            serverFacade.loginUser(loginRequest);
+            ws = new WebSocketFacade(serverUrl, notificationHandler, new ServerMessage(""));
+            ws.enterChess(name);
 
             Repl.state = State.SIGNEDIN;
 

@@ -3,11 +3,20 @@ package websocket.messages;
 import com.google.gson.Gson;
 
 public class Notification extends ServerMessage {
-    public Notification(ServerMessageType type) {
-        super(type);
+    public enum Type { ARRIVAL, DEPARTURE, MOVE, RESIGN};
+
+    private final Type type;
+    private final String message;
+
+    public Notification (Type type, String message) {
+        super(ServerMessageType.NOTIFICATION);
+        this.type = type;
+        this.message = message;
     }
 
-    // This is a message meant to inform a player when another player made an action.
+    public String getMessage() {
+        return message;
+    }
 
     public String toString() {
         return new Gson().toJson(this);

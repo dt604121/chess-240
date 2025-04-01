@@ -10,6 +10,7 @@ import java.util.*;
 public class PostLoginClient {
     private final ServerFacade serverFacade;
     private final String serverUrl;
+    // do we need to initialize this to be null?
     private UserData user;
     private final NotificationHandler notificationHandler;
     private WebSocketFacade ws;
@@ -39,13 +40,14 @@ public class PostLoginClient {
         }
     }
 
-    public String logout()  throws ResponseException {
+    public String logout() throws ResponseException {
         assertSignedIn();
 
         try {
-            serverFacade.logoutUser(this.user);
+            serverFacade.logoutUser(this.user); // do we need this anymore?
+            ws.leaveChess(user.username());
+            ws = null;
             Repl.state = State.SIGNEDOUT;
-            this.user = null;  // Clear the user data after logging out
             return "You have signed out. Come back soon!";
         } catch (Exception e) {
             throw new ResponseException("Logout failed: " + e.getMessage());
