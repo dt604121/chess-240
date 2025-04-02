@@ -7,7 +7,6 @@ import java.util.Scanner;
 import static java.awt.Color.RED;
 import static ui.EscapeSequences.RESET;
 import ui.websocket.NotificationHandler;
-import websocket.messages.Notification;
 
 public class Repl implements NotificationHandler{
     private final PostLoginClient postLoginClient;

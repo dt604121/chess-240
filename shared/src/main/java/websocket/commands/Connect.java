@@ -12,6 +12,10 @@ public class Connect extends UserGameCommand {
     }
 
     // Used for a user to make a WebSocket connection as a player or observer.
+    @Override
+    public CommandType getCommandType() {
+        return CommandType.CONNECT;
+    }
 
     public String toString() {
         return new Gson().toJson(this);

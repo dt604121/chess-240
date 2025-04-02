@@ -44,7 +44,6 @@ public class PostLoginClient {
         assertSignedIn();
 
         try {
-            serverFacade.logoutUser(this.user); // do we need this anymore?
             ws.leaveChess(user.username());
             ws = null;
             Repl.state = State.SIGNEDOUT;
@@ -142,7 +141,6 @@ public class PostLoginClient {
             // TODO: add notification -> player’s name playing as COLOR.
             // WebSocket connection with the server (using the /ws endpoint) so it can send and receive gameplay messages.
             // Send a CONNECT WebSocket message to the server.
-            // Transition to the gameplay UI.
             Repl.state = State.GAMEPLAY;
 
             return String.format("You have joined the game as %s!", color);
@@ -184,7 +182,6 @@ public class PostLoginClient {
             // TODO: notification -> observer’s name is observing the game.
             // WebSocket connection with the server (using the /ws endpoint) so it can send and receive gameplay messages.
             // Send a CONNECT WebSocket message to the server.
-            // Transition to the gameplay UI.
             Repl.state = State.GAMEPLAY;
 
             return String.format("Observing game %d", gameNumber);
