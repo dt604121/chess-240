@@ -5,15 +5,19 @@ import org.eclipse.jetty.websocket.api.Session;
 import java.io.IOException;
 
 public class Connection {
-    public String visitorName;
+    public String playerName;
+    public int gameId;
     public Session session;
 
-    public Connection(String visitorName, Session session) {
-        this.visitorName = visitorName;
+    public Connection(int gameId, String playerName, Session session) {
+        this.gameId = gameId;
+        this.playerName = playerName;
         this.session = session;
     }
 
     public void send(String msg) throws IOException {
-        session.getRemote().sendString(msg);
+        if (session.isOpen()) {
+            session.getRemote().sendString(msg);
+        }
     }
 }
