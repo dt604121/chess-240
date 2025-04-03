@@ -39,7 +39,7 @@ public class ConnectionManager {
 
         // Clean up any connections that were left open.
         for (var c : removeList) {
-            gameConn.remove(c.visitorName);
+            gameConn.remove(c.playerName);
         }
     }
 }

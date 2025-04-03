@@ -1,18 +1,19 @@
 package websocket.commands;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 
 public class MakeMove extends UserGameCommand {
-    private final String move;
+    private final ChessMove move;
 
-    public MakeMove(CommandType commandType, String authToken, Integer gameID) {
-        super(commandType, authToken, gameID);
+    public MakeMove(String authToken, Integer gameID, ChessMove move) {
+        super(CommandType.MAKE_MOVE, authToken, gameID);
         this.move = move;
         // supports the additional move field when serializing the MAKE_MOVE command over the WebSocket. This must result in something like the following:
         // "move": { "start": { "row": 3, "col": 3 }, "end": { "row": 5, "col": 5 } }
     }
 
-    public String getMove() {
+    public ChessMove getMove() {
         return move;
     }
 

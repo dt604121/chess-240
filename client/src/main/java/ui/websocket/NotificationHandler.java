@@ -1,7 +1,17 @@
 package ui.websocket;
 
-import websocket.messages.Notification;
-
 public interface NotificationHandler {
-    void notify(Notification notification);
+
+default void displayNotification(String message) {
+    System.out.println("Notification: " + message);
+}
+
+default void displayError(String error) {
+    System.err.println("Error: " + error);
+}
+
+default void loadGame(Object game) {
+    System.out.println("Loading game state...");
+    // Update the UI with the game state
+}
 }

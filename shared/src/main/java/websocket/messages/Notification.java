@@ -18,6 +18,11 @@ public class Notification extends ServerMessage {
         return message;
     }
 
+    public Type getType() {
+        return type;
+    }
+
+    @Override
     public String toString() {
         return new Gson().toJson(this);
     }
