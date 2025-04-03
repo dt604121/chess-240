@@ -2,7 +2,6 @@ package server.websocket;
 
 import chess.ChessMove;
 import com.google.gson.Gson;
-import dataaccess.sql.SQLUserDAO;
 import exception.ResponseException;
 import exception.UnauthorizedException;
 import org.eclipse.jetty.websocket.api.Session;
@@ -90,14 +89,14 @@ public class WebSocketHandler {
 
     // TODO: how do we get the username?
     private String getUsername(String authToken) {
-        //
+
     }
 
     private void saveSession(int gameId, Session session) {
         gameSessions.put(gameId, session);
     }
 
-    private void sendsMessage(Session session, Object message) throws IOException {
+    public void sendsMessage(Session session, Object message) throws IOException {
         session.getRemote().sendString(gson.toJson(message));
     }
 }

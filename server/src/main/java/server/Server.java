@@ -19,7 +19,6 @@ public class Server {
     private final WebSocketHandler webSocketHandler;
 
     public Server() {
-        // SQL Database Instead
         DatabaseManager databaseManager = new DatabaseManager();
         UserDAO userDAO = new SQLUserDAO(databaseManager);
         AuthDAO authDAO = new SQLAuthDAO(databaseManager);
@@ -27,6 +26,7 @@ public class Server {
         this.userService = new UserService(userDAO, authDAO);
         this.gameService = new GameService(gameDAO, authDAO);
         this.clearService = new ClearService(userDAO, authDAO, gameDAO);
+        // pass in auth and gamedao
         webSocketHandler = new WebSocketHandler();
     }
 

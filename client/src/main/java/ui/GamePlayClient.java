@@ -3,6 +3,8 @@ import chess.ChessBoard;
 import exception.ResponseException;
 import ui.websocket.NotificationHandler;
 import ui.websocket.WebSocketFacade;
+import websocket.commands.Connect;
+import websocket.messages.ServerMessage;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -94,10 +96,12 @@ public class GamePlayClient {
 
             // TODO: notification ->  player’s name left the game
             // Removes the user from the game (check whether they are playing or observing the game).
-            // The client transitions back to the Post-Login UI.
-            ws = new WebSocketFacade(serverUrl, notificationHandler);
+
+            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+
+            ws = new WebSocketFacade(serverUrl, notificationHandler, serverMessage);
             // Sends a Leave WebSocket message to the server.
-            ws.leaveChess();
+            ws.leaveChess(authToken, gameId);
             return String.format("You have left the game. Come back soon!");
         } catch (Exception e) {
             throw new ResponseException(e.getMessage());
@@ -109,17 +113,19 @@ public class GamePlayClient {
             Scanner scanner = new Scanner(System.in);
             System.out.print("Are you sure that you want to resign?");
             String answer = scanner.nextLine();
+            // Prompts the user to confirm they want to resign.
+            // If they do, the user forfeits the game and the game is over.
             if (answer.equalsIgnoreCase("yes")) {
                 return "You have forfeited and have resigned from the game.";
             }
-            return "Ok. Have a good rest of your game!";
-
             // TODO: notification -> player’s name has resigned.
-            // Prompts the user to confirm they want to resign.
-            // If they do, the user forfeits the game and the game is over.
+            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+            ws = new WebSocketFacade(serverUrl, notificationHandler, serverMessage);
+            ws.sendMessage(new Connect(user.authToken, gameId, Connect.PlayerType.PLAYER));
             // Does not cause the user to leave the game.
 
             // Sends a RESIGN WebSocket message to the server.
+            return "Ok. Have a good rest of your game!";
         } catch (Exception e) {
             throw new ResponseException(e.getMessage());
         }
