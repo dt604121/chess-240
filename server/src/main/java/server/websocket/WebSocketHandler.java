@@ -1,74 +1,103 @@
 package server.websocket;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
+import dataaccess.sql.SQLUserDAO;
 import exception.ResponseException;
 import exception.UnauthorizedException;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
-import websocket.commands.MakeMove;
-import websocket.commands.UserGameCommand;
-import websocket.messages.Notification;
+import websocket.commands.*;
+import websocket.messages.*;
 
 import java.io.IOException;
-// TODO: this file!
+import java.lang.Error;
+import java.util.HashMap;
+import java.util.Map;
 
 @WebSocket
 public class WebSocketHandler {
 
     private final ConnectionManager connections = new ConnectionManager();
+    private static final Gson gson = new Gson();
+
+    private final Map<Integer, Session> gameSessions = new HashMap<>();
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
         try {
-            UserGameCommand command = Serializer.fromJson(message, UserGameCommand.class);
+            UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
             String username = getUsername(command.getAuthToken());
 
             saveSession(command.getGameID(), session);
 
             switch (command.getCommandType()) {
-                // TODO: write the following methods (have them send the error, loadgame, and notification servermes
-                case CONNECT -> connect(session, username, (ConnectCommand) command); // load game.. + notification
-                case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command); // load game.. + notification
-                case LEAVE -> leaveGame(session, username, (LeaveGameCommand) command);  // notification
-                case RESIGN -> resign(session, username, (ResignCommand) command); // notification
+                case CONNECT -> connect(session, username, (Connect) command);
+                case MAKE_MOVE -> makeMove(session, username, (MakeMove) command);
+                case LEAVE -> leaveGame(session, username, (Leave) command);
+                case RESIGN -> resign(session, username, (Resign) command);
             }
         } catch (UnauthorizedException ex) {
-            sendsMessage(session.getRemote(), new Error("Error: Unauthorized"));
+            sendsMessage(session, new Error("Error: Unauthorized"));
         } catch (Exception ex) {
             ex.printStackTrace();
-            sendsMessage(session.getRemote(), new Error("Error " + ex.getMessage()));
+            sendsMessage(session, new Error("Error " + ex.getMessage()));
         }
     }
 
-    private void enter(String visitorName, Session session) throws IOException {
-        connections.add(visitorName, session);
-        var message = String.format("%s has joined the chess game", visitorName);
+    private void connect(Session session, String username, Connect command) throws IOException {
+        int gameId = command.getGameID();
+        connections.add(gameId, username, session);
+        var message = String.format("%s has joined the chess game", username);
         var notification = new Notification(Notification.Type.ARRIVAL, message);
-        connections.broadcast(visitorName, notification);
+        connections.broadcast(gameId, notification);
+
+        var gameState = loadGame(gameId);
+        sendsMessage(session, new LoadGame(gameState));
     }
 
-    private void exit(String visitorName) throws IOException {
-        connections.remove(visitorName);
-        var message = String.format("%s left the chess game", visitorName);
+    private void leaveGame(Session session, String username, Leave command) throws IOException {
+        int gameId = command.getGameID();
+        connections.remove(gameId, username);
+        var message = String.format("%s left the chess game", username);
         var notification = new Notification(Notification.Type.DEPARTURE, message);
-        connections.broadcast(visitorName, notification);
+        connections.broadcast(gameId, notification);
     }
 
-    private void resign(String visitorName) throws IOException {
-        connections.remove(visitorName);
-        var message = String.format("%s resigned from the chess game", visitorName);
+    private void resign(Session session, String username, Resign command) throws IOException {
+        int gameId = command.getGameID();
+        connections.remove(gameId, username);
+        var message = String.format("%s resigned from the chess game", username);
         var notification = new Notification(Notification.Type.RESIGN, message);
-        connections.broadcast(visitorName, notification);
+        connections.broadcast(gameId, notification);
     }
 
-    public void makeMove(String player, String move) throws ResponseException {
+    public void makeMove(Session session, String username, MakeMove command) throws ResponseException {
         try {
-            var message = String.format("%s moved from here %s", player, move);
+            int gameId = command.getGameID();
+            ChessMove move = command.getMove();
+            var message = String.format("%s moved from here %s", username, move);
             var notification = new Notification(Notification.Type.MOVE, message);
-            connections.broadcast("", notification);
+            connections.broadcast(gameId, notification);
+
+            var gameState = loadGame(gameId);
+            sendsMessage(session, new LoadGame(gameState));
         } catch (Exception ex) {
             throw new ResponseException(ex.getMessage());
         }
+    }
+
+    // TODO: how do we get the username?
+    private String getUsername(String authToken) {
+        //
+    }
+
+    private void saveSession(int gameId, Session session) {
+        gameSessions.put(gameId, session);
+    }
+
+    private void sendsMessage(Session session, Object message) throws IOException {
+        session.getRemote().sendString(gson.toJson(message));
     }
 }

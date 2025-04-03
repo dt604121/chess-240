@@ -6,7 +6,7 @@ import dataaccess.dao.*;
 import dataaccess.sql.*;
 import exception.*;
 import model.*;
-import org.eclipse.jetty.websocket.server.WebSocketHandler;
+import server.websocket.WebSocketHandler;
 import service.*;
 import spark.*;
 
@@ -33,7 +33,6 @@ public class Server {
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
-        // TODO: web vs public?
         Spark.staticFiles.location("web");
 
         Spark.webSocket("/ws", webSocketHandler);
@@ -63,7 +62,7 @@ public class Server {
         try {
             var registerResult = userService.registerService(registerRequest);
             res.status(200);
-            // Java Object -> JSON (deserialize)
+
             return new Gson().toJson(registerResult);
         } catch (BadRequestException e) {
             res.status(400);
@@ -128,6 +127,7 @@ public class Server {
         try {
             var createGamesResult = gameService.createGameService(createGamesRequest, authToken);
             res.status(200);
+
             return new Gson().toJson(createGamesResult);
         } catch (BadRequestException e){
             res.status(400);
@@ -147,6 +147,10 @@ public class Server {
         try {
             gameService.joinGameService(joinGamesRequest, authToken);
             res.status(200);
+
+            // String message = username + " joined game";
+            // call websocket handler
+
             return "{}";
         } catch (BadRequestException e) {
             res.status(400);

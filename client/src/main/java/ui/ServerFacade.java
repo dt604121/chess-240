@@ -7,7 +7,6 @@ import java.io.*;
 import java.net.*;
 
 import model.*;
-import websocket.messages.ServerMessage;
 
 import java.net.URI;
 
@@ -120,7 +119,7 @@ public class ServerFacade {
     }
 
     // this is where we use the results from the headers and actually save stuff e.g. the authTokens
-    private static void writeHeader(HttpURLConnection http) {
+    private void writeHeader(HttpURLConnection http) {
         if (authToken != null && !authToken.isEmpty()) {
             http.addRequestProperty("Authorization", authToken);
         }

@@ -72,10 +72,13 @@ public class PreLoginClient {
             }
 
             var user = new UserData(name, password, email);
+            var authToken = serverFacade.registerUser(user);
 
             serverFacade.registerUser(user);
-            ws.enterChess(user.username());
-            // TODO: add websocket here!
+
+            ServerMessage serverMessage = new ServerMessage("Connected to ws after login.");
+            ws = new WebSocketFacade(serverUrl, notificationHandler, serverMessage);
+            ws.enterChess(String.valueOf(authToken), null, Connect.PlayerType.OBSERVER);
 
             Repl.state = State.SIGNEDIN;
 
@@ -110,12 +113,15 @@ public class PreLoginClient {
             if (isUserLoggedIn()) {
                 throw new ResponseException("Already connected");
             }
-//            var loginRequest = new LoginRequest(name, password);
-//
-//            serverFacade.loginUser(loginRequest);
+            // Do we need to do this still?
+            var loginRequest = new LoginRequest(name, password);
+            var authToken = serverFacade.loginUser(loginRequest);
+            serverFacade.loginUser(loginRequest);
 
-            ws = new WebSocketFacade(serverUrl, notificationHandler, new ServerMessage(""));
-            ws.enterChess(name);
+            ServerMessage serverMessage = new ServerMessage("Connected to WebSocket after registration");
+
+            ws = new WebSocketFacade(serverUrl, notificationHandler, serverMessage);
+            ws.enterChess(String.valueOf(authToken), null, Connect.PlayerType.OBSERVER);
 
             Repl.state = State.SIGNEDIN;
 
