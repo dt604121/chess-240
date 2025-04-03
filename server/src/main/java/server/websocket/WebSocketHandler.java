@@ -2,8 +2,13 @@ package server.websocket;
 
 import chess.ChessMove;
 import com.google.gson.Gson;
+import dataaccess.dao.AuthDAO;
+import dataaccess.dao.GameDAO;
+import exception.DataAccessException;
 import exception.ResponseException;
 import exception.UnauthorizedException;
+import model.AuthData;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
@@ -15,13 +20,21 @@ import java.lang.Error;
 import java.util.HashMap;
 import java.util.Map;
 
+
 @WebSocket
-public class WebSocketHandler {
+public class WebSocketHandler (AuthDAO authDAO, GameDAO gameDAO) {
+    private final AuthDAO authDAO;
+    private final GameDAO gameDAO;
 
     private final ConnectionManager connections = new ConnectionManager();
     private static final Gson gson = new Gson();
 
     private final Map<Integer, Session> gameSessions = new HashMap<>();
+
+    public WebSocketHandler(AuthDAO authDAO, GameDAO gameDAO) {
+        this.authDAO = authDAO;
+        this.gameDAO = gameDAO;
+    }
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
@@ -52,8 +65,7 @@ public class WebSocketHandler {
         var notification = new Notification(Notification.Type.ARRIVAL, message);
         connections.broadcast(gameId, notification);
 
-        var gameState = loadGame(gameId);
-        sendsMessage(session, new LoadGame(gameState));
+        sendsMessage(session, new LoadGame(ServerMessage.ServerMessageType.NOTIFICATION));
     }
 
     private void leaveGame(Session session, String username, Leave command) throws IOException {
@@ -80,16 +92,18 @@ public class WebSocketHandler {
             var notification = new Notification(Notification.Type.MOVE, message);
             connections.broadcast(gameId, notification);
 
-            var gameState = loadGame(gameId);
-            sendsMessage(session, new LoadGame(gameState));
+            sendsMessage(session, new LoadGame(ServerMessage.ServerMessageType.NOTIFICATION));
         } catch (Exception ex) {
             throw new ResponseException(ex.getMessage());
         }
     }
 
-    // TODO: how do we get the username?
-    private String getUsername(String authToken) {
-
+    private String getUsername(String authToken) throws DataAccessException, UnauthorizedException {
+        AuthData authData = authDAO.getAuthToken(authToken);
+        if (authData == null) {
+            throw new UnauthorizedException("Invalid auth token");
+        }
+        return authData.username();
     }
 
     private void saveSession(int gameId, Session session) {

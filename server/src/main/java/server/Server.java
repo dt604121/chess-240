@@ -26,8 +26,7 @@ public class Server {
         this.userService = new UserService(userDAO, authDAO);
         this.gameService = new GameService(gameDAO, authDAO);
         this.clearService = new ClearService(userDAO, authDAO, gameDAO);
-        // pass in auth and gamedao
-        webSocketHandler = new WebSocketHandler();
+        webSocketHandler = new WebSocketHandler(authDAO, gameDAO);
     }
 
     public int run(int desiredPort) {

@@ -13,13 +13,11 @@ import websocket.messages.ServerMessage;
 public class PreLoginClient {
     private final ServerFacade serverFacade;
     private final String serverUrl;
-    private final NotificationHandler notificationHandler;
-    private WebSocketFacade ws;
+    private String authToken;
 
     public PreLoginClient(String serverUrl, NotificationHandler notificationHandler) {
         serverFacade = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
-        this.notificationHandler = notificationHandler;
     }
 
     public String eval(String input) {
@@ -72,13 +70,7 @@ public class PreLoginClient {
             }
 
             var user = new UserData(name, password, email);
-            var authToken = serverFacade.registerUser(user);
-
             serverFacade.registerUser(user);
-
-            ServerMessage serverMessage = new ServerMessage("Connected to ws after login.");
-            ws = new WebSocketFacade(serverUrl, notificationHandler, serverMessage);
-            ws.enterChess(String.valueOf(authToken), null, Connect.PlayerType.OBSERVER);
 
             Repl.state = State.SIGNEDIN;
 
@@ -113,15 +105,10 @@ public class PreLoginClient {
             if (isUserLoggedIn()) {
                 throw new ResponseException("Already connected");
             }
-            // Do we need to do this still?
+
             var loginRequest = new LoginRequest(name, password);
-            var authToken = serverFacade.loginUser(loginRequest);
-            serverFacade.loginUser(loginRequest);
-
-            ServerMessage serverMessage = new ServerMessage("Connected to WebSocket after registration");
-
-            ws = new WebSocketFacade(serverUrl, notificationHandler, serverMessage);
-            ws.enterChess(String.valueOf(authToken), null, Connect.PlayerType.OBSERVER);
+            var result = serverFacade.loginUser(loginRequest);
+            this.authToken = result.authToken();
 
             Repl.state = State.SIGNEDIN;
 

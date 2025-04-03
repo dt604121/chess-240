@@ -4,21 +4,19 @@ import exception.ResponseException;
 import model.*;
 import ui.websocket.NotificationHandler;
 import ui.websocket.WebSocketFacade;
+import websocket.messages.ServerMessage;
 
 import java.util.*;
 
 public class PostLoginClient {
     private final ServerFacade serverFacade;
     private final String serverUrl;
-    // do we need to initialize this to be null?
     private UserData user;
-    private final NotificationHandler notificationHandler;
-    private WebSocketFacade ws;
+    private String authToken;
 
     public PostLoginClient(String serverUrl, NotificationHandler notificationHandler){
         serverFacade = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
-        this.notificationHandler = notificationHandler;
     }
 
     public String eval(String input) {
@@ -44,9 +42,9 @@ public class PostLoginClient {
         assertSignedIn();
 
         try {
-            ws.leaveChess(user.username());
-            ws = null;
+            serverFacade.logoutUser(user);
             Repl.state = State.SIGNEDOUT;
+            this.user = null;
             return "You have signed out. Come back soon!";
         } catch (Exception e) {
             throw new ResponseException("Logout failed: " + e.getMessage());
@@ -81,6 +79,7 @@ public class PostLoginClient {
     }
 
     private final Map<Integer, Integer> gameList = new HashMap<>();
+    private final Map<Integer, GameData> gameDataList = new HashMap<>();
     public String listGames() throws ResponseException {
         assertSignedIn();
 
@@ -99,6 +98,7 @@ public class PostLoginClient {
             int index = 1;
             for (GameData game : games) {
                 gameList.put(index, game.gameID());
+                gameDataList.put(index, game);
 
                 sb.append(String.format("%d. %s (White: %s, Black: %s)\n", index++, game.gameName(),
                         game.whiteUsername() == null ? "Open" : game.whiteUsername(),
@@ -138,9 +138,14 @@ public class PostLoginClient {
 
             JoinGamesRequest request = new JoinGamesRequest(color, gameNumber);
             serverFacade.joinGame(request);
-            // TODO: add notification -> player’s name playing as COLOR.
-            // WebSocket connection with the server (using the /ws endpoint) so it can send and receive gameplay messages.
-            // Send a CONNECT WebSocket message to the server.
+
+            boolean whitePerspective = Objects.equals(color, "WHITE");
+
+            GameData gameData = gameDataList.get(gameNumber);
+
+            ChessBoard board = gameData.game().getBoard();
+            ChessBoardUI.drawChessBoard(System.out, board, whitePerspective);
+
             Repl.state = State.GAMEPLAY;
 
             return String.format("You have joined the game as %s!", color);
@@ -174,14 +179,11 @@ public class PostLoginClient {
                 return "Error: Invalid game number. Please list the games again and choose a valid number";
             }
 
-            // TODO: how to grab actual board
-            GameData gameData = serverFacade.joinGame(gameNumber);
+            GameData gameData = gameDataList.get(gameNumber);
+
             ChessBoard board = gameData.game().getBoard();
-            board.resetBoard();
             ChessBoardUI.drawChessBoard(System.out, board, true);
-            // TODO: notification -> observer’s name is observing the game.
-            // WebSocket connection with the server (using the /ws endpoint) so it can send and receive gameplay messages.
-            // Send a CONNECT WebSocket message to the server.
+
             Repl.state = State.GAMEPLAY;
 
             return String.format("Observing game %d", gameNumber);
