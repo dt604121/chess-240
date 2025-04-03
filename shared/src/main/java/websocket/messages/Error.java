@@ -1,9 +1,21 @@
 package websocket.messages;
 
+import com.google.gson.Gson;
+
 public class Error extends ServerMessage {
-    public Error(ServerMessageType type) {
-        super(type);
+    private final String errorMessage;
+
+    public Error(String type) {
+        super(ServerMessageType.ERROR);
+        this.errorMessage = errorMessage;
     }
 
-    // This message is sent to a client when it sends an invalid command. The message must include the word Error.
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    @Override
+    public String toString() {
+        return new Gson().toJson(this);
+    }
 }

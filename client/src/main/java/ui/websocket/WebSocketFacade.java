@@ -3,6 +3,8 @@ package ui.websocket;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import websocket.commands.*;
+import websocket.messages.Error;
+import websocket.messages.LoadGame;
 import websocket.messages.Notification;
 import websocket.messages.ServerMessage;
 
@@ -33,10 +35,26 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    ServerMessage message = new Gson().fromJson(message, ServerMessage.class);
-                    notificationHandler.notify(message);
-                } catch (Exception ex) {
-                    notificationHandler.notify())
+                    try {
+                        ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+
+                        switch (serverMessage.getServerMessageType()){
+                            case NOTIFICATION -> {
+                                Notification notification = new Gson().fromJson(message, Notification.class);
+                                notificationHandler.displayNotification(notification.getMessage());
+                            }
+                            case ERROR -> {
+                                Error error = new Gson().fromJson(message, Error.class);
+                                notificationHandler.displayError(error.getErrorMessage());
+                            }
+                            case LOAD_GAME -> {
+                                LoadGame loadGame = new Gson().fromJson(message, LoadGame.class);
+                                notificationHandler.loadGame(loadGame.getGame());
+                            }
+                        }
+                    } catch (Exception ex) {
+                        System.err.println("Failed to process message: " + ex.getMessage());
+                    }
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
@@ -49,24 +67,23 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void enterChess(String visitorName) throws ResponseException {
+    public void enterChess(String authToken, Integer gameId, Connect.PlayerType playerType) throws ResponseException {
         try {
-            var action = new Connect(Connect, visitorName);
+            var action = new Connect(authToken, gameId, playerType);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
         } catch (IOException ex) {
             throw new ResponseException(ex.getMessage());
         }
     }
 
-    public void leaveChess(String visitorName) throws ResponseException {
+    public void leaveChess(String authToken, Integer gameId) throws ResponseException {
         try {
-            var action = new Leave(Leave, visitorName);
+            var action = new Leave(authToken, gameId);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
             this.session.close();
         } catch (IOException ex) {
             throw new ResponseException(ex.getMessage());
         }
     }
-
 }
 

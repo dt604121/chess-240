@@ -11,8 +11,6 @@ import java.util.Objects;
 public abstract class ServerMessage {
     ServerMessageType serverMessageType;
 
-    public abstract void notify(ServerMessage message);
-
     public enum ServerMessageType {
         LOAD_GAME,
         ERROR,
@@ -32,10 +30,9 @@ public abstract class ServerMessage {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof ServerMessage)) {
+        if (!(o instanceof ServerMessage that)) {
             return false;
         }
-        ServerMessage that = (ServerMessage) o;
         return getServerMessageType() == that.getServerMessageType();
     }
 
