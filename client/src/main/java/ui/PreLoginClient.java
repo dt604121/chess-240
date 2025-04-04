@@ -6,9 +6,6 @@ import exception.ResponseException;
 import model.LoginRequest;
 import model.UserData;
 import ui.websocket.NotificationHandler;
-import ui.websocket.WebSocketFacade;
-import websocket.commands.Connect;
-import websocket.messages.ServerMessage;
 
 public class PreLoginClient {
     private final ServerFacade serverFacade;

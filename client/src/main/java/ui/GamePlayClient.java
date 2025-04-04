@@ -1,25 +1,34 @@
 package ui;
 import chess.ChessBoard;
 import exception.ResponseException;
-import ui.websocket.NotificationHandler;
-import ui.websocket.WebSocketFacade;
-import websocket.commands.Connect;
+import model.GameData;
+import ui.websocket.*;
 import websocket.messages.ServerMessage;
+import chess.ChessGame.TeamColor;
 
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Scanner;
+import java.util.*;
 
 public class GamePlayClient {
     private final ServerFacade serverFacade;
     private final String serverUrl;
     private WebSocketFacade ws;
     private final NotificationHandler notificationHandler;
+    private TeamColor color;
+    private int gameId;
+    private String authToken;
+    private GameData gameData;
 
     public GamePlayClient(String serverUrl, NotificationHandler notificationHandler){
         serverFacade = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
         this.notificationHandler = notificationHandler;
+    }
+
+    public void initializeGame(String authToken, int gameId, TeamColor color, GameData gameData) {
+        this.authToken = authToken;
+        this.gameId = gameId;
+        this.color = color;
+        this.gameData = gameData;
     }
 
     public String eval(String input) throws ResponseException {
@@ -57,7 +66,7 @@ public class GamePlayClient {
             // current state of the chess board from the side the user is playing.
             // If playing white, white pieces should be drawn on bottom. If playing black,
             // black pieces should be drawn on bottom. observing -> white
-            boolean whitePerspective = Objects.equals(color, "WHITE");
+            boolean whitePerspective = (color == TeamColor.WHITE);
 
             ChessBoard board = new ChessBoard();
             board.resetBoard();
@@ -76,17 +85,19 @@ public class GamePlayClient {
 
     public String redrawBoard() throws ResponseException {
         try {
-            // TODO: how to grab actual board using the color...
-            // current state of the chess board from the side the user is playing.
-            // If playing white, white pieces should be drawn on bottom. If playing black,
-            // black pieces should be drawn on bottom. observing -> white
-            boolean whitePerspective = Objects.equals(color, "WHITE");
             ChessBoard board = gameData.game().getBoard();
-            board.resetBoard();
+
+            if (board == null) {
+                throw new ResponseException("Board data is null.");
+            }
+
+            boolean whitePerspective = (color == null || color == TeamColor.WHITE);
             ChessBoardUI.drawChessBoard(System.out, board, whitePerspective);
-            return "";
+
+            return "Board has been redrawn";
+
         } catch (Exception e) {
-            throw new ResponseException(e.getMessage());
+            throw new ResponseException("Failed to redraw the board: " + e.getMessage());
         }
     }
 
@@ -94,15 +105,15 @@ public class GamePlayClient {
         try {
             Repl.state = State.SIGNEDOUT;
 
-            // TODO: notification ->  player’s name left the game
-            // Removes the user from the game (check whether they are playing or observing the game).
-
+            if (gameData == null) {
+                return "Observer";
+            }
             ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
 
             ws = new WebSocketFacade(serverUrl, notificationHandler, serverMessage);
-            // Sends a Leave WebSocket message to the server.
             ws.leaveChess(authToken, gameId);
-            return String.format("You have left the game. Come back soon!");
+
+            return String.format("%s has left the game. Come back soon!", TeamColor.WHITE == color ? gameData.whiteUsername() : gameData.blackUsername());
         } catch (Exception e) {
             throw new ResponseException(e.getMessage());
         }
@@ -113,19 +124,15 @@ public class GamePlayClient {
             Scanner scanner = new Scanner(System.in);
             System.out.print("Are you sure that you want to resign?");
             String answer = scanner.nextLine();
-            // Prompts the user to confirm they want to resign.
-            // If they do, the user forfeits the game and the game is over.
-            if (answer.equalsIgnoreCase("yes")) {
-                return "You have forfeited and have resigned from the game.";
-            }
-            // TODO: notification -> player’s name has resigned.
-            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-            ws = new WebSocketFacade(serverUrl, notificationHandler, serverMessage);
-            ws.sendMessage(new Connect(user.authToken, gameId, Connect.PlayerType.PLAYER));
-            // Does not cause the user to leave the game.
 
-            // Sends a RESIGN WebSocket message to the server.
-            return "Ok. Have a good rest of your game!";
+            if (answer.equalsIgnoreCase("yes")) {
+                ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+                ws = new WebSocketFacade(serverUrl, notificationHandler, serverMessage);
+                ws.resignFromChess(authToken, gameId);
+                return String.format("%s has forfeited and has resigned from the game.", username);
+            }
+
+            return "Ok resignation cancelled. Have a good rest of your game!";
         } catch (Exception e) {
             throw new ResponseException(e.getMessage());
         }
@@ -141,15 +148,14 @@ public class GamePlayClient {
             // If playing white, white pieces should be drawn on bottom. If playing black,
             // black pieces should be drawn on bottom. observing -> white
 
-           // ** This is a local operation and has no effect on remote users’ screens. **
-            boolean whitePerspective = Objects.equals(color, "WHITE");
+            boolean whitePerspective = (color == TeamColor.WHITE);
 
             ChessBoard board = new ChessBoard();
             board.resetBoard();
             ChessBoardUI.drawChessBoard(System.out, board, whitePerspective);
             return "";
         } catch (Exception e) {
-            throw new ResponseException("" + e.getMessage());
+            throw new ResponseException("Couldn't highlight the moves: " + e.getMessage());
         }
     }
 

@@ -2,16 +2,11 @@ package server.websocket;
 
 import chess.ChessMove;
 import com.google.gson.Gson;
-import dataaccess.dao.AuthDAO;
-import dataaccess.dao.GameDAO;
-import exception.DataAccessException;
-import exception.ResponseException;
-import exception.UnauthorizedException;
+import dataaccess.dao.*;
+import exception.*;
 import model.AuthData;
-import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
-import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+import org.eclipse.jetty.websocket.api.annotations.*;
 import websocket.commands.*;
 import websocket.messages.*;
 
@@ -22,7 +17,7 @@ import java.util.Map;
 
 
 @WebSocket
-public class WebSocketHandler (AuthDAO authDAO, GameDAO gameDAO) {
+public class WebSocketHandler {
     private final AuthDAO authDAO;
     private final GameDAO gameDAO;
 
@@ -35,6 +30,7 @@ public class WebSocketHandler (AuthDAO authDAO, GameDAO gameDAO) {
         this.authDAO = authDAO;
         this.gameDAO = gameDAO;
     }
+
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {

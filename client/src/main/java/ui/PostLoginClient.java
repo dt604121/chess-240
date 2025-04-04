@@ -3,8 +3,6 @@ import chess.ChessBoard;
 import exception.ResponseException;
 import model.*;
 import ui.websocket.NotificationHandler;
-import ui.websocket.WebSocketFacade;
-import websocket.messages.ServerMessage;
 
 import java.util.*;
 
@@ -12,9 +10,8 @@ public class PostLoginClient {
     private final ServerFacade serverFacade;
     private final String serverUrl;
     private UserData user;
-    private String authToken;
 
-    public PostLoginClient(String serverUrl, NotificationHandler notificationHandler){
+    public PostLoginClient(String serverUrl, NotificationHandler notificationHandler) {
         serverFacade = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
     }
