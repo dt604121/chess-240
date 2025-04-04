@@ -132,7 +132,7 @@ public class GamePlayClient {
                 return String.format("%s has forfeited and has resigned from the game.", username);
             }
 
-            return "Ok resignation cancelled. Have a good rest of your game!";
+            return "Ok resignation cancelled. Have a great rest of your game!";
         } catch (Exception e) {
             throw new ResponseException(e.getMessage());
         }
