@@ -84,6 +84,7 @@ public class WebSocketHandler {
         try {
             int gameId = command.getGameID();
             ChessMove move = command.getMove();
+
             var message = String.format("%s moved from here %s", username, move);
             var notification = new Notification(Notification.Type.MOVE, message);
             connections.broadcast(gameId, notification);

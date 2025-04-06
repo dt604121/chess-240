@@ -37,6 +37,7 @@ public class GamePlayClient {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0 ) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
+            initializeGame(authToken, gameId, color, gameData);
             return switch (cmd) {
                 case "move" -> movePiece(params);
                 case "redraw" -> redrawBoard();
@@ -53,35 +54,81 @@ public class GamePlayClient {
 
     public String movePiece(String... params) throws ResponseException{
         try {
-            if (params.length != 1) {
+            if (params.length != 2) {
                 throw new ResponseException("Expected: <piece>");
             }
 
-            var piece = params[0].trim();
+            var startPosition = params[0].trim();
+            var endPosition = params[1].trim();
 
-            if (piece.isEmpty()) {
-                throw new ResponseException("Invalid piece. Cannot be empty.");
+            if (startPosition.isEmpty() || endPosition.isEmpty()) {
+                throw new ResponseException("Invalid position(s). Cannot be left empty.");
             }
 
-            // TODO: update / print board (updated on each player’s screen)
-            // current state of the chess board from the side the user is playing.
-            // If playing white, white pieces should be drawn on bottom. If playing black,
-            // black pieces should be drawn on bottom. observing -> white
-            boolean whitePerspective = (color == TeamColor.WHITE);
+            ChessPosition start = positionConversion(startPosition);
+            ChessPosition end = positionConversion(endPosition);
 
-            ChessBoard board = new ChessBoard();
-            board.resetBoard();
-            ChessBoardUI.drawChessBoard(System.out, board, whitePerspective);
-            // TODO: notification -> player’s name moved piece from here to here
-            // TODO: notification -> player name is in check
-            // TODO: notification -> player name is in checkmate
-            // board automatically updates on all clients involved in the game.
-            // Sends MakeMove to Server
+            ChessBoard board = gameData.game().getBoard();
+            ChessPiece pieceToMove = board.getPiece(start);
 
-            return String.format("You moved the %s piece from here to here.", piece);
+            if (pieceToMove == null) {
+                throw new ResponseException("No piece to move found.");
+            }
+
+            if (pieceToMove.getTeamColor() != gameData.game().getTeamTurn()) {
+                throw new ResponseException("Only pieces on your team can be moved.");
+            }
+
+            Collection<ChessMove> validMoves = gameData.game().validMoves(start);
+            boolean isValidMove = validMoves.stream().anyMatch(move -> move.getEndPosition().equals(end));
+
+            if (!isValidMove) {
+                throw new ResponseException("That move is not valid.");
+            }
+
+            ChessMove move = new ChessMove(start, end, null);
+            gameData.game().movePiece(move);
+
+            TeamColor opponentColor = gameData.game().getTeamTurn() == TeamColor.WHITE ? TeamColor.BLACK :
+                    TeamColor.WHITE;
+            boolean isInCheck = gameData.game().isInCheck(opponentColor);
+            boolean isInCheckmate = gameData.game().isInCheckmate(opponentColor);
+
+            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+
+            ws = new WebSocketFacade(serverUrl, notificationHandler, serverMessage);
+
+            if (isInCheck) {
+                String checkNotification = String.format("Player %s is in check!", opponentColor);
+                ws.makeMove(checkNotification, gameId, move);
+            }
+
+            if (isInCheckmate) {
+                String checkmateNotification = String.format("Player %s is in checkmate!", opponentColor);
+                ws.makeMove(checkmateNotification, gameId, move);
+            }
+
+            boolean whitePerspective = (color == null || color == TeamColor.WHITE);
+            ChessBoardUI.drawChessBoard(System.out, board, whitePerspective, null);
+
+            return String.format("You moved your piece from %s to %s.", startPosition, endPosition);
         } catch (Exception e) {
             throw new ResponseException(e.getMessage());
         }
+    }
+
+    public ChessPosition positionConversion(String position) throws ResponseException {
+        char colChar = position.charAt(0);
+        char rowChar = position.charAt(1);
+
+        int col = colChar - 'a' + 1;
+        int row = Character.getNumericValue(rowChar);
+
+        if (col < 1 || col > 8 || row < 1 || row > 8) {
+            throw new ResponseException("Out of bounds.");
+        }
+
+        return new ChessPosition(row, col);
     }
 
     public String redrawBoard() throws ResponseException {
@@ -93,7 +140,7 @@ public class GamePlayClient {
             }
 
             boolean whitePerspective = (color == null || color == TeamColor.WHITE);
-            ChessBoardUI.drawChessBoard(System.out, board, whitePerspective);
+            ChessBoardUI.drawChessBoard(System.out, board, whitePerspective, null);
 
             return "Board has been redrawn";
 
@@ -149,10 +196,8 @@ public class GamePlayClient {
 
             String positionString = params[0].toUpperCase();
             int row = Character.getNumericValue(positionString.charAt(1));
-            int col = positionString.charAt(0) - 'A' + 1;
+            int col = positionString.charAt(0) - 'a' + 1;
             ChessPosition position = new ChessPosition(row, col);
-
-            boolean whitePerspective = (color == TeamColor.WHITE);
 
             ChessBoard board = new ChessBoard();
             ChessPiece piece = board.getPiece(position);

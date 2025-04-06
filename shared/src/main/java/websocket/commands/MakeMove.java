@@ -26,4 +26,5 @@ public class MakeMove extends UserGameCommand {
     public String toString() {
         return new Gson().toJson(this);
     }
+
 }

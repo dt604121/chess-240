@@ -1,5 +1,6 @@
 package ui.websocket;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import websocket.commands.*;
@@ -65,6 +66,15 @@ public class WebSocketFacade extends Endpoint {
     //Endpoint requires this method, but you don't have to do anything
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
+    }
+
+    public void makeMove(String authToken, Integer gameId, ChessMove move) throws ResponseException {
+        try {
+            var action = new MakeMove(authToken, gameId, move);
+            this.session.getBasicRemote().sendText(new Gson().toJson(action));
+        } catch (IOException ex) {
+            throw new ResponseException(ex.getMessage());
+        }
     }
 
     public void enterChess(String authToken, Integer gameId, Connect.PlayerType playerType) throws ResponseException {

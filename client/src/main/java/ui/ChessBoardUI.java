@@ -4,6 +4,7 @@ import chess.*;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 import java.util.Set;
 
 import static ui.EscapeSequences.*;
@@ -20,7 +21,8 @@ public class ChessBoardUI {
         board.resetBoard();
 
         boolean whitePerspective = true;
-        drawChessBoard(out, board, whitePerspective);
+        Set<ChessPosition> highlightedPositions = new HashSet<>(); // initialize
+        drawChessBoard(out, board, whitePerspective, highlightedPositions);
     }
 
     public static void drawChessBoard(PrintStream out, ChessBoard board, boolean whitePerspective,
@@ -49,6 +51,12 @@ public class ChessBoardUI {
                 else {
                     out.print(SET_BG_COLOR_DARK_GREEN);
                 }
+
+                ChessPosition position = new ChessPosition(actualRow + 1, actualCol + 1);
+                if (highlightedPositions != null && highlightedPositions.contains(position)) {
+                    out.print(SET_BG_COLOR_BLUE);
+                }
+
                 // print the board[row][col] with that background color
                 ChessPiece piece = board.getPiece(new ChessPosition(actualRow + 1, actualCol + 1));
                 if (piece != null) {
