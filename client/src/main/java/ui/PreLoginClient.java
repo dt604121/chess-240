@@ -11,6 +11,7 @@ public class PreLoginClient {
     private final ServerFacade serverFacade;
     private final String serverUrl;
     private String authToken;
+    private String username;
 
     public PreLoginClient(String serverUrl, NotificationHandler notificationHandler) {
         serverFacade = new ServerFacade(serverUrl);
@@ -71,6 +72,8 @@ public class PreLoginClient {
 
             Repl.state = State.SIGNEDIN;
 
+            this.username = name;
+
             return String.format("You registered as %s.", name);
 
         } catch (ResponseException e) {
@@ -106,8 +109,10 @@ public class PreLoginClient {
             var loginRequest = new LoginRequest(name, password);
             var result = serverFacade.loginUser(loginRequest);
             this.authToken = result.authToken();
+            this.username = name;
 
             Repl.state = State.SIGNEDIN;
+            Repl.currentUsername = name;
 
             return String.format("You logged in as %s", name);
         } catch (ResponseException e) {

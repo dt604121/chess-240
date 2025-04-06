@@ -134,6 +134,7 @@ public class PostLoginClient {
             }
 
             JoinGamesRequest request = new JoinGamesRequest(color, gameNumber);
+
             serverFacade.joinGame(request);
 
             boolean whitePerspective = Objects.equals(color, "WHITE");

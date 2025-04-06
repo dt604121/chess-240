@@ -13,6 +13,7 @@ public class Repl implements NotificationHandler{
     private final PreLoginClient preLoginClient;
     private final GamePlayClient gamePlayClient;
     public static State state = State.SIGNEDOUT;
+    public static String currentUsername = null;
 
     public Repl(String serverUrl) {
         postLoginClient = new PostLoginClient(serverUrl, this);

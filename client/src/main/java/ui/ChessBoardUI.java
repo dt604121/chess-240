@@ -4,6 +4,8 @@ import chess.*;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Set;
+
 import static ui.EscapeSequences.*;
 
 public class ChessBoardUI {
@@ -21,7 +23,8 @@ public class ChessBoardUI {
         drawChessBoard(out, board, whitePerspective);
     }
 
-    public static void drawChessBoard(PrintStream out, ChessBoard board, boolean whitePerspective) {
+    public static void drawChessBoard(PrintStream out, ChessBoard board, boolean whitePerspective,
+                                      Set<ChessPosition> highlightedPositions) {
         out.print(SET_BG_GRAY);
 
         printColumnHeaders(out, whitePerspective);

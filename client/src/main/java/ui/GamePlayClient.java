@@ -1,5 +1,5 @@
 package ui;
-import chess.ChessBoard;
+import chess.*;
 import exception.ResponseException;
 import model.GameData;
 import ui.websocket.*;
@@ -17,6 +17,7 @@ public class GamePlayClient {
     private int gameId;
     private String authToken;
     private GameData gameData;
+    private String username;
 
     public GamePlayClient(String serverUrl, NotificationHandler notificationHandler){
         serverFacade = new ServerFacade(serverUrl);
@@ -113,7 +114,8 @@ public class GamePlayClient {
             ws = new WebSocketFacade(serverUrl, notificationHandler, serverMessage);
             ws.leaveChess(authToken, gameId);
 
-            return String.format("%s has left the game. Come back soon!", TeamColor.WHITE == color ? gameData.whiteUsername() : gameData.blackUsername());
+            return String.format("%s has left the game. Come back soon!", TeamColor.WHITE ==
+                    color ? gameData.whiteUsername() : gameData.blackUsername());
         } catch (Exception e) {
             throw new ResponseException(e.getMessage());
         }
@@ -124,6 +126,7 @@ public class GamePlayClient {
             Scanner scanner = new Scanner(System.in);
             System.out.print("Are you sure that you want to resign?");
             String answer = scanner.nextLine();
+            String username = Repl.currentUsername;
 
             if (answer.equalsIgnoreCase("yes")) {
                 ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
@@ -141,19 +144,42 @@ public class GamePlayClient {
     private String highlightMoves(String... params) throws ResponseException {
         try {
             if (params.length != 1) {
-                throw new ResponseException("Expected: <piece>");
+                throw new ResponseException("Expected: <position>");
             }
-            // redraw the board with the highlighted moves -> grab from the piece moves calculator!!
-            // current state of the chess board from the side the user is playing.
-            // If playing white, white pieces should be drawn on bottom. If playing black,
-            // black pieces should be drawn on bottom. observing -> white
+
+            String positionString = params[0].toUpperCase();
+            int row = Character.getNumericValue(positionString.charAt(1));
+            int col = positionString.charAt(0) - 'A' + 1;
+            ChessPosition position = new ChessPosition(row, col);
 
             boolean whitePerspective = (color == TeamColor.WHITE);
 
             ChessBoard board = new ChessBoard();
-            board.resetBoard();
-            ChessBoardUI.drawChessBoard(System.out, board, whitePerspective);
-            return "";
+            ChessPiece piece = board.getPiece(position);
+            ChessGame game = gameData.game();
+
+            if (piece == null) {
+                return "No piece found.";
+            }
+
+            if (piece.getTeamColor() != game.getTeamTurn()) {
+                return "Only pieces on your team can be highlighted.";
+            }
+
+            Collection<ChessMove> moves = game.validMoves(position);
+
+            if (moves == null || moves.isEmpty()) {
+                return "No valid moves for this piece.";
+            }
+
+            Set<ChessPosition> highlightPositions = new HashSet<>();
+            for (ChessMove move : moves) {
+                highlightPositions.add(move.getEndPosition());
+            }
+
+            ChessBoardUI.drawChessBoard(System.out, board,
+                    piece.getTeamColor() == ChessGame.TeamColor.WHITE, highlightPositions);
+            return "Highlighted moves";
         } catch (Exception e) {
             throw new ResponseException("Couldn't highlight the moves: " + e.getMessage());
         }
@@ -161,11 +187,11 @@ public class GamePlayClient {
 
     public String help() {
         return """
-                move <PIECE> - a piece
+                move <POSITION> - a piece
                 redraw - chess board
                 leave - game
                 resign - from the game
-                highlight <PIECE> - legal moves
+                highlight <POSITION> - legal moves
                 quit - playing chess
                 help - with possible commands
                 """;
