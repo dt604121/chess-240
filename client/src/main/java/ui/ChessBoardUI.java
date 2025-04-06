@@ -22,11 +22,14 @@ public class ChessBoardUI {
 
         boolean whitePerspective = true;
         Set<ChessPosition> highlightedPositions = new HashSet<>(); // initialize
-        drawChessBoard(out, board, whitePerspective, highlightedPositions);
+        ChessPosition startMove = null;
+        ChessPosition endMove = null;
+
+        drawChessBoard(out, board, whitePerspective, highlightedPositions, startMove, endMove);
     }
 
     public static void drawChessBoard(PrintStream out, ChessBoard board, boolean whitePerspective,
-                                      Set<ChessPosition> highlightedPositions) {
+                                      Set<ChessPosition> highlightedPositions, ChessPosition startMove, ChessPosition endMove) {
         out.print(SET_BG_GRAY);
 
         printColumnHeaders(out, whitePerspective);
@@ -53,6 +56,15 @@ public class ChessBoardUI {
                 }
 
                 ChessPosition position = new ChessPosition(actualRow + 1, actualCol + 1);
+
+                if (startMove != null && position.equals(startMove)) {
+                    out.print(SET_BG_COLOR_BLUE);
+                }
+
+                if (endMove != null && position.equals(endMove)) {
+                    out.print(SET_BG_COLOR_BLUE);
+                }
+
                 if (highlightedPositions != null && highlightedPositions.contains(position)) {
                     out.print(SET_BG_COLOR_BLUE);
                 }

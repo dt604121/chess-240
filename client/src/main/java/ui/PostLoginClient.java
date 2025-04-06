@@ -142,7 +142,7 @@ public class PostLoginClient {
             GameData gameData = gameDataList.get(gameNumber);
 
             ChessBoard board = gameData.game().getBoard();
-            ChessBoardUI.drawChessBoard(System.out, board, whitePerspective);
+            ChessBoardUI.drawChessBoard(System.out, board, whitePerspective, null, null, null);
 
             Repl.state = State.GAMEPLAY;
 
@@ -180,7 +180,8 @@ public class PostLoginClient {
             GameData gameData = gameDataList.get(gameNumber);
 
             ChessBoard board = gameData.game().getBoard();
-            ChessBoardUI.drawChessBoard(System.out, board, true);
+            ChessBoardUI.drawChessBoard(System.out, board, true, null, null,
+                    null);
 
             Repl.state = State.GAMEPLAY;
 

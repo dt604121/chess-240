@@ -109,7 +109,7 @@ public class GamePlayClient {
             }
 
             boolean whitePerspective = (color == null || color == TeamColor.WHITE);
-            ChessBoardUI.drawChessBoard(System.out, board, whitePerspective, null);
+            ChessBoardUI.drawChessBoard(System.out, board, whitePerspective, null, start, end);
 
             return String.format("You moved your piece from %s to %s.", startPosition, endPosition);
         } catch (Exception e) {
@@ -140,7 +140,8 @@ public class GamePlayClient {
             }
 
             boolean whitePerspective = (color == null || color == TeamColor.WHITE);
-            ChessBoardUI.drawChessBoard(System.out, board, whitePerspective, null);
+            ChessBoardUI.drawChessBoard(System.out, board, whitePerspective, null, null,
+                    null);
 
             return "Board has been redrawn";
 
@@ -223,7 +224,8 @@ public class GamePlayClient {
             }
 
             ChessBoardUI.drawChessBoard(System.out, board,
-                    piece.getTeamColor() == ChessGame.TeamColor.WHITE, highlightPositions);
+                    piece.getTeamColor() == ChessGame.TeamColor.WHITE, highlightPositions,
+                    null, null);
             return "Highlighted moves";
         } catch (Exception e) {
             throw new ResponseException("Couldn't highlight the moves: " + e.getMessage());

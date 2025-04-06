@@ -1,7 +1,7 @@
 package server.websocket;
 
 import chess.ChessMove;
-import com.google.gson.Gson;
+import com.google.gson.*;
 import dataaccess.dao.*;
 import exception.*;
 import model.AuthData;
@@ -12,6 +12,7 @@ import websocket.messages.*;
 
 import java.io.IOException;
 import java.lang.Error;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,6 +36,10 @@ public class WebSocketHandler {
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
         try {
+            Gson gson = new GsonBuilder()
+                    .registerTypeAdapter(UserGameCommand.class, new UserGameCommandDeserializer())
+                    .create();
+
             UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
             String username = getUsername(command.getAuthToken());
 
@@ -51,6 +56,23 @@ public class WebSocketHandler {
         } catch (Exception ex) {
             ex.printStackTrace();
             sendsMessage(session, new Error("Error " + ex.getMessage()));
+        }
+    }
+
+    public class UserGameCommandDeserializer implements JsonDeserializer<UserGameCommand> {
+        @Override
+        public UserGameCommand deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+                throws JsonParseException {
+            JsonObject obj = json.getAsJsonObject();
+            String commandType = obj.get("commandType").getAsString();
+
+            return switch (commandType) {
+                case "CONNECT" -> context.deserialize(json, Connect.class);
+                case "MAKE_MOVE" -> context.deserialize(json, MakeMove.class);
+                case "LEAVE" -> context.deserialize(json, Leave.class);
+                case "RESIGN" -> context.deserialize(json, Resign.class);
+                default -> throw new JsonParseException("Unknown command type: " + commandType);
+            };
         }
     }
 
