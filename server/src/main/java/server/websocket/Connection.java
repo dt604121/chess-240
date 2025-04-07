@@ -9,7 +9,6 @@ public class Connection {
     public int gameId;
     public Session session;
 
-    // TODO: make it a set of sessions!
     public Connection(int gameId, String playerName, Session session) {
         this.gameId = gameId;
         this.playerName = playerName;

@@ -8,7 +8,7 @@ import static java.awt.Color.RED;
 import static ui.EscapeSequences.RESET;
 import ui.websocket.NotificationHandler;
 
-public class Repl implements NotificationHandler{
+public class Repl implements NotificationHandler {
     private final PostLoginClient postLoginClient;
     private final PreLoginClient preLoginClient;
     private final GamePlayClient gamePlayClient;
@@ -16,9 +16,10 @@ public class Repl implements NotificationHandler{
     public static String currentUsername = null;
 
     public Repl(String serverUrl) {
-        postLoginClient = new PostLoginClient(serverUrl, this);
-        preLoginClient = new PreLoginClient(serverUrl, this);
-        gamePlayClient = new GamePlayClient(serverUrl, this);
+        ServerFacade serverFacade = new ServerFacade(serverUrl);
+        postLoginClient = new PostLoginClient(serverFacade, this);
+        preLoginClient = new PreLoginClient(serverFacade, this);
+        gamePlayClient = new GamePlayClient(serverFacade, serverUrl, this);
     }
 
     public void run() {
@@ -65,5 +66,10 @@ public class Repl implements NotificationHandler{
     public void notify(Notification notification) {
         System.out.println(RED + notification.getMessage());
         printPrompt();
+    }
+
+    @Override
+    public void loadGame(Object game) {
+        return;
     }
 }

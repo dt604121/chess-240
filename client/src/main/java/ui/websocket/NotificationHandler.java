@@ -10,9 +10,5 @@ default void displayError(String error) {
     System.err.println("Error: " + error);
 }
 
-// TODO: implement loadGame
-default void loadGame(Object game) {
-    System.out.println("Loading game state...");
-    // Update the UI with the game state
-}
+void loadGame(Object game);
 }

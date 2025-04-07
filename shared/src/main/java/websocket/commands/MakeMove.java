@@ -9,7 +9,8 @@ public class MakeMove extends UserGameCommand {
     public MakeMove(String authToken, Integer gameID, ChessMove move) {
         super(CommandType.MAKE_MOVE, authToken, gameID);
         this.move = move;
-        // supports the additional move field when serializing the MAKE_MOVE command over the WebSocket. This must result in something like the following:
+        // supports the additional move field when serializing the MAKE_MOVE command over the WebSocket.
+        // This must result in something like the following:
         // "move": { "start": { "row": 3, "col": 3 }, "end": { "row": 5, "col": 5 } }
     }
 

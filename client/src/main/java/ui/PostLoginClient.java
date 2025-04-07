@@ -8,12 +8,10 @@ import java.util.*;
 
 public class PostLoginClient {
     private final ServerFacade serverFacade;
-    private final String serverUrl;
     private UserData user;
 
-    public PostLoginClient(String serverUrl, NotificationHandler notificationHandler) {
-        serverFacade = new ServerFacade(serverUrl);
-        this.serverUrl = serverUrl;
+    public PostLoginClient(ServerFacade serverFacade, NotificationHandler notificationHandler) {
+        this.serverFacade = serverFacade;
     }
 
     public String eval(String input) {
@@ -136,6 +134,7 @@ public class PostLoginClient {
             JoinGamesRequest request = new JoinGamesRequest(color, gameNumber);
 
             serverFacade.joinGame(request);
+            // TODO: enterChess
 
             boolean whitePerspective = Objects.equals(color, "WHITE");
 

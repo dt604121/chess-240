@@ -9,13 +9,11 @@ import ui.websocket.NotificationHandler;
 
 public class PreLoginClient {
     private final ServerFacade serverFacade;
-    private final String serverUrl;
     private String authToken;
     private String username;
 
-    public PreLoginClient(String serverUrl, NotificationHandler notificationHandler) {
-        serverFacade = new ServerFacade(serverUrl);
-        this.serverUrl = serverUrl;
+    public PreLoginClient(ServerFacade serverFacade, NotificationHandler notificationHandler) {
+        this.serverFacade = serverFacade;
     }
 
     public String eval(String input) {
@@ -68,11 +66,12 @@ public class PreLoginClient {
             }
 
             var user = new UserData(name, password, email);
-            serverFacade.registerUser(user);
+            var result = serverFacade.registerUser(user);
 
             Repl.state = State.SIGNEDIN;
 
             this.username = name;
+            this.authToken = result.authToken();
 
             return String.format("You registered as %s.", name);
 

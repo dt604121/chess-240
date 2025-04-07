@@ -3,33 +3,35 @@ import chess.*;
 import exception.ResponseException;
 import model.GameData;
 import ui.websocket.*;
+import websocket.commands.Connect;
 import websocket.messages.ServerMessage;
 import chess.ChessGame.TeamColor;
 
 import java.util.*;
 
-public class GamePlayClient {
+public class GamePlayClient implements NotificationHandler {
     private final ServerFacade serverFacade;
     private final String serverUrl;
     private WebSocketFacade ws;
-    private final NotificationHandler notificationHandler;
     private TeamColor color;
     private int gameId;
     private String authToken;
     private GameData gameData;
     private String username;
+    private Connect.PlayerType playerType;
 
-    public GamePlayClient(String serverUrl, NotificationHandler notificationHandler){
-        serverFacade = new ServerFacade(serverUrl);
+    public GamePlayClient(ServerFacade serverFacade, String serverUrl, Repl repl){
+        this.serverFacade = serverFacade;
         this.serverUrl = serverUrl;
-        this.notificationHandler = notificationHandler;
     }
 
-    public void initializeGame(String authToken, int gameId, TeamColor color, GameData gameData) {
+    public void initializeGame(String authToken, int gameId, TeamColor color, GameData gameData,
+                               Connect.PlayerType playerType) {
         this.authToken = authToken;
         this.gameId = gameId;
         this.color = color;
         this.gameData = gameData;
+        this.playerType = playerType;
     }
 
     public String eval(String input) throws ResponseException {
@@ -37,7 +39,7 @@ public class GamePlayClient {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0 ) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            initializeGame(authToken, gameId, color, gameData);
+            initializeGame(authToken, gameId, color, gameData, playerType);
             return switch (cmd) {
                 case "move" -> movePiece(params);
                 case "redraw" -> redrawBoard();
@@ -91,12 +93,13 @@ public class GamePlayClient {
 
             TeamColor opponentColor = gameData.game().getTeamTurn() == TeamColor.WHITE ? TeamColor.BLACK :
                     TeamColor.WHITE;
+
             boolean isInCheck = gameData.game().isInCheck(opponentColor);
             boolean isInCheckmate = gameData.game().isInCheckmate(opponentColor);
 
             ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
 
-            ws = new WebSocketFacade(serverUrl, notificationHandler, serverMessage);
+            ws = new WebSocketFacade(serverUrl, this, serverMessage);
 
             if (isInCheck) {
                 String checkNotification = String.format("Player %s is in check!", opponentColor);
@@ -139,7 +142,8 @@ public class GamePlayClient {
                 throw new ResponseException("Board data is null.");
             }
 
-            boolean whitePerspective = (color == null || color == TeamColor.WHITE);
+            boolean whitePerspective = playerType == Connect.PlayerType.OBSERVER || color == ChessGame.TeamColor.WHITE;
+
             ChessBoardUI.drawChessBoard(System.out, board, whitePerspective, null, null,
                     null);
 
@@ -159,7 +163,7 @@ public class GamePlayClient {
             }
             ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
 
-            ws = new WebSocketFacade(serverUrl, notificationHandler, serverMessage);
+            ws = new WebSocketFacade(serverUrl, this, serverMessage);
             ws.leaveChess(authToken, gameId);
 
             return String.format("%s has left the game. Come back soon!", TeamColor.WHITE ==
@@ -178,7 +182,7 @@ public class GamePlayClient {
 
             if (answer.equalsIgnoreCase("yes")) {
                 ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-                ws = new WebSocketFacade(serverUrl, notificationHandler, serverMessage);
+                ws = new WebSocketFacade(serverUrl, this, serverMessage);
                 ws.resignFromChess(authToken, gameId);
                 return String.format("%s has forfeited and has resigned from the game.", username);
             }
@@ -230,6 +234,15 @@ public class GamePlayClient {
         } catch (Exception e) {
             throw new ResponseException("Couldn't highlight the moves: " + e.getMessage());
         }
+    }
+
+    @Override
+    public void loadGame(Object game) {
+            try {
+                redrawBoard();
+            } catch (exception.ResponseException e) {
+                System.err.println("Failed to redraw board: " + e.getMessage());
+            }
     }
 
     public String help() {

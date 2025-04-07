@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ConnectionManager {
     private final ConcurrentHashMap<Integer, ConcurrentHashMap<String, Connection>> gameConnections = new ConcurrentHashMap<>();
 
+    // TODO: change to be set of connections?
     public void add(int gameId, String playerName, Session session) {;
         gameConnections.putIfAbsent(gameId, new ConcurrentHashMap<>());
         gameConnections.get(gameId).put(playerName, new Connection(gameId, playerName, session));
