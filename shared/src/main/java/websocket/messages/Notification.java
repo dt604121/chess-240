@@ -3,12 +3,11 @@ package websocket.messages;
 import com.google.gson.Gson;
 
 public class Notification extends ServerMessage {
-    public enum Type { ARRIVAL, DEPARTURE, MOVE, RESIGN};
 
-    private final Type type;
+    private final ServerMessageType type;
     private final String message;
 
-    public Notification (Type type, String message) {
+    public Notification (ServerMessageType type, String message) {
         super(ServerMessageType.NOTIFICATION);
         this.type = type;
         this.message = message;
@@ -18,7 +17,7 @@ public class Notification extends ServerMessage {
         return message;
     }
 
-    public Type getType() {
+    public ServerMessageType getType() {
         return type;
     }
 

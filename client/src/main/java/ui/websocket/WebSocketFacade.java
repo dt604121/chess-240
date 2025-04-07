@@ -79,7 +79,7 @@ public class WebSocketFacade extends Endpoint {
 
     public void enterChess(String authToken, Integer gameId, Connect.PlayerType playerType) throws ResponseException {
         try {
-            var action = new Connect(authToken, gameId, playerType);
+            UserGameCommand action = new Connect(authToken, gameId, playerType);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
         } catch (IOException ex) {
             throw new ResponseException(ex.getMessage());

@@ -5,6 +5,7 @@ import com.google.gson.*;
 import dataaccess.dao.*;
 import exception.*;
 import model.AuthData;
+import model.CreateGameRequest;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import websocket.commands.*;
@@ -34,14 +35,12 @@ public class WebSocketHandler {
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
         try {
-            Gson gson = new GsonBuilder()
-                    .registerTypeAdapter(UserGameCommand.class, new UserGameCommandDeserializer())
-                    .create();
+//            Gson gson = new GsonBuilder()
+//                    .registerTypeAdapter(UserGameCommand.class, new UserGameCommandDeserializer())
+//                    .create();
 
-            UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
+            UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
             String username = getUsername(command.getAuthToken());
-
-            saveSession(command.getGameID(), session);
 
             switch (command.getCommandType()) {
                 case CONNECT -> connect(session, username, (Connect) command);
@@ -50,10 +49,10 @@ public class WebSocketHandler {
                 case RESIGN -> resign(session, username, (Resign) command);
             }
         } catch (UnauthorizedException ex) {
-            sendsMessage(session, new Error("Error: Unauthorized"));
+            connections.sendsMessage(session, new Error("Error: Unauthorized"));
         } catch (Exception ex) {
             ex.printStackTrace();
-            sendsMessage(session, new Error("Error " + ex.getMessage()));
+            connections.sendsMessage(session, new Error("Error " + ex.getMessage()));
         }
     }
 
@@ -78,17 +77,17 @@ public class WebSocketHandler {
         int gameId = command.getGameID();
         connections.add(gameId, username, session);
         var message = String.format("%s has joined the chess game", username);
-        var notification = new Notification(Notification.Type.ARRIVAL, message);
+        var notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(gameId, notification);
 
-        sendsMessage(session, new LoadGame(ServerMessage.ServerMessageType.NOTIFICATION));
+        connections.sendsMessage(session, new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME));
     }
 
     private void leaveGame(Session session, String username, Leave command) throws IOException {
         int gameId = command.getGameID();
         connections.remove(gameId, username);
         var message = String.format("%s left the chess game", username);
-        var notification = new Notification(Notification.Type.DEPARTURE, message);
+        var notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(gameId, notification);
     }
 
@@ -109,7 +108,7 @@ public class WebSocketHandler {
             var notification = new Notification(Notification.Type.MOVE, message);
             connections.broadcast(gameId, notification);
 
-            sendsMessage(session, new LoadGame(ServerMessage.ServerMessageType.NOTIFICATION));
+            connections.sendsMessage(session, new LoadGame(ServerMessage.ServerMessageType.NOTIFICATION));
         } catch (Exception ex) {
             throw new ResponseException(ex.getMessage());
         }
@@ -125,9 +124,5 @@ public class WebSocketHandler {
 
     private void saveSession(int gameId, Session session) {
         gameSessions.put(gameId, session);
-    }
-
-    public void sendsMessage(Session session, Object message) throws IOException {
-        session.getRemote().sendString(gson.toJson(message));
     }
 }
