@@ -77,6 +77,13 @@ public class WebSocketHandler {
             return;
         }
 
+        ChessGame game = gameData.game();
+        if (game.isGameOver()){
+            Error errorMessage = new Error("Error: game is over.");
+            connections.sendsMessage(session, errorMessage);
+            return;
+        }
+
         var message = String.format("%s has joined the chess game", username);
         ServerMessage notification = new Notification(message);
         connections.broadcast(gameId, notification, username);
@@ -97,6 +104,18 @@ public class WebSocketHandler {
             }
 
             connections.remove(gameId, username);
+            ChessGame game = gameData.game();
+
+            if (game.isGameOver()){
+                Error errorMessage = new Error("Error: game is over.");
+                connections.sendsMessage(session, errorMessage);
+                return;
+            }
+
+            game.setGameOver(true);
+            // TODO:
+            gameDAO.updateGame(null);
+
             var message = String.format("%s left the chess game", username);
             Notification notification = new Notification(message);
             connections.broadcast(gameId, notification, null);
@@ -117,13 +136,25 @@ public class WebSocketHandler {
             }
             ChessGame game = gameData.game();
 
+            if (game.isGameOver()) {
+                connections.sendsMessage(session, new Error("Error: Game is already over"));
+                return;
+            }
+            game.setGameOver(true);
+
             if (game.isInCheckmate(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK) ||
                     game.isInStalemate(ChessGame.TeamColor.WHITE) || game.isInStalemate(ChessGame.TeamColor.BLACK)) {
                 connections.sendsMessage(session, new Error("Error: Game is already over"));
                 return;
             }
 
+            if (!username.equals(gameData.whiteUsername()) && !username.equals(gameData.blackUsername())) {
+                connections.sendsMessage(session, new Error("Error: Only players can resign"));
+                return;
+            }
+
             connections.remove(gameId, username);
+            gameDAO.updateGame(gameData);
 
             var message = String.format("%s resigned from the chess game", username);
             Notification notification = new Notification(message);
@@ -159,6 +190,18 @@ public class WebSocketHandler {
             }
 
             ChessGame game = gameData.game();
+
+            if (game.isInCheckmate(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK) ||
+                    game.isInStalemate(ChessGame.TeamColor.WHITE) || game.isInStalemate(ChessGame.TeamColor.BLACK)) {
+                game.setGameOver(true);
+            }
+
+            // Check if the game is already over
+            if (game.isGameOver()) {
+                connections.sendsMessage(session, new Error("Error: Game is already over"));
+                return;
+            }
+
             ChessMove move = command.getMove();
 
             if (move == null) {
@@ -173,14 +216,6 @@ public class WebSocketHandler {
             }
 
             game.movePiece(move);
-
-            // Check if the game is already over
-            if (game.isInCheckmate(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK) ||
-                    game.isInStalemate(ChessGame.TeamColor.WHITE) || game.isInStalemate(ChessGame.TeamColor.BLACK)) {
-
-                connections.sendsMessage(session, new Error("Error: Game is already over"));
-                return;
-            }
 
             ChessGame.TeamColor opponentColor = game.getTeamTurn() == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.BLACK :
                     ChessGame.TeamColor.WHITE;

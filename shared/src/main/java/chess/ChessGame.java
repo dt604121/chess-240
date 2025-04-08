@@ -12,10 +12,12 @@ import java.util.Collection;
 public class ChessGame {
     private TeamColor teamTurn;
     private ChessBoard board;
+    private boolean gameOver;
 
     public ChessGame() {
         this.teamTurn = TeamColor.WHITE;
         this.board = new ChessBoard();
+        this.gameOver = false;
 
         board.resetBoard();
     }
@@ -25,6 +27,14 @@ public class ChessGame {
      */
     public TeamColor getTeamTurn() {
         return teamTurn;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
     }
 
     /**

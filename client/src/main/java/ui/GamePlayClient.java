@@ -23,7 +23,6 @@ public class GamePlayClient implements NotificationHandler {
     public GamePlayClient(ServerFacade serverFacade, String serverUrl){
         this.serverFacade = serverFacade;
         this.serverUrl = serverUrl;
-        this.notificationHandler = notificationHandler;
     }
 
     public void initializeGame(String authToken, int gameId, TeamColor color,
