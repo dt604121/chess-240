@@ -1,11 +1,13 @@
 package server.websocket;
 
+import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.*;
 import dataaccess.dao.*;
 import exception.*;
 import model.AuthData;
 import model.CreateGameRequest;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import websocket.commands.*;
@@ -35,11 +37,19 @@ public class WebSocketHandler {
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
         try {
-//            Gson gson = new GsonBuilder()
-//                    .registerTypeAdapter(UserGameCommand.class, new UserGameCommandDeserializer())
-//                    .create();
+            JsonObject jsonObject = JsonParser.parseString(message).getAsJsonObject();
+            String typeString = jsonObject.get("commandType").getAsString();
+            UserGameCommand.CommandType type = UserGameCommand.CommandType.valueOf(typeString);
+            UserGameCommand command;
 
-            UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
+            switch (type) {
+                case CONNECT -> command = gson.fromJson(message, Connect.class);
+                case MAKE_MOVE -> command = gson.fromJson(message, MakeMove.class);
+                case LEAVE -> command = gson.fromJson(message, Leave.class);
+                case RESIGN -> command = gson.fromJson(message, Resign.class);
+                default -> throw new IllegalArgumentException("Unknown command type: " + type);
+            }
+
             String username = getUsername(command.getAuthToken());
 
             switch (command.getCommandType()) {
@@ -48,69 +58,86 @@ public class WebSocketHandler {
                 case LEAVE -> leaveGame(session, username, (Leave) command);
                 case RESIGN -> resign(session, username, (Resign) command);
             }
+
         } catch (UnauthorizedException ex) {
-            connections.sendsMessage(session, new Error("Error: Unauthorized"));
+            connections.sendsMessage(session, new websocket.messages.Error("Error: Unauthorized"));
         } catch (Exception ex) {
             ex.printStackTrace();
-            connections.sendsMessage(session, new Error("Error " + ex.getMessage()));
+            connections.sendsMessage(session, new websocket.messages.Error("Error " + ex.getMessage()));
         }
     }
 
-    public class UserGameCommandDeserializer implements JsonDeserializer<UserGameCommand> {
-        @Override
-        public UserGameCommand deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-                throws JsonParseException {
-            JsonObject obj = json.getAsJsonObject();
-            String commandType = obj.get("commandType").getAsString();
-
-            return switch (commandType) {
-                case "CONNECT" -> context.deserialize(json, Connect.class);
-                case "MAKE_MOVE" -> context.deserialize(json, MakeMove.class);
-                case "LEAVE" -> context.deserialize(json, Leave.class);
-                case "RESIGN" -> context.deserialize(json, Resign.class);
-                default -> throw new JsonParseException("Unknown command type: " + commandType);
-            };
-        }
-    }
-
-    private void connect(Session session, String username, Connect command) throws IOException {
+    private void connect(Session session, String username, Connect command) throws IOException, DataAccessException {
         int gameId = command.getGameID();
         connections.add(gameId, username, session);
-        var message = String.format("%s has joined the chess game", username);
-        var notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
-        connections.broadcast(gameId, notification);
 
-        connections.sendsMessage(session, new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME));
+        GameData gameData = gameDAO.getGame(gameId);
+        var message = String.format("%s has joined the chess game", username);
+        ServerMessage notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        connections.broadcast(gameId, notification, username);
+
+        if (!(gameData == null)) {
+            LoadGame loadGameMessage = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME);
+            loadGameMessage.setGame(gameData);
+            connections.sendsMessage(session, loadGameMessage);
+        }
+        Error errorMessage = new Error("Error: Invalid game ID");
+        connections.sendsMessage(session, errorMessage);
+
     }
 
-    private void leaveGame(Session session, String username, Leave command) throws IOException {
+    private void leaveGame(Session session, String username, Leave command) throws IOException, DataAccessException {
         int gameId = command.getGameID();
+        GameData gameData = gameDAO.getGame(gameId);
+
+        if (gameData == null) {
+            Error errorMessage = new Error("Error: Invalid game ID");
+            connections.sendsMessage(session, errorMessage);
+        }
+
+        // TODO: check if user is in the game?
+
         connections.remove(gameId, username);
         var message = String.format("%s left the chess game", username);
-        var notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
-        connections.broadcast(gameId, notification);
+        ServerMessage notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        connections.broadcast(gameId, notification, username);
     }
 
-    private void resign(Session session, String username, Resign command) throws IOException {
+    private void resign(Session session, String username, Resign command) throws IOException, DataAccessException {
         int gameId = command.getGameID();
+        GameData gameData = gameDAO.getGame(gameId);
+
+        if (gameData == null) {
+            Error errorMessage = new Error("Error: Invalid game ID");
+            connections.sendsMessage(session, errorMessage);
+        }
+
         connections.remove(gameId, username);
         var message = String.format("%s resigned from the chess game", username);
-        var notification = new Notification(Notification.Type.RESIGN, message);
-        connections.broadcast(gameId, notification);
+        ServerMessage notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        connections.broadcast(gameId, notification, username);
     }
 
-    public void makeMove(Session session, String username, MakeMove command) throws ResponseException {
+    public void makeMove(Session session, String username, MakeMove command) throws ResponseException, IOException {
         try {
             int gameId = command.getGameID();
+            GameData gameData = gameDAO.getGame(gameId);
+
+            if (gameData == null) {
+                Error errorMessage = new Error("Error: Invalid game ID");
+                connections.sendsMessage(session, errorMessage);
+            }
+
+            // TODO: Validate if it's the correct player's turn + moves?
+
             ChessMove move = command.getMove();
 
             var message = String.format("%s moved from here %s", username, move);
-            var notification = new Notification(Notification.Type.MOVE, message);
-            connections.broadcast(gameId, notification);
+            ServerMessage notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
+            connections.broadcast(gameId, notification, username);
 
-            connections.sendsMessage(session, new LoadGame(ServerMessage.ServerMessageType.NOTIFICATION));
         } catch (Exception ex) {
-            throw new ResponseException(ex.getMessage());
+            connections.sendsMessage(session, new Error("Error: " + ex.getMessage()));
         }
     }
 
@@ -122,7 +149,7 @@ public class WebSocketHandler {
         return authData.username();
     }
 
-    private void saveSession(int gameId, Session session) {
-        gameSessions.put(gameId, session);
-    }
+//    private void saveSession(int gameId, Session session) {
+//        gameSessions.put(gameId, session);
+//    }
 }

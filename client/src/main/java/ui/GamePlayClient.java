@@ -4,23 +4,23 @@ import exception.ResponseException;
 import model.GameData;
 import ui.websocket.*;
 import websocket.commands.Connect;
-import websocket.messages.ServerMessage;
 import chess.ChessGame.TeamColor;
+import websocket.messages.ServerMessage;
 
 import java.util.*;
 
 public class GamePlayClient implements NotificationHandler {
     private final ServerFacade serverFacade;
     private final String serverUrl;
-    private WebSocketFacade ws;
     private TeamColor color;
     private int gameId;
     private String authToken;
     private GameData gameData;
-    private String username;
     private Connect.PlayerType playerType;
+    private WebSocketFacade ws;
+    private NotificationHandler notificationHandler;
 
-    public GamePlayClient(ServerFacade serverFacade, String serverUrl, Repl repl){
+    public GamePlayClient(ServerFacade serverFacade, String serverUrl, NotificationHandler notificationHandler){
         this.serverFacade = serverFacade;
         this.serverUrl = serverUrl;
     }
@@ -40,6 +40,8 @@ public class GamePlayClient implements NotificationHandler {
             var cmd = (tokens.length > 0 ) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             initializeGame(authToken, gameId, color, gameData, playerType);
+            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+            ws = new WebSocketFacade(serverUrl, notificationHandler, serverMessage);
             return switch (cmd) {
                 case "move" -> movePiece(params);
                 case "redraw" -> redrawBoard();
@@ -96,10 +98,6 @@ public class GamePlayClient implements NotificationHandler {
 
             boolean isInCheck = gameData.game().isInCheck(opponentColor);
             boolean isInCheckmate = gameData.game().isInCheckmate(opponentColor);
-
-            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-
-            ws = new WebSocketFacade(serverUrl, this, serverMessage);
 
             if (isInCheck) {
                 String checkNotification = String.format("Player %s is in check!", opponentColor);
@@ -161,9 +159,7 @@ public class GamePlayClient implements NotificationHandler {
             if (gameData == null) {
                 return "Observer";
             }
-            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
 
-            ws = new WebSocketFacade(serverUrl, this, serverMessage);
             ws.leaveChess(authToken, gameId);
 
             return String.format("%s has left the game. Come back soon!", TeamColor.WHITE ==
@@ -181,8 +177,6 @@ public class GamePlayClient implements NotificationHandler {
             String username = Repl.currentUsername;
 
             if (answer.equalsIgnoreCase("yes")) {
-                ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-                ws = new WebSocketFacade(serverUrl, this, serverMessage);
                 ws.resignFromChess(authToken, gameId);
                 return String.format("%s has forfeited and has resigned from the game.", username);
             }

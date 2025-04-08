@@ -10,10 +10,12 @@ import ui.websocket.NotificationHandler;
 public class PreLoginClient {
     private final ServerFacade serverFacade;
     private String authToken;
+    private String serverUrl;
     private String username;
 
-    public PreLoginClient(ServerFacade serverFacade, NotificationHandler notificationHandler) {
+    public PreLoginClient(ServerFacade serverFacade, String serverUrl, NotificationHandler notificationHandler) {
         this.serverFacade = serverFacade;
+        this.serverUrl = serverUrl;
     }
 
     public String eval(String input) {

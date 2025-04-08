@@ -3,15 +3,24 @@ import chess.ChessBoard;
 import exception.ResponseException;
 import model.*;
 import ui.websocket.NotificationHandler;
+import ui.websocket.WebSocketFacade;
+import websocket.commands.Connect;
 
 import java.util.*;
 
 public class PostLoginClient {
     private final ServerFacade serverFacade;
     private UserData user;
+    private NotificationHandler notificationHandler;
+    private final String serverUrl;
+    private WebSocketFacade ws;
+    private String authToken;
+    private Connect.PlayerType playerType;
 
-    public PostLoginClient(ServerFacade serverFacade, NotificationHandler notificationHandler) {
+    public PostLoginClient(ServerFacade serverFacade, String serverUrl, Repl notificationHandler) {
         this.serverFacade = serverFacade;
+        this.serverUrl = serverUrl;
+        this.notificationHandler = notificationHandler;
     }
 
     public String eval(String input) {
@@ -134,7 +143,7 @@ public class PostLoginClient {
             JoinGamesRequest request = new JoinGamesRequest(color, gameNumber);
 
             serverFacade.joinGame(request);
-            // TODO: enterChess
+            ws.enterChess(authToken, gameID, playerType);
 
             boolean whitePerspective = Objects.equals(color, "WHITE");
 

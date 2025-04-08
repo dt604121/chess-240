@@ -17,8 +17,8 @@ public class Repl implements NotificationHandler {
 
     public Repl(String serverUrl) {
         ServerFacade serverFacade = new ServerFacade(serverUrl);
-        postLoginClient = new PostLoginClient(serverFacade, this);
-        preLoginClient = new PreLoginClient(serverFacade, this);
+        postLoginClient = new PostLoginClient(serverFacade, serverUrl, this);
+        preLoginClient = new PreLoginClient(serverFacade, serverUrl, this);
         gamePlayClient = new GamePlayClient(serverFacade, serverUrl, this);
     }
 
@@ -70,6 +70,5 @@ public class Repl implements NotificationHandler {
 
     @Override
     public void loadGame(Object game) {
-        return;
     }
 }

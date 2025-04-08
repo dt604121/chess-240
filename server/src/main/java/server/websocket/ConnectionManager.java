@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 public class ConnectionManager {
+    // TODO: make the 2nd half a list of connections instead!
     private final ConcurrentHashMap<Integer, ConcurrentHashMap<String, Connection>> gameConnections = new ConcurrentHashMap<>();
 
     public void add(int gameId, String playerName, Session session) {;
@@ -26,16 +27,18 @@ public class ConnectionManager {
         }
     }
 
-    public void broadcast(int gameId, ServerMessage serverMessage) throws IOException {
+    public void broadcast(int gameId, ServerMessage serverMessage, String excludePLayer) throws IOException {
         if (!gameConnections.containsKey(gameId)) return;
 
         var gameConn = gameConnections.get(gameId);
         var removeList = new ArrayList<Connection>();
         for (var c : gameConn.values()) {
-            if (c.session.isOpen()) {
-                c.send(new Gson().toJson(serverMessage));
-            } else {
-                removeList.add(c);
+            if (!c.playerName.equals(excludePLayer)){
+                if (c.session.isOpen()) {
+                    c.send(new Gson().toJson(serverMessage));
+                } else {
+                    removeList.add(c);
+                }
             }
         }
 
