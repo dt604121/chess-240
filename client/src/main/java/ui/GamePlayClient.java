@@ -19,6 +19,7 @@ public class GamePlayClient implements NotificationHandler {
     private Connect.PlayerType playerType;
     private WebSocketFacade ws;
     private NotificationHandler notificationHandler;
+    String username = Repl.currentUsername;
 
     public GamePlayClient(ServerFacade serverFacade, String serverUrl, NotificationHandler notificationHandler){
         this.serverFacade = serverFacade;
@@ -46,11 +47,11 @@ public class GamePlayClient implements NotificationHandler {
                 ws = new WebSocketFacade(serverUrl, notificationHandler, serverMessage);
                 ws.enterChess(authToken, this.gameId, playerType);
             }
+            // load game?
+            // boolean whitePerspective = Objects.equals(color, "WHITE");
+            // ChessBoard board = gameData.game().getBoard();
+            // ChessBoardUI.drawChessBoard(System.out, board, whitePerspective, null, null, null);
 
-            boolean whitePerspective = Objects.equals(color, "WHITE");
-
-            ChessBoard board = gameData.game().getBoard();
-            ChessBoardUI.drawChessBoard(System.out, board, whitePerspective, null, null, null);
 
             return switch (cmd) {
                 case "move" -> movePiece(params);
@@ -182,9 +183,8 @@ public class GamePlayClient implements NotificationHandler {
     private String resignGame() throws ResponseException {
         try {
             Scanner scanner = new Scanner(System.in);
-            System.out.print("Are you sure that you want to resign?");
+            System.out.print("Are you sure that you want to resign? ");
             String answer = scanner.nextLine();
-            String username = Repl.currentUsername;
 
             if (answer.equalsIgnoreCase("yes")) {
                 ws.resignFromChess(authToken, gameId);
