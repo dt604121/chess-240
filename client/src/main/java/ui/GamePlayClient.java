@@ -1,7 +1,6 @@
 package ui;
 import chess.*;
 import exception.ResponseException;
-import model.GameData;
 import ui.websocket.*;
 import websocket.commands.Connect;
 import chess.ChessGame.TeamColor;
@@ -15,24 +14,23 @@ public class GamePlayClient implements NotificationHandler {
     private TeamColor color;
     private int gameId;
     private String authToken;
-    private GameData gameData;
+    private ChessGame game;
     private Connect.PlayerType playerType;
     private WebSocketFacade ws;
     private NotificationHandler notificationHandler;
     String username = Repl.currentUsername;
 
-    public GamePlayClient(ServerFacade serverFacade, String serverUrl, NotificationHandler notificationHandler){
+    public GamePlayClient(ServerFacade serverFacade, String serverUrl){
         this.serverFacade = serverFacade;
         this.serverUrl = serverUrl;
         this.notificationHandler = notificationHandler;
     }
 
-    public void initializeGame(String authToken, int gameId, TeamColor color, GameData gameData,
+    public void initializeGame(String authToken, int gameId, TeamColor color,
                                Connect.PlayerType playerType) {
         this.authToken = authToken;
         this.gameId = gameId;
         this.color = color;
-        this.gameData = gameData;
         this.playerType = playerType;
     }
 
@@ -41,18 +39,13 @@ public class GamePlayClient implements NotificationHandler {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0 ) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            initializeGame(authToken, gameId, color, gameData, playerType);
+            initializeGame(authToken, gameId, color, playerType);
 
             if (playerType == Connect.PlayerType.PLAYER) {
                 ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
                 ws = new WebSocketFacade(serverUrl, notificationHandler, serverMessage);
                 ws.enterChess(authToken, this.gameId, playerType);
             }
-            // load game?
-            // boolean whitePerspective = Objects.equals(color, "WHITE");
-            // ChessBoard board = gameData.game().getBoard();
-            // ChessBoardUI.drawChessBoard(System.out, board, whitePerspective, null, null, null);
-
 
             return switch (cmd) {
                 case "move" -> movePiece(params);
@@ -84,18 +77,18 @@ public class GamePlayClient implements NotificationHandler {
             ChessPosition start = positionConversion(startPosition);
             ChessPosition end = positionConversion(endPosition);
 
-            ChessBoard board = gameData.game().getBoard();
+            ChessBoard board = game.getBoard();
             ChessPiece pieceToMove = board.getPiece(start);
 
             if (pieceToMove == null) {
                 throw new ResponseException("No piece to move found.");
             }
 
-            if (pieceToMove.getTeamColor() != gameData.game().getTeamTurn()) {
+            if (pieceToMove.getTeamColor() != game.getTeamTurn()) {
                 throw new ResponseException("Only pieces on your team can be moved.");
             }
 
-            Collection<ChessMove> validMoves = gameData.game().validMoves(start);
+            Collection<ChessMove> validMoves = game.validMoves(start);
             boolean isValidMove = validMoves.stream().anyMatch(move -> move.getEndPosition().equals(end));
 
             if (!isValidMove) {
@@ -103,31 +96,11 @@ public class GamePlayClient implements NotificationHandler {
             }
 
             ChessMove move = new ChessMove(start, end, null);
-            gameData.game().movePiece(move);
-
-            TeamColor opponentColor = gameData.game().getTeamTurn() == TeamColor.WHITE ? TeamColor.BLACK :
-                    TeamColor.WHITE;
-
-            boolean isInCheck = gameData.game().isInCheck(opponentColor);
-            boolean isInCheckmate = gameData.game().isInCheckmate(opponentColor);
-
-            if (isInCheck) {
-                String checkNotification = String.format("Player %s is in check!", opponentColor);
-                ws.makeMove(checkNotification, gameId, move);
-            }
-
-            if (isInCheckmate) {
-                String checkmateNotification = String.format("Player %s is in checkmate!", opponentColor);
-                ws.makeMove(checkmateNotification, gameId, move);
-            }
-
-            boolean whitePerspective = (color == null || color == TeamColor.WHITE);
-            ChessBoardUI.drawChessBoard(System.out, board, whitePerspective, null, start, end);
-
-            return String.format("You moved your piece from %s to %s.", startPosition, endPosition);
+            ws.makeMove(authToken, gameId, move);
         } catch (Exception e) {
             throw new ResponseException(e.getMessage());
         }
+        return "";
     }
 
     public ChessPosition positionConversion(String position) throws ResponseException {
@@ -146,7 +119,7 @@ public class GamePlayClient implements NotificationHandler {
 
     public String redrawBoard() throws ResponseException {
         try {
-            ChessBoard board = gameData.game().getBoard();
+            ChessBoard board = game.getBoard();
 
             if (board == null) {
                 throw new ResponseException("Board data is null.");
@@ -168,14 +141,9 @@ public class GamePlayClient implements NotificationHandler {
         try {
             Repl.state = State.SIGNEDOUT;
 
-            if (gameData == null) {
-                return "Observer";
-            }
-
             ws.leaveChess(authToken, gameId);
 
-            return String.format("%s has left the game. Come back soon!", TeamColor.WHITE ==
-                    color ? gameData.whiteUsername() : gameData.blackUsername());
+            return String.format("%s has left the game. Come back soon!", username);
         } catch (Exception e) {
             throw new ResponseException(e.getMessage());
         }
@@ -189,8 +157,8 @@ public class GamePlayClient implements NotificationHandler {
 
             if (answer.equalsIgnoreCase("yes")) {
                 ws.resignFromChess(authToken, gameId);
-                return String.format("%s has forfeited and has resigned from the game.", TeamColor.WHITE ==
-                        color ? gameData.whiteUsername() : gameData.blackUsername());
+                Repl.state = State.SIGNEDIN;
+                return String.format("%s has forfeited and has resigned from the game.", username);
             }
 
             return "Ok resignation cancelled. Have a great rest of your game!";
@@ -213,9 +181,8 @@ public class GamePlayClient implements NotificationHandler {
 
             ChessPosition position = positionConversion(positionString);
 
-            ChessBoard board = gameData.game().getBoard();
+            ChessBoard board = game.getBoard();
             ChessPiece piece = board.getPiece(position);
-            ChessGame game = gameData.game();
 
             if (piece == null) {
                 return "No piece found at that location.";
@@ -249,8 +216,9 @@ public class GamePlayClient implements NotificationHandler {
     }
 
     @Override
-    public void loadGame(Object game) {
+    public void loadGame(ChessGame game) {
             try {
+                this.game = game;
                 redrawBoard();
             } catch (exception.ResponseException e) {
                 System.err.println("Failed to redraw board: " + e.getMessage());

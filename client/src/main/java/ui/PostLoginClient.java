@@ -1,5 +1,4 @@
 package ui;
-import chess.ChessBoard;
 import chess.ChessGame;
 import exception.ResponseException;
 import model.*;
@@ -20,7 +19,7 @@ public class PostLoginClient {
     private ChessGame.TeamColor color;
 
 
-    public PostLoginClient(ServerFacade serverFacade, String serverUrl, Repl notificationHandler) {
+    public PostLoginClient(ServerFacade serverFacade, String serverUrl) {
         this.serverFacade = serverFacade;
         this.serverUrl = serverUrl;
         this.notificationHandler = notificationHandler;

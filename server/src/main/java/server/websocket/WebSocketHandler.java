@@ -1,12 +1,13 @@
 package server.websocket;
 
+import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.*;
 import dataaccess.dao.*;
 import exception.*;
+import model.GameData;
 import websocket.messages.*;
 import model.AuthData;
-import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import websocket.commands.*;
@@ -69,18 +70,19 @@ public class WebSocketHandler {
         connections.add(gameId, username, session);
 
         GameData gameData = gameDAO.getGame(gameId);
+
+        if (gameData == null) {
+            Error errorMessage = new Error("Error: invalid gameId");
+            connections.sendsMessage(session, errorMessage);
+            return;
+        }
+
         var message = String.format("%s has joined the chess game", username);
-        ServerMessage notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        ServerMessage notification = new Notification(message);
         connections.broadcast(gameId, notification, username);
 
-        if (!(gameData == null)) {
-            LoadGame loadGameMessage = new LoadGame(ServerMessage.ServerMessageType.LOAD_GAME);
-            loadGameMessage.setGame(gameData);
-            connections.sendsMessage(session, loadGameMessage);
-        }
-        Error errorMessage = new Error("Error: invalid gameId");
-        connections.sendsMessage(session, errorMessage);
-
+        LoadGame loadGameMessage = new LoadGame(gameData.game());
+        connections.sendsMessage(session, loadGameMessage);
     }
 
     private void leaveGame(Session session, String username, Leave command) throws IOException, DataAccessException {
@@ -96,7 +98,7 @@ public class WebSocketHandler {
 
         connections.remove(gameId, username);
         var message = String.format("%s left the chess game", username);
-        ServerMessage notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        Notification notification = new Notification(message);
         connections.broadcast(gameId, notification, username);
     }
 
@@ -111,7 +113,7 @@ public class WebSocketHandler {
 
         connections.remove(gameId, username);
         var message = String.format("%s resigned from the chess game", username);
-        ServerMessage notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        Notification notification = new Notification(message);
         connections.broadcast(gameId, notification, username);
     }
 
@@ -123,15 +125,36 @@ public class WebSocketHandler {
             if (gameData == null) {
                 Error errorMessage = new Error("Error: invalid gameId");
                 connections.sendsMessage(session, errorMessage);
+                return;
             }
-
-            // TODO: Validate if it's the correct player's turn + moves?
+            ChessGame game = gameData.game();
 
             ChessMove move = command.getMove();
 
+            game.movePiece(move);
+
+            ChessGame.TeamColor opponentColor = game.getTeamTurn() == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.BLACK :
+                    ChessGame.TeamColor.WHITE;
+
+            boolean isInCheck = game.isInCheck(opponentColor);
+            boolean isInCheckmate = game.isInCheckmate(opponentColor);
+
+            if (isInCheckmate) {
+                Notification checkmateNotification = new Notification(String.format("Player %s is in checkmate!", opponentColor));
+                connections.broadcast(gameId, checkmateNotification, null);
+            }
+
+            else if (isInCheck) {
+                Notification checkNotification = new Notification(String.format("Player %s is in check!", opponentColor));
+                connections.broadcast(gameId, checkNotification, null);
+            }
+
             var message = String.format("%s moved from here %s", username, move);
-            ServerMessage notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
+            Notification notification = new Notification(message);
             connections.broadcast(gameId, notification, username);
+
+            LoadGame loadGameMessage = new LoadGame(gameData.game());
+            connections.broadcast(gameId, loadGameMessage, null);
 
         } catch (Exception ex) {
             connections.sendsMessage(session, new Error("Error: " + ex.getMessage()));

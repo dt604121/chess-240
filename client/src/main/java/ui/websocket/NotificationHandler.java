@@ -1,5 +1,7 @@
 package ui.websocket;
 
+import chess.ChessGame;
+
 public interface NotificationHandler {
 
 default void displayNotification(String message) {
@@ -10,5 +12,5 @@ default void displayError(String error) {
     System.err.println("Error: " + error);
 }
 
-void loadGame(Object game);
+void loadGame(ChessGame game);
 }

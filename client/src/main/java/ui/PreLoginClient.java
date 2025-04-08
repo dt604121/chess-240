@@ -5,7 +5,6 @@ import java.util.Arrays;
 import exception.ResponseException;
 import model.LoginRequest;
 import model.UserData;
-import ui.websocket.NotificationHandler;
 
 public class PreLoginClient {
     private final ServerFacade serverFacade;
@@ -13,7 +12,7 @@ public class PreLoginClient {
     private String serverUrl;
     private String username;
 
-    public PreLoginClient(ServerFacade serverFacade, String serverUrl, NotificationHandler notificationHandler) {
+    public PreLoginClient(ServerFacade serverFacade, String serverUrl) {
         this.serverFacade = serverFacade;
         this.serverUrl = serverUrl;
     }

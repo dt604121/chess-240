@@ -1,14 +1,14 @@
 package ui;
 
+import chess.ChessGame;
 import websocket.messages.Notification;
 
 import java.util.Scanner;
 
 import static java.awt.Color.RED;
 import static ui.EscapeSequences.RESET;
-import ui.websocket.NotificationHandler;
 
-public class Repl implements NotificationHandler {
+public class Repl {
     private final PostLoginClient postLoginClient;
     private final PreLoginClient preLoginClient;
     private final GamePlayClient gamePlayClient;
@@ -18,9 +18,9 @@ public class Repl implements NotificationHandler {
 
     public Repl(String serverUrl) {
         ServerFacade serverFacade = new ServerFacade(serverUrl);
-        postLoginClient = new PostLoginClient(serverFacade, serverUrl, this);
-        preLoginClient = new PreLoginClient(serverFacade, serverUrl, this);
-        gamePlayClient = new GamePlayClient(serverFacade, serverUrl, this);
+        postLoginClient = new PostLoginClient(serverFacade, serverUrl);
+        preLoginClient = new PreLoginClient(serverFacade, serverUrl);
+        gamePlayClient = new GamePlayClient(serverFacade, serverUrl);
     }
 
     public void run() {
@@ -49,7 +49,6 @@ public class Repl implements NotificationHandler {
                                 authToken,
                                 postLoginClient.getGameID(),
                                 postLoginClient.getColor(),
-                                postLoginClient.getGameData(),
                                 postLoginClient.getPlayerType()
                         );
                         state = State.GAMEPLAY;
@@ -76,14 +75,5 @@ public class Repl implements NotificationHandler {
 
     private void printPrompt() {
         System.out.print("\n" + RESET + state + " >>> ");
-    }
-
-    public void notify(Notification notification) {
-        System.out.println(RED + notification.getMessage());
-        printPrompt();
-    }
-
-    @Override
-    public void loadGame(Object game) {
     }
 }
