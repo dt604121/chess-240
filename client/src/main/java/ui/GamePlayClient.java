@@ -24,6 +24,7 @@ public class GamePlayClient implements NotificationHandler {
     public GamePlayClient(ServerFacade serverFacade, String serverUrl, NotificationHandler notificationHandler){
         this.serverFacade = serverFacade;
         this.serverUrl = serverUrl;
+        this.notificationHandler = notificationHandler;
     }
 
     public void initializeGame(String authToken, int gameId, TeamColor color, GameData gameData,
@@ -188,7 +189,8 @@ public class GamePlayClient implements NotificationHandler {
 
             if (answer.equalsIgnoreCase("yes")) {
                 ws.resignFromChess(authToken, gameId);
-                return String.format("%s has forfeited and has resigned from the game.", username);
+                return String.format("%s has forfeited and has resigned from the game.", TeamColor.WHITE ==
+                        color ? gameData.whiteUsername() : gameData.blackUsername());
             }
 
             return "Ok resignation cancelled. Have a great rest of your game!";
@@ -203,38 +205,44 @@ public class GamePlayClient implements NotificationHandler {
                 throw new ResponseException("Expected: <position>");
             }
 
-            String positionString = params[0].toUpperCase();
-            int row = Character.getNumericValue(positionString.charAt(1));
-            int col = positionString.charAt(0) - 'a' + 1;
-            ChessPosition position = new ChessPosition(row, col);
+            String positionString = params[0].trim();
 
-            ChessBoard board = new ChessBoard();
+            if (positionString.isEmpty()) {
+                throw new ResponseException("Invalid position. Cannot be left empty.");
+            }
+
+            ChessPosition position = positionConversion(positionString);
+
+            ChessBoard board = gameData.game().getBoard();
             ChessPiece piece = board.getPiece(position);
             ChessGame game = gameData.game();
 
             if (piece == null) {
-                return "No piece found.";
+                return "No piece found at that location.";
             }
 
             if (piece.getTeamColor() != game.getTeamTurn()) {
                 return "Only pieces on your team can be highlighted.";
             }
 
-            Collection<ChessMove> moves = game.validMoves(position);
+            Collection<ChessMove> validMoves = game.validMoves(position);
 
-            if (moves == null || moves.isEmpty()) {
+            if (validMoves == null || validMoves.isEmpty()) {
                 return "No valid moves for this piece.";
             }
 
             Set<ChessPosition> highlightPositions = new HashSet<>();
-            for (ChessMove move : moves) {
+            for (ChessMove move : validMoves) {
                 highlightPositions.add(move.getEndPosition());
             }
 
+            boolean whitePerspective = (color == null || color == TeamColor.WHITE);
+
             ChessBoardUI.drawChessBoard(System.out, board,
-                    piece.getTeamColor() == ChessGame.TeamColor.WHITE, highlightPositions,
-                    null, null);
-            return "Highlighted moves";
+                    whitePerspective, highlightPositions,
+                    position, null);
+
+            return "Highlighted legal moves for selected piece";
         } catch (Exception e) {
             throw new ResponseException("Couldn't highlight the moves: " + e.getMessage());
         }

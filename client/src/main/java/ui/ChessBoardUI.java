@@ -57,11 +57,11 @@ public class ChessBoardUI {
 
                 ChessPosition position = new ChessPosition(actualRow + 1, actualCol + 1);
 
-                if (startMove != null && position.equals(startMove)) {
+                if (position.equals(startMove)) {
                     out.print(SET_BG_COLOR_BLUE);
                 }
 
-                if (endMove != null && position.equals(endMove)) {
+                if (position.equals(endMove)) {
                     out.print(SET_BG_COLOR_BLUE);
                 }
 
