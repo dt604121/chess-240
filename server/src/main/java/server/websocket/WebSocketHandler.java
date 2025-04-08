@@ -121,17 +121,49 @@ public class WebSocketHandler {
         try {
             int gameId = command.getGameID();
             GameData gameData = gameDAO.getGame(gameId);
-
             if (gameData == null) {
                 Error errorMessage = new Error("Error: invalid gameId");
                 connections.sendsMessage(session, errorMessage);
                 return;
             }
-            ChessGame game = gameData.game();
 
+            String whiteUsername = gameData.whiteUsername();
+            String blackUsername = gameData.blackUsername();
+
+            ChessGame.TeamColor playerColor;
+            if (username.equals(whiteUsername)) {
+                playerColor = ChessGame.TeamColor.WHITE;
+            } else if (username.equals(blackUsername)) {
+                playerColor = ChessGame.TeamColor.BLACK;
+            } else {
+                // Observer trying to move
+                connections.sendsMessage(session, new Error("Error: Only players can make moves"));
+                return;
+            }
+
+            ChessGame game = gameData.game();
             ChessMove move = command.getMove();
 
+            if (move == null) {
+                Error errorMessage = new Error("Error: invalid move");
+                connections.sendsMessage(session, errorMessage);
+                return;
+            }
+
+            if (playerColor != game.getTeamTurn()) {
+                connections.sendsMessage(session, new Error("Error: Not your turn"));
+                return;
+            }
+
             game.movePiece(move);
+
+            // Check if the game is already over
+            if (game.isInCheckmate(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK) ||
+                    game.isInStalemate(ChessGame.TeamColor.WHITE) || game.isInStalemate(ChessGame.TeamColor.BLACK)) {
+
+                connections.sendsMessage(session, new Error("Error: Game is already over"));
+                return;
+            }
 
             ChessGame.TeamColor opponentColor = game.getTeamTurn() == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.BLACK :
                     ChessGame.TeamColor.WHITE;
@@ -168,8 +200,4 @@ public class WebSocketHandler {
         }
         return authData.username();
     }
-
-//    private void saveSession(int gameId, Session session) {
-//        gameSessions.put(gameId, session);
-//    }
 }

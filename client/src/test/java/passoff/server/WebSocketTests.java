@@ -315,7 +315,7 @@ public class WebSocketTests {
     }
 
     private void makeMove(WebsocketUser sender, int gameID, ChessMove move, boolean expectSuccess,
-                          boolean extraNotification, Set<WebsocketUser> inGame, Set<WebsocketUser> otherClients) {
+                             boolean extraNotification, Set<WebsocketUser> inGame, Set<WebsocketUser> otherClients) {
         TestCommand moveCommand = new TestCommand(sender.authToken(), gameID, move);
         Map<String, Integer> numExpectedMessages = expectedMessages(sender, 1, inGame, (expectSuccess ? 2 : 0), otherClients);
         Map<String, List<TestMessage>> actualMessages = environment.exchange(sender.username(), moveCommand, numExpectedMessages, waitTime);
