@@ -86,35 +86,52 @@ public class WebSocketHandler {
     }
 
     private void leaveGame(Session session, String username, Leave command) throws IOException, DataAccessException {
-        int gameId = command.getGameID();
-        GameData gameData = gameDAO.getGame(gameId);
+        try {
+            int gameId = command.getGameID();
+            GameData gameData = gameDAO.getGame(gameId);
 
-        if (gameData == null) {
-            Error errorMessage = new Error("Error: invalid gameId");
-            connections.sendsMessage(session, errorMessage);
+            if (gameData == null) {
+                Error errorMessage = new Error("Error: invalid gameId");
+                connections.sendsMessage(session, errorMessage);
+                return;
+            }
+
+            connections.remove(gameId, username);
+            var message = String.format("%s left the chess game", username);
+            Notification notification = new Notification(message);
+            connections.broadcast(gameId, notification, null);
+        } catch (Exception ex) {
+        connections.sendsMessage(session, new Error("Error: " + ex.getMessage()));
         }
-
-        // TODO: check if user is in the game?
-
-        connections.remove(gameId, username);
-        var message = String.format("%s left the chess game", username);
-        Notification notification = new Notification(message);
-        connections.broadcast(gameId, notification, username);
     }
 
     private void resign(Session session, String username, Resign command) throws IOException, DataAccessException {
-        int gameId = command.getGameID();
-        GameData gameData = gameDAO.getGame(gameId);
+        try {
+            int gameId = command.getGameID();
+            GameData gameData = gameDAO.getGame(gameId);
 
-        if (gameData == null) {
-            Error errorMessage = new Error("Error: invalid gameId");
-            connections.sendsMessage(session, errorMessage);
+            if (gameData == null) {
+                Error errorMessage = new Error("Error: invalid gameId");
+                connections.sendsMessage(session, errorMessage);
+                return;
+            }
+            ChessGame game = gameData.game();
+
+            if (game.isInCheckmate(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK) ||
+                    game.isInStalemate(ChessGame.TeamColor.WHITE) || game.isInStalemate(ChessGame.TeamColor.BLACK)) {
+                connections.sendsMessage(session, new Error("Error: Game is already over"));
+                return;
+            }
+
+            connections.remove(gameId, username);
+
+            var message = String.format("%s resigned from the chess game", username);
+            Notification notification = new Notification(message);
+            connections.sendsMessage(session, notification);
+            connections.broadcast(gameId, notification, null);
+        } catch (Exception ex) {
+            connections.sendsMessage(session, new Error("Error: " + ex.getMessage()));
         }
-
-        connections.remove(gameId, username);
-        var message = String.format("%s resigned from the chess game", username);
-        Notification notification = new Notification(message);
-        connections.broadcast(gameId, notification, username);
     }
 
     public void makeMove(Session session, String username, MakeMove command) throws ResponseException, IOException {
