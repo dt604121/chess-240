@@ -14,6 +14,7 @@ public class Repl implements NotificationHandler {
     private final GamePlayClient gamePlayClient;
     public static State state = State.SIGNEDOUT;
     public static String currentUsername = null;
+    public String authToken;
 
     public Repl(String serverUrl) {
         ServerFacade serverFacade = new ServerFacade(serverUrl);
@@ -39,13 +40,27 @@ public class Repl implements NotificationHandler {
                     }
                 }
                 else if (state == State.SIGNEDIN) {
+                    String authToken = preLoginClient.getAuthToken();
+                    postLoginClient.setAuthToken(authToken);
+
                     result = postLoginClient.eval(line);
+                    if (result.startsWith("You have joined the game as")) {
+                        gamePlayClient.initializeGame(
+                                authToken,
+                                postLoginClient.getGameID(),
+                                postLoginClient.getColor(),
+                                postLoginClient.getGameData(),
+                                postLoginClient.getPlayerType()
+                        );
+                        state = State.GAMEPLAY;
+                    }
                     if (result.equals("You have signed out. Come back soon!")) {
                         state = State.SIGNEDOUT;
                     }
                 }
                 else if (state == State.GAMEPLAY) {
                     result = gamePlayClient.eval(line);
+                    gamePlayClient.setAuthToken(authToken);
                     if (result.equals("You have left the game. Come back soon!") || result.equals("You have resigned from the game.")) {
                         state = State.SIGNEDIN;
                     }

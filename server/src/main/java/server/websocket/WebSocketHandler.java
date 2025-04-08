@@ -1,21 +1,18 @@
 package server.websocket;
 
-import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.*;
 import dataaccess.dao.*;
 import exception.*;
+import websocket.messages.*;
 import model.AuthData;
-import model.CreateGameRequest;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import websocket.commands.*;
-import websocket.messages.*;
+import websocket.messages.Error;
 
 import java.io.IOException;
-import java.lang.Error;
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -81,7 +78,7 @@ public class WebSocketHandler {
             loadGameMessage.setGame(gameData);
             connections.sendsMessage(session, loadGameMessage);
         }
-        Error errorMessage = new Error("Error: Invalid game ID");
+        Error errorMessage = new Error("Error: invalid gameId");
         connections.sendsMessage(session, errorMessage);
 
     }
@@ -91,7 +88,7 @@ public class WebSocketHandler {
         GameData gameData = gameDAO.getGame(gameId);
 
         if (gameData == null) {
-            Error errorMessage = new Error("Error: Invalid game ID");
+            Error errorMessage = new Error("Error: invalid gameId");
             connections.sendsMessage(session, errorMessage);
         }
 
@@ -108,7 +105,7 @@ public class WebSocketHandler {
         GameData gameData = gameDAO.getGame(gameId);
 
         if (gameData == null) {
-            Error errorMessage = new Error("Error: Invalid game ID");
+            Error errorMessage = new Error("Error: invalid gameId");
             connections.sendsMessage(session, errorMessage);
         }
 
@@ -124,7 +121,7 @@ public class WebSocketHandler {
             GameData gameData = gameDAO.getGame(gameId);
 
             if (gameData == null) {
-                Error errorMessage = new Error("Error: Invalid game ID");
+                Error errorMessage = new Error("Error: invalid gameId");
                 connections.sendsMessage(session, errorMessage);
             }
 

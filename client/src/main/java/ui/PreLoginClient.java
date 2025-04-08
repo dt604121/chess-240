@@ -132,6 +132,10 @@ public class PreLoginClient {
                 """;
     }
 
+    public String getAuthToken() {
+        return authToken;
+    }
+
     public boolean isUserLoggedIn() {
         return Repl.state == State.SIGNEDIN;
     }

@@ -40,8 +40,18 @@ public class GamePlayClient implements NotificationHandler {
             var cmd = (tokens.length > 0 ) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             initializeGame(authToken, gameId, color, gameData, playerType);
-            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-            ws = new WebSocketFacade(serverUrl, notificationHandler, serverMessage);
+
+            if (playerType == Connect.PlayerType.PLAYER) {
+                ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+                ws = new WebSocketFacade(serverUrl, notificationHandler, serverMessage);
+                ws.enterChess(authToken, this.gameId, playerType);
+            }
+
+            boolean whitePerspective = Objects.equals(color, "WHITE");
+
+            ChessBoard board = gameData.game().getBoard();
+            ChessBoardUI.drawChessBoard(System.out, board, whitePerspective, null, null, null);
+
             return switch (cmd) {
                 case "move" -> movePiece(params);
                 case "redraw" -> redrawBoard();
@@ -249,5 +259,9 @@ public class GamePlayClient implements NotificationHandler {
                 quit - playing chess
                 help - with possible commands
                 """;
+    }
+
+    public void setAuthToken(String authToken) {
+        this.authToken = authToken;
     }
 }

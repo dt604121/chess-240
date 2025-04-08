@@ -1,9 +1,9 @@
 package ui;
 import chess.ChessBoard;
+import chess.ChessGame;
 import exception.ResponseException;
 import model.*;
 import ui.websocket.NotificationHandler;
-import ui.websocket.WebSocketFacade;
 import websocket.commands.Connect;
 
 import java.util.*;
@@ -13,9 +13,12 @@ public class PostLoginClient {
     private UserData user;
     private NotificationHandler notificationHandler;
     private final String serverUrl;
-    private WebSocketFacade ws;
     private String authToken;
+    private Integer gameId;
+    private GameData gameData;
     private Connect.PlayerType playerType;
+    private ChessGame.TeamColor color;
+
 
     public PostLoginClient(ServerFacade serverFacade, String serverUrl, Repl notificationHandler) {
         this.serverFacade = serverFacade;
@@ -143,14 +146,10 @@ public class PostLoginClient {
             JoinGamesRequest request = new JoinGamesRequest(color, gameNumber);
 
             serverFacade.joinGame(request);
-            ws.enterChess(authToken, gameID, playerType);
-
-            boolean whitePerspective = Objects.equals(color, "WHITE");
-
-            GameData gameData = gameDataList.get(gameNumber);
-
-            ChessBoard board = gameData.game().getBoard();
-            ChessBoardUI.drawChessBoard(System.out, board, whitePerspective, null, null, null);
+            this.gameId = gameID;
+            this.gameData = gameDataList.get(gameNumber);
+            this.color = color.equals("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+            this.playerType = Connect.PlayerType.PLAYER;
 
             Repl.state = State.GAMEPLAY;
 
@@ -185,11 +184,10 @@ public class PostLoginClient {
                 return "Error: Invalid game number. Please list the games again and choose a valid number";
             }
 
-            GameData gameData = gameDataList.get(gameNumber);
-
-            ChessBoard board = gameData.game().getBoard();
-            ChessBoardUI.drawChessBoard(System.out, board, true, null, null,
-                    null);
+            this.gameId = gameID;
+            this.gameData = gameDataList.get(gameNumber);
+            this.color = color.equals("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+            this.playerType = Connect.PlayerType.PLAYER;
 
             Repl.state = State.GAMEPLAY;
 
@@ -210,6 +208,26 @@ public class PostLoginClient {
                 quit - playing chess
                 help - with possible commands
                 """;
+    }
+
+    public void setAuthToken(String authToken) {
+        this.authToken = authToken;
+    }
+
+    public Integer getGameID() {
+        return gameId;
+    }
+
+    public GameData getGameData() {
+        return gameData;
+    }
+
+    public Connect.PlayerType getPlayerType() {
+        return playerType;
+    }
+
+    public ChessGame.TeamColor getColor() {
+        return color;
     }
 
     private void assertSignedIn() throws ResponseException {
