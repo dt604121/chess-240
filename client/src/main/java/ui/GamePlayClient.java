@@ -1,6 +1,7 @@
 package ui;
 import chess.*;
 import exception.ResponseException;
+import model.GameData;
 import ui.websocket.*;
 import websocket.commands.Connect;
 import chess.ChessGame.TeamColor;
@@ -8,7 +9,7 @@ import websocket.messages.ServerMessage;
 
 import java.util.*;
 
-public class GamePlayClient {
+public class GamePlayClient implements NotificationHandler{
     private final ServerFacade serverFacade;
     private final String serverUrl;
     private TeamColor color;
@@ -17,20 +18,24 @@ public class GamePlayClient {
     private ChessGame game;
     private Connect.PlayerType playerType;
     private WebSocketFacade ws;
+    private GameData gameData;
     private NotificationHandler notificationHandler;
     String username = Repl.currentUsername;
 
-    public GamePlayClient(ServerFacade serverFacade, String serverUrl){
+    public GamePlayClient(ServerFacade serverFacade, String serverUrl, NotificationHandler notificationHandler){
         this.serverFacade = serverFacade;
         this.serverUrl = serverUrl;
+        this.notificationHandler = notificationHandler;
     }
 
-    public void initializeGame(String authToken, int gameId, TeamColor color,
+    public void initializeGame(String authToken, int gameId, TeamColor color, GameData gameData,
                                Connect.PlayerType playerType) {
         this.authToken = authToken;
         this.gameId = gameId;
         this.color = color;
         this.playerType = playerType;
+        this.gameData = gameData;
+        this.game = gameData.game();
     }
 
     public String eval(String input) throws ResponseException {
@@ -38,13 +43,10 @@ public class GamePlayClient {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0 ) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            initializeGame(authToken, gameId, color, playerType);
 
-            if (playerType == Connect.PlayerType.PLAYER) {
-                ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-                ws = new WebSocketFacade(serverUrl, notificationHandler, serverMessage);
-                ws.enterChess(authToken, this.gameId, playerType);
-            }
+            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+            ws = new WebSocketFacade(serverUrl, notificationHandler, serverMessage);
+            ws.enterChess(authToken, this.gameId, playerType);
 
             return switch (cmd) {
                 case "move" -> movePiece(params);
@@ -142,7 +144,8 @@ public class GamePlayClient {
 
             ws.leaveChess(authToken, gameId);
 
-            return String.format("%s has left the game. Come back soon!", username);
+            return String.format("%s has left the game. Come back soon!", TeamColor.WHITE ==
+                    color ? gameData.whiteUsername() : gameData.blackUsername());
         } catch (Exception e) {
             throw new ResponseException(e.getMessage());
         }
@@ -157,7 +160,8 @@ public class GamePlayClient {
             if (answer.equalsIgnoreCase("yes")) {
                 ws.resignFromChess(authToken, gameId);
                 Repl.state = State.SIGNEDIN;
-                return String.format("%s has forfeited and has resigned from the game.", username);
+                return String.format("%s has forfeited and has resigned from the game.", TeamColor.WHITE ==
+                        color ? gameData.whiteUsername() : gameData.blackUsername());
             }
 
             return "Ok resignation cancelled. Have a great rest of your game!";
@@ -182,6 +186,7 @@ public class GamePlayClient {
 
             ChessBoard board = game.getBoard();
             ChessPiece piece = board.getPiece(position);
+            ChessGame game = gameData.game();
 
             if (piece == null) {
                 return "No piece found at that location.";
@@ -228,5 +233,15 @@ public class GamePlayClient {
 
     public void setAuthToken(String authToken) {
         this.authToken = authToken;
+    }
+
+    @Override
+    public void loadGame(ChessGame game) {
+        try {
+            this.game = game;
+            redrawBoard();
+        } catch (exception.ResponseException e) {
+            System.err.println("Failed to redraw board: " + e.getMessage());
+        }
     }
 }

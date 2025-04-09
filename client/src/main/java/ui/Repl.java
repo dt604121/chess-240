@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 import static ui.EscapeSequences.RESET;
 
-public class Repl implements NotificationHandler {
+public class Repl implements NotificationHandler{
     private final PostLoginClient postLoginClient;
     private final PreLoginClient preLoginClient;
     private final GamePlayClient gamePlayClient;
@@ -19,7 +19,7 @@ public class Repl implements NotificationHandler {
         ServerFacade serverFacade = new ServerFacade(serverUrl);
         postLoginClient = new PostLoginClient(serverFacade, serverUrl);
         preLoginClient = new PreLoginClient(serverFacade, serverUrl);
-        gamePlayClient = new GamePlayClient(serverFacade, serverUrl);
+        gamePlayClient = new GamePlayClient(serverFacade, serverUrl, this);
     }
 
     public void run() {
@@ -44,12 +44,13 @@ public class Repl implements NotificationHandler {
 
                     result = postLoginClient.eval(line);
                     if (result.startsWith("You have joined the game as")) {
-                        gamePlayClient.initializeGame(
-                                authToken,
-                                postLoginClient.getGameID(),
-                                postLoginClient.getColor(),
-                                postLoginClient.getPlayerType()
-                        );
+                            gamePlayClient.initializeGame(
+                                    authToken,
+                                    postLoginClient.getGameID(),
+                                    postLoginClient.getColor(),
+                                    postLoginClient.getGameData(),
+                                    postLoginClient.getPlayerType()
+                            );
                         state = State.GAMEPLAY;
                     }
                     if (result.equals("You have signed out. Come back soon!")) {
@@ -78,11 +79,6 @@ public class Repl implements NotificationHandler {
 
     @Override
     public void loadGame(ChessGame game) {
-        try {
-            this.game = game;
-            redrawBoard();
-        } catch (exception.ResponseException e) {
-            System.err.println("Failed to redraw board: " + e.getMessage());
-        }
+
     }
 }
