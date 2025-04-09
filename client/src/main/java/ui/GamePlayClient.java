@@ -8,7 +8,7 @@ import websocket.messages.ServerMessage;
 
 import java.util.*;
 
-public class GamePlayClient implements NotificationHandler {
+public class GamePlayClient {
     private final ServerFacade serverFacade;
     private final String serverUrl;
     private TeamColor color;
@@ -212,16 +212,6 @@ public class GamePlayClient implements NotificationHandler {
         } catch (Exception e) {
             throw new ResponseException("Couldn't highlight the moves: " + e.getMessage());
         }
-    }
-
-    @Override
-    public void loadGame(ChessGame game) {
-            try {
-                this.game = game;
-                redrawBoard();
-            } catch (exception.ResponseException e) {
-                System.err.println("Failed to redraw board: " + e.getMessage());
-            }
     }
 
     public String help() {

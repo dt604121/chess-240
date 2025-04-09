@@ -1,10 +1,13 @@
 package ui;
 
+import chess.ChessGame;
+import ui.websocket.NotificationHandler;
+
 import java.util.Scanner;
 
 import static ui.EscapeSequences.RESET;
 
-public class Repl {
+public class Repl implements NotificationHandler {
     private final PostLoginClient postLoginClient;
     private final PreLoginClient preLoginClient;
     private final GamePlayClient gamePlayClient;
@@ -69,8 +72,17 @@ public class Repl {
         System.out.println();
     }
 
-
     private void printPrompt() {
         System.out.print("\n" + RESET + state + " >>> ");
+    }
+
+    @Override
+    public void loadGame(ChessGame game) {
+        try {
+            this.game = game;
+            redrawBoard();
+        } catch (exception.ResponseException e) {
+            System.err.println("Failed to redraw board: " + e.getMessage());
+        }
     }
 }

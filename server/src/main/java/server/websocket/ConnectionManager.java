@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 public class ConnectionManager {
     private final ConcurrentHashMap<Integer, ConcurrentHashMap<String, Connection>> gameConnections = new ConcurrentHashMap<>();
 
@@ -21,7 +20,7 @@ public class ConnectionManager {
         if (gameConnections.containsKey(gameId)) {
             gameConnections.get(gameId).remove(playerName);
             if (gameConnections.get(gameId).isEmpty()) {
-                gameConnections.remove(gameId); // Clean up empty games
+                gameConnections.remove(gameId);
             }
         }
     }
