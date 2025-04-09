@@ -20,7 +20,6 @@ public class GamePlayClient implements NotificationHandler{
     private WebSocketFacade ws;
     private GameData gameData;
     private NotificationHandler notificationHandler;
-    String username = Repl.currentUsername;
 
     public GamePlayClient(ServerFacade serverFacade, String serverUrl, NotificationHandler notificationHandler){
         this.serverFacade = serverFacade;
@@ -45,8 +44,10 @@ public class GamePlayClient implements NotificationHandler{
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
 
             ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-            ws = new WebSocketFacade(serverUrl, notificationHandler, serverMessage);
-            ws.enterChess(authToken, this.gameId, playerType);
+            if (ws == null) {
+                ws = new WebSocketFacade(serverUrl, notificationHandler, serverMessage);
+                ws.enterChess(authToken, this.gameId, playerType);
+            }
 
             return switch (cmd) {
                 case "move" -> movePiece(params);
@@ -64,8 +65,10 @@ public class GamePlayClient implements NotificationHandler{
 
     public String movePiece(String... params) throws ResponseException{
         try {
-            if (params.length != 2) {
-                throw new ResponseException("Expected: <piece>");
+            ChessPiece promotionPiece = null;
+
+            if (params.length != 2 && params.length != 3) {
+                throw new ResponseException("Expected: <start> <end> [promotion]");
             }
 
             var startPosition = params[0].trim();
@@ -80,6 +83,12 @@ public class GamePlayClient implements NotificationHandler{
 
             ChessBoard board = game.getBoard();
             ChessPiece pieceToMove = board.getPiece(start);
+
+            if (params.length == 3) {
+                String promotionPieceString = params[2].trim().toUpperCase();
+                ChessPiece.PieceType type = ChessPiece.PieceType.valueOf(promotionPieceString);
+                promotionPiece = new ChessPiece(pieceToMove.getTeamColor(), type);
+            }
 
             if (pieceToMove == null) {
                 throw new ResponseException("No piece to move found.");
@@ -96,7 +105,7 @@ public class GamePlayClient implements NotificationHandler{
                 throw new ResponseException("That move is not valid.");
             }
 
-            ChessMove move = new ChessMove(start, end, null);
+            ChessMove move = new ChessMove(start, end, promotionPiece != null ? promotionPiece.getPieceType() : null);
             ws.makeMove(authToken, gameId, move);
         } catch (Exception e) {
             throw new ResponseException(e.getMessage());
@@ -221,7 +230,7 @@ public class GamePlayClient implements NotificationHandler{
 
     public String help() {
         return """
-                move <POSITION> - a piece
+                move <START POSITION> <END POSITION> <OPTIONAL PROMOTION PIECE> - a piece
                 redraw - chess board
                 leave - game
                 resign - from the game

@@ -21,7 +21,7 @@ public class ChessBoardUI {
         board.resetBoard();
 
         boolean whitePerspective = true;
-        Set<ChessPosition> highlightedPositions = new HashSet<>(); // initialize
+        Set<ChessPosition> highlightedPositions = new HashSet<>();
         ChessPosition startMove = null;
         ChessPosition endMove = null;
 

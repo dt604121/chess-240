@@ -131,8 +131,6 @@ public class WebSocketHandler {
                 return;
             }
 
-            game.setGameOver(true);
-
             var message = String.format("%s left the chess game", username);
             Notification notification = new Notification(message);
             connections.broadcast(gameId, notification, null);
@@ -157,6 +155,7 @@ public class WebSocketHandler {
                 connections.sendsMessage(session, new Error("Error: Game is already over"));
                 return;
             }
+
             game.setGameOver(true);
 
             if (game.isInCheckmate(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK) ||
