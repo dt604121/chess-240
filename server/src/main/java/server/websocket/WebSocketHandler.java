@@ -97,6 +97,7 @@ public class WebSocketHandler {
             int gameId = command.getGameID();
             GameData gameData = gameDAO.getGame(gameId);
 
+
             if (gameData == null) {
                 Error errorMessage = new Error("Error: invalid gameId");
                 connections.sendsMessage(session, errorMessage);
@@ -113,8 +114,6 @@ public class WebSocketHandler {
             }
 
             game.setGameOver(true);
-            // TODO:
-            gameDAO.updateGame(null);
 
             var message = String.format("%s left the chess game", username);
             Notification notification = new Notification(message);
