@@ -1,11 +1,7 @@
 package ui;
 
-import chess.ChessGame;
-import websocket.messages.Notification;
-
 import java.util.Scanner;
 
-import static java.awt.Color.RED;
 import static ui.EscapeSequences.RESET;
 
 public class Repl {
@@ -72,6 +68,7 @@ public class Repl {
         }
         System.out.println();
     }
+
 
     private void printPrompt() {
         System.out.print("\n" + RESET + state + " >>> ");

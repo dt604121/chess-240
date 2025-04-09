@@ -50,8 +50,8 @@ public class WebSocketFacade extends Endpoint {
                             case LOAD_GAME -> {
                                 LoadGame loadGame = new Gson().fromJson(message, LoadGame.class);
                                 notificationHandler.loadGame(loadGame.getGame());
+                                notificationHandler.notify();
                             }
-                            // TODO: maybe call notify? from repl
                         }
                     } catch (Exception ex) {
                         System.err.println("Failed to process message: " + ex.getMessage());

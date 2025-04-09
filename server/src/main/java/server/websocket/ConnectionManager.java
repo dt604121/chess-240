@@ -10,7 +10,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 public class ConnectionManager {
-    // TODO: make the 2nd half a list of connections instead!
     private final ConcurrentHashMap<Integer, ConcurrentHashMap<String, Connection>> gameConnections = new ConcurrentHashMap<>();
 
     public void add(int gameId, String playerName, Session session) {;
