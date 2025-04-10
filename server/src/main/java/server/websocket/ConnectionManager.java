@@ -26,7 +26,9 @@ public class ConnectionManager {
     }
 
     public void broadcast(int gameId, ServerMessage serverMessage, String excludePLayer) throws IOException {
-        if (!gameConnections.containsKey(gameId)) return;
+        if (!gameConnections.containsKey(gameId)) {
+            return;
+        }
 
         var gameConn = gameConnections.get(gameId);
         var removeList = new ArrayList<Connection>();
