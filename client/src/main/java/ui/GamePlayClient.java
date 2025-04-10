@@ -49,7 +49,7 @@ public class GamePlayClient implements NotificationHandler{
 
             ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
             if (ws == null) {
-                ws = new WebSocketFacade(serverUrl, notificationHandler, serverMessage);
+                ws = new WebSocketFacade(serverUrl, this, serverMessage);
                 ws.enterChess(authToken, this.gameId, playerType);
             }
 
@@ -246,13 +246,14 @@ public class GamePlayClient implements NotificationHandler{
                 """;
     }
 
-    public void setAuthToken(String authToken) {
-        this.authToken = authToken;
-    }
+//    public void setAuthToken(String authToken) {
+//        this.authToken = authToken;
+//    }
 
     @Override
     public void loadGame(ChessGame game) {
         try {
+//            System.out.println("loadGame() CALLED!");
             this.game = game;
             redrawBoard();
         } catch (exception.ResponseException e) {

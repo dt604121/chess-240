@@ -59,7 +59,7 @@ public class Repl implements NotificationHandler{
                 }
                 else if (state == State.GAMEPLAY) {
                     result = gamePlayClient.eval(line);
-                    gamePlayClient.setAuthToken(authToken);
+//                    gamePlayClient.setAuthToken(authToken);
                     if (result.equals("You have left the game. Come back soon!") || result.equals("You have resigned from the game.")) {
                         state = State.SIGNEDIN;
                     }
