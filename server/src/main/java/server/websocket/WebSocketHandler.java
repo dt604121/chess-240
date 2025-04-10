@@ -6,6 +6,7 @@ import com.google.gson.*;
 import dataaccess.dao.*;
 import exception.*;
 import model.GameData;
+import sharedexceptions.ResponseException;
 import websocket.messages.*;
 import model.AuthData;
 import org.eclipse.jetty.websocket.api.Session;
@@ -24,7 +25,7 @@ public class WebSocketHandler {
     boolean isObserver;
 
     private final ConnectionManager connections = new ConnectionManager();
-    private static final Gson gson = new Gson();
+    private static final Gson GSON = new Gson();
 
     private final Map<Integer, Session> gameSessions = new HashMap<>();
 
@@ -42,10 +43,10 @@ public class WebSocketHandler {
             UserGameCommand command;
 
             switch (type) {
-                case CONNECT -> command = gson.fromJson(message, Connect.class);
-                case MAKE_MOVE -> command = gson.fromJson(message, MakeMove.class);
-                case LEAVE -> command = gson.fromJson(message, Leave.class);
-                case RESIGN -> command = gson.fromJson(message, Resign.class);
+                case CONNECT -> command = GSON.fromJson(message, Connect.class);
+                case MAKE_MOVE -> command = GSON.fromJson(message, MakeMove.class);
+                case LEAVE -> command = GSON.fromJson(message, Leave.class);
+                case RESIGN -> command = GSON.fromJson(message, Resign.class);
                 default -> throw new IllegalArgumentException("Unknown command type: " + type);
             }
 
@@ -209,34 +210,27 @@ public class WebSocketHandler {
         try {
             int gameId = command.getGameID();
             GameData gameData = gameDAO.getGame(gameId);
-
             if (isObserver) {
                 Error errorMessage = new Error("Error: observer cannot make move");
                 connections.sendsMessage(session, errorMessage);
                 return;
             }
-
             if (gameData == null) {
                 Error errorMessage = new Error("Error: invalid gameId");
                 connections.sendsMessage(session, errorMessage);
                 return;
             }
-
             String whiteUsername = gameData.whiteUsername();
             String blackUsername = gameData.blackUsername();
-
             ChessGame.TeamColor playerColor;
             if (username.equals(whiteUsername)) {
                 playerColor = ChessGame.TeamColor.WHITE;
             } else if (username.equals(blackUsername)) {
                 playerColor = ChessGame.TeamColor.BLACK;
             } else {
-                // Observer trying to move
                 connections.sendsMessage(session, new Error("Error: Only players can make moves"));
                 return;
             }
-
-            // Check if the game is already over
             if (gameData.game().isGameOver()) {
                 connections.sendsMessage(session, new Error("Error: Game is already over"));
                 return;
@@ -262,7 +256,7 @@ public class WebSocketHandler {
                 gameData.game().setGameOver(true);
             }
 
-            ChessGame.TeamColor opponentColor = gameData.game().getTeamTurn() == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.BLACK :
+            ChessGame.TeamColor opponentColor = gameData.game().getTeamTurn() == ChessGame.TeamColor.BLACK ? ChessGame.TeamColor.BLACK :
                     ChessGame.TeamColor.WHITE;
 
             String opponentName;

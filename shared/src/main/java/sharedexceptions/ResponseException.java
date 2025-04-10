@@ -1,11 +1,10 @@
-package exception;
+package sharedexceptions;
 
 import com.google.gson.Gson;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
-import java.util.Map;
 
 public class ResponseException extends Exception {
 

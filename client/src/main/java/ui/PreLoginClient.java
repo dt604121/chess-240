@@ -2,7 +2,7 @@ package ui;
 
 import java.util.Arrays;
 
-import exception.ResponseException;
+import sharedexceptions.ResponseException;
 import model.LoginRequest;
 import model.UserData;
 

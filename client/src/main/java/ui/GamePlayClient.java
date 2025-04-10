@@ -1,6 +1,6 @@
 package ui;
 import chess.*;
-import exception.ResponseException;
+import sharedexceptions.ResponseException;
 import model.GameData;
 import ui.websocket.*;
 import websocket.commands.Connect;
@@ -246,17 +246,13 @@ public class GamePlayClient implements NotificationHandler{
                 """;
     }
 
-//    public void setAuthToken(String authToken) {
-//        this.authToken = authToken;
-//    }
-
     @Override
     public void loadGame(ChessGame game) {
         try {
             this.game = game;
             System.out.println();
             redrawBoard();
-        } catch (exception.ResponseException e) {
+        } catch (ResponseException e) {
             System.err.println("Failed to redraw board: " + e.getMessage());
         }
     }

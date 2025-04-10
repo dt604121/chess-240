@@ -1,6 +1,6 @@
 package ui;
 import chess.ChessGame;
-import exception.ResponseException;
+import sharedexceptions.ResponseException;
 import model.*;
 import ui.websocket.NotificationHandler;
 import websocket.commands.Connect;

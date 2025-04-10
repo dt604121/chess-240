@@ -1,6 +1,6 @@
 package client;
 
-import exception.ResponseException;
+import sharedexceptions.ResponseException;
 import model.CreateGameRequest;
 import model.JoinGamesRequest;
 import model.LoginRequest;
