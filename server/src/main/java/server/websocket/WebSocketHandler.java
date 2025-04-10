@@ -88,13 +88,20 @@ public class WebSocketHandler {
         }
 
         ChessGame game = gameData.game();
+        ChessGame.TeamColor color = game.getTeamTurn();
         if (game.isGameOver()){
             Error errorMessage = new Error("Error: game is over.");
             connections.sendsMessage(session, errorMessage);
             return;
         }
 
-        var message = String.format("%s has joined the chess game", username);
+        String message;
+        if (isObserver){
+            message = String.format("%s is observing the chess game now.", username);
+        }
+        else {
+            message = String.format("%s has joined the chess game as %s", username, color.toString());
+        }
         ServerMessage notification = new Notification(message);
         connections.broadcast(gameId, notification, username);
 
@@ -141,7 +148,7 @@ public class WebSocketHandler {
                 return;
             }
 
-            var message = String.format("%s left the chess game", username);
+            var message = String.format("%s left the chess game.", username);
             Notification notification = new Notification(message);
             connections.broadcast(gameId, notification, null);
         } catch (Exception ex) {
@@ -189,7 +196,7 @@ public class WebSocketHandler {
             connections.remove(gameId, username);
             gameDAO.updateGame(gameData);
 
-            var message = String.format("%s resigned from the chess game", username);
+            var message = String.format("%s resigned from the chess game.", username);
             Notification notification = new Notification(message);
             connections.sendsMessage(session, notification);
             connections.broadcast(gameId, notification, null);
@@ -259,20 +266,36 @@ public class WebSocketHandler {
             ChessGame.TeamColor opponentColor = gameData.game().getTeamTurn() == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.BLACK :
                     ChessGame.TeamColor.WHITE;
 
+            String opponentName;
+            if (gameData.game().getTeamTurn() == ChessGame.TeamColor.WHITE) {
+                opponentName = gameData.blackUsername();
+            } else {
+                opponentName = gameData.whiteUsername();
+            }
+
             boolean isInCheck = gameData.game().isInCheck(opponentColor);
             boolean isInCheckmate = gameData.game().isInCheckmate(opponentColor);
+            boolean isInStalemate = gameData.game().isInStalemate(opponentColor);
+
+            if (isInStalemate) {
+                Notification checkmateNotification = new Notification("Players are in stalemate!");
+                connections.broadcast(gameId, checkmateNotification, null);
+                gameData.game().setGameOver(true);
+            }
 
             if (isInCheckmate) {
-                Notification checkmateNotification = new Notification(String.format("Player %s is in checkmate!", opponentColor));
+                Notification checkmateNotification = new Notification(String.format("Player %s is in checkmate!", opponentName));
                 connections.broadcast(gameId, checkmateNotification, null);
+                gameData.game().setGameOver(true);
             }
 
             else if (isInCheck) {
-                Notification checkNotification = new Notification(String.format("Player %s is in check!", opponentColor));
+                Notification checkNotification = new Notification(String.format("Player %s is in check!", opponentName));
                 connections.broadcast(gameId, checkNotification, null);
+                gameData.game().setGameOver(true);
             }
 
-            var message = String.format("%s moved from here %s", username, move);
+            var message = String.format("%s made a move of: %s", username, move);
             Notification notification = new Notification(message);
             connections.broadcast(gameId, notification, username);
 
