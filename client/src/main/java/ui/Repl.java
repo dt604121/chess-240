@@ -17,9 +17,9 @@ public class Repl implements NotificationHandler{
 
     public Repl(String serverUrl) {
         ServerFacade serverFacade = new ServerFacade(serverUrl);
-        postLoginClient = new PostLoginClient(serverFacade, serverUrl);
-        preLoginClient = new PreLoginClient(serverFacade, serverUrl);
         gamePlayClient = new GamePlayClient(serverFacade, serverUrl, this);
+        postLoginClient = new PostLoginClient(serverFacade, serverUrl, gamePlayClient);
+        preLoginClient = new PreLoginClient(serverFacade, serverUrl);
     }
 
     public void run() {
@@ -44,13 +44,14 @@ public class Repl implements NotificationHandler{
 
                     result = postLoginClient.eval(line);
                     if (result.startsWith("You have joined the game as") || result.contains("Observing")) {
-                            gamePlayClient.initializeGame(
-                                    authToken,
-                                    postLoginClient.getGameID(),
-                                    postLoginClient.getColor(),
-                                    postLoginClient.getGameData(),
-                                    postLoginClient.getPlayerType()
-                            );
+                        gamePlayClient.initializeGame(
+                            authToken,
+                            postLoginClient.getGameID(),
+                            postLoginClient.getColor(),
+                            postLoginClient.getGameData(),
+                            postLoginClient.getPlayerType()
+                        );
+                        gamePlayClient.initializeWebsocket();
                         state = State.GAMEPLAY;
                     }
                     if (result.equals("You have signed out. Come back soon!")) {
@@ -59,7 +60,6 @@ public class Repl implements NotificationHandler{
                 }
                 else if (state == State.GAMEPLAY) {
                     result = gamePlayClient.eval(line);
-//                    gamePlayClient.setAuthToken(authToken);
                     if (result.equals("You have left the game. Come back soon!") || result.equals("You have resigned from the game.")) {
                         state = State.SIGNEDIN;
                     }

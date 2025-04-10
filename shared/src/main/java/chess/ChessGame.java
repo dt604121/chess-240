@@ -112,7 +112,6 @@ public class ChessGame {
             throw new InvalidMoveException("Invalid Move");
         }
 
-
         // if isInCheck
         if (isInCheck(teamColor)) {
             throw new InvalidMoveException("Invalid Move");

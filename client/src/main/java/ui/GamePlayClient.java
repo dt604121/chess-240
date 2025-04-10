@@ -41,17 +41,19 @@ public class GamePlayClient implements NotificationHandler{
         this.game = gameData.game();
     }
 
+    public void initializeWebsocket() throws ResponseException {
+        ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+        if (ws == null) {
+            ws = new WebSocketFacade(serverUrl, this, serverMessage);
+            ws.enterChess(authToken, this.gameId, playerType);
+        }
+    }
+
     public String eval(String input) throws ResponseException {
         try {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0 ) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-
-            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-            if (ws == null) {
-                ws = new WebSocketFacade(serverUrl, this, serverMessage);
-                ws.enterChess(authToken, this.gameId, playerType);
-            }
 
             return switch (cmd) {
                 case "move" -> movePiece(params);
@@ -156,7 +158,7 @@ public class GamePlayClient implements NotificationHandler{
 
     private String leaveGame() throws ResponseException {
         try {
-            Repl.state = State.SIGNEDOUT;
+            Repl.state = State.SIGNEDIN;
 
             ws.leaveChess(authToken, gameId);
 
@@ -253,8 +255,8 @@ public class GamePlayClient implements NotificationHandler{
     @Override
     public void loadGame(ChessGame game) {
         try {
-//            System.out.println("loadGame() CALLED!");
             this.game = game;
+            System.out.println();
             redrawBoard();
         } catch (exception.ResponseException e) {
             System.err.println("Failed to redraw board: " + e.getMessage());

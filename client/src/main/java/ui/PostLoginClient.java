@@ -17,12 +17,14 @@ public class PostLoginClient {
     private GameData gameData;
     private Connect.PlayerType playerType;
     private ChessGame.TeamColor color;
+    private GamePlayClient gamePlayClient;
 
 
-    public PostLoginClient(ServerFacade serverFacade, String serverUrl) {
+    public PostLoginClient(ServerFacade serverFacade, String serverUrl, GamePlayClient gamePlayClient) {
         this.serverFacade = serverFacade;
         this.serverUrl = serverUrl;
         this.notificationHandler = notificationHandler;
+        this.gamePlayClient = gamePlayClient;
     }
 
     public String eval(String input) {
@@ -149,6 +151,7 @@ public class PostLoginClient {
             this.gameData = gameDataList.get(gameNumber);
             this.color = color.equals("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
             this.playerType = Connect.PlayerType.PLAYER;
+
 
             Repl.state = State.GAMEPLAY;
 
