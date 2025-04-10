@@ -1,6 +1,5 @@
 package ui;
 import chess.*;
-import dataaccess.dao.AuthDAO;
 import exception.ResponseException;
 import model.GameData;
 import ui.websocket.*;
@@ -21,7 +20,6 @@ public class GamePlayClient implements NotificationHandler{
     private WebSocketFacade ws;
     private GameData gameData;
     private NotificationHandler notificationHandler;
-    private AuthDAO authDAO;
     boolean isObserver;
 
     public GamePlayClient(ServerFacade serverFacade, String serverUrl, NotificationHandler notificationHandler){
