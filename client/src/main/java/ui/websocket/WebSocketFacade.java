@@ -20,29 +20,6 @@ public class WebSocketFacade extends Endpoint {
     NotificationHandler notificationHandler;
     private ServerMessage serverMessage;
 
-    private void handleMessage(String message) {
-        try {
-            ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-
-            switch (serverMessage.getServerMessageType()) {
-                case NOTIFICATION -> {
-                    Notification notification = new Gson().fromJson(message, Notification.class);
-                    notificationHandler.displayNotification(notification.getMessage());
-                }
-                case ERROR -> {
-                    Error error = new Gson().fromJson(message, Error.class);
-                    notificationHandler.displayError(error.getErrorMessage());
-                }
-                case LOAD_GAME -> {
-                    LoadGame loadGame = new Gson().fromJson(message, LoadGame.class);
-                    notificationHandler.loadGame(loadGame.getGame());
-                }
-            }
-        } catch (Exception ex) {
-            System.err.println("Failed to process message: " + ex.getMessage());
-        }
-    }
-
     public WebSocketFacade(String url, NotificationHandler notificationHandler, ServerMessage message) throws ResponseException {
         this.serverMessage = message;
         this.notificationHandler = notificationHandler;
@@ -54,12 +31,36 @@ public class WebSocketFacade extends Endpoint {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);
 
-            this.session.addMessageHandler((MessageHandler.Whole<String>) this::handleMessage);
+            //set message handler
+            this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+                @Override
+                public void onMessage(String message) {
+                    try {
+                        ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+
+                        switch (serverMessage.getServerMessageType()){
+                            case NOTIFICATION -> {
+                                Notification notification = new Gson().fromJson(message, Notification.class);
+                                notificationHandler.displayNotification(notification.getMessage());
+                            }
+                            case ERROR -> {
+                                Error error = new Gson().fromJson(message, Error.class);
+                                notificationHandler.displayError(error.getErrorMessage());
+                            }
+                            case LOAD_GAME -> {
+                                LoadGame loadGame = new Gson().fromJson(message, LoadGame.class);
+                                notificationHandler.loadGame(loadGame.getGame());
+                            }
+                        }
+                    } catch (Exception ex) {
+                        System.err.println("Failed to process message: " + ex.getMessage());
+                    }
+                }
+            });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
             throw new ResponseException(ex.getMessage());
         }
     }
-
 
     //Endpoint requires this method, but you don't have to do anything
     @Override

@@ -85,6 +85,10 @@ public class GamePlayClient implements NotificationHandler{
                 throw new ResponseException("Invalid position(s). Cannot be left empty.");
             }
 
+            if (!startPosition.matches("[a-h][1-8]") || !endPosition.matches("[a-h][1-8]")) {
+                throw new ResponseException("Invalid position format. Use e.g., a2, b3, etc.");
+            }
+
             ChessPosition start = positionConversion(startPosition);
             ChessPosition end = positionConversion(endPosition);
 
@@ -230,7 +234,7 @@ public class GamePlayClient implements NotificationHandler{
 
             return "Highlighted legal moves for selected piece";
         } catch (Exception e) {
-            throw new ResponseException("Couldn't highlight the moves: " + e.getMessage());
+            throw new ResponseException("Couldn't highlight the moves.");
         }
     }
 

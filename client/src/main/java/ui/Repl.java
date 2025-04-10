@@ -66,8 +66,8 @@ public class Repl implements NotificationHandler{
                 }
                 System.out.print(result);
             } catch (Throwable e) {
-                var msg = e.toString();
-                System.out.print(msg);
+                String errorMsg = e.getMessage() != null ? e.getMessage() : "An unexpected error occurred";
+                System.out.println("Error: " + errorMsg);
             }
         }
         System.out.println();
