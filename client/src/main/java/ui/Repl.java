@@ -43,7 +43,7 @@ public class Repl implements NotificationHandler{
                     postLoginClient.setAuthToken(authToken);
 
                     result = postLoginClient.eval(line);
-                    if (result.startsWith("You have joined the game as")) {
+                    if (result.startsWith("You have joined the game as") || result.contains("Observing")) {
                             gamePlayClient.initializeGame(
                                     authToken,
                                     postLoginClient.getGameID(),

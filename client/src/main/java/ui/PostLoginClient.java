@@ -185,10 +185,11 @@ public class PostLoginClient {
 
             this.gameId = gameID;
             this.gameData = gameDataList.get(gameNumber);
-            this.color = color.equals("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+            this.color = color == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
             this.playerType = Connect.PlayerType.PLAYER;
 
             Repl.state = State.GAMEPLAY;
+            this.playerType = Connect.PlayerType.OBSERVER;
 
             return String.format("Observing game %d", gameNumber);
 

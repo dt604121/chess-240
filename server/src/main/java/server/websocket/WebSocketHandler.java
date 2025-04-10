@@ -21,6 +21,7 @@ import java.util.Map;
 public class WebSocketHandler {
     private final AuthDAO authDAO;
     private final GameDAO gameDAO;
+    boolean isObserver;
 
     private final ConnectionManager connections = new ConnectionManager();
     private static final Gson gson = new Gson();
@@ -49,6 +50,15 @@ public class WebSocketHandler {
             }
 
             String username = getUsername(command.getAuthToken());
+            int gameId = command.getGameID();
+            GameData gameData = gameDAO.getGame(gameId);
+
+            String blackUsername = gameData.blackUsername();
+            String whiteUsername = gameData.whiteUsername();
+
+            if (username.equals(blackUsername) || username.equals(whiteUsername)) {
+                 isObserver = false;
+            }
 
             switch (command.getCommandType()) {
                 case CONNECT -> connect(session, username, (Connect) command);
@@ -149,6 +159,13 @@ public class WebSocketHandler {
                 connections.sendsMessage(session, errorMessage);
                 return;
             }
+
+            if (isObserver) {
+                Error errorMessage = new Error("Error: observer cannot resign");
+                connections.sendsMessage(session, errorMessage);
+                return;
+            }
+
             ChessGame game = gameData.game();
 
             if (game.isGameOver()) {
@@ -185,6 +202,13 @@ public class WebSocketHandler {
         try {
             int gameId = command.getGameID();
             GameData gameData = gameDAO.getGame(gameId);
+
+            if (isObserver) {
+                Error errorMessage = new Error("Error: observer cannot make move");
+                connections.sendsMessage(session, errorMessage);
+                return;
+            }
+
             if (gameData == null) {
                 Error errorMessage = new Error("Error: invalid gameId");
                 connections.sendsMessage(session, errorMessage);

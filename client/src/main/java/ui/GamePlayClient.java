@@ -1,5 +1,6 @@
 package ui;
 import chess.*;
+import dataaccess.dao.AuthDAO;
 import exception.ResponseException;
 import model.GameData;
 import ui.websocket.*;
@@ -20,6 +21,8 @@ public class GamePlayClient implements NotificationHandler{
     private WebSocketFacade ws;
     private GameData gameData;
     private NotificationHandler notificationHandler;
+    private AuthDAO authDAO;
+    boolean isObserver;
 
     public GamePlayClient(ServerFacade serverFacade, String serverUrl, NotificationHandler notificationHandler){
         this.serverFacade = serverFacade;
@@ -33,6 +36,7 @@ public class GamePlayClient implements NotificationHandler{
         this.gameId = gameId;
         this.color = color;
         this.playerType = playerType;
+        this.isObserver = playerType == Connect.PlayerType.OBSERVER;
         this.gameData = gameData;
         this.game = gameData.game();
     }
@@ -65,6 +69,9 @@ public class GamePlayClient implements NotificationHandler{
 
     public String movePiece(String... params) throws ResponseException{
         try {
+            if (isObserver) {
+                throw new ResponseException("Observers cannot make moves.");
+            }
             ChessPiece promotionPiece = null;
 
             if (params.length != 2 && params.length != 3) {
@@ -162,6 +169,9 @@ public class GamePlayClient implements NotificationHandler{
 
     private String resignGame() throws ResponseException {
         try {
+            if (isObserver) {
+                throw new ResponseException("Observers cannot make moves.");
+            }
             Scanner scanner = new Scanner(System.in);
             System.out.print("Are you sure that you want to resign? ");
             String answer = scanner.nextLine();
@@ -199,10 +209,6 @@ public class GamePlayClient implements NotificationHandler{
 
             if (piece == null) {
                 return "No piece found at that location.";
-            }
-
-            if (piece.getTeamColor() != game.getTeamTurn()) {
-                return "Only pieces on your team can be highlighted.";
             }
 
             Collection<ChessMove> validMoves = game.validMoves(position);
