@@ -57,8 +57,11 @@ public class WebSocketHandler {
             String blackUsername = gameData.blackUsername();
             String whiteUsername = gameData.whiteUsername();
 
-            if (username.equals(blackUsername) || username.equals(whiteUsername)) {
-                 isObserver = false;
+            if ((blackUsername == null || !username.equals(blackUsername)) &&
+                    (whiteUsername == null || !username.equals(whiteUsername))) {
+                isObserver = true;
+            } else {
+                isObserver = false;
             }
 
             switch (command.getCommandType()) {
@@ -69,10 +72,10 @@ public class WebSocketHandler {
             }
 
         } catch (UnauthorizedException ex) {
-            connections.sendsMessage(session, new websocket.messages.Error("Error: Unauthorized"));
+            connections.sendsMessage(session, new Error("Error: Unauthorized"));
         } catch (Exception ex) {
             ex.printStackTrace();
-            connections.sendsMessage(session, new websocket.messages.Error("Error " + ex.getMessage()));
+            connections.sendsMessage(session, new Error("Error " + ex.getMessage()));
         }
     }
 
@@ -89,9 +92,9 @@ public class WebSocketHandler {
         }
 
         ChessGame game = gameData.game();
-        ChessGame.TeamColor color = game.getTeamTurn();
+        ChessGame.TeamColor teamTurn = game.getTeamTurn();
         if (game.isGameOver()){
-            Error errorMessage = new Error("Error: game is over.");
+            Error errorMessage = new Error("game is over.");
             connections.sendsMessage(session, errorMessage);
             return;
         }
@@ -101,7 +104,13 @@ public class WebSocketHandler {
             message = String.format("%s is observing the chess game now.", username);
         }
         else {
-            message = String.format("%s has joined the chess game as %s", username, color == ChessGame.TeamColor.WHITE ? "black" : "white");
+            String color = "";
+            if (username.equals(gameData.whiteUsername())) {
+                color = "white";
+            } else if (username.equals(gameData.blackUsername())) {
+                color = "black";
+            }
+            message = String.format("%s has joined the chess game as %s", username, color);
         }
         ServerMessage notification = new Notification(message);
         connections.broadcast(gameId, notification, username);
@@ -220,9 +229,11 @@ public class WebSocketHandler {
                 connections.sendsMessage(session, errorMessage);
                 return;
             }
+
             String whiteUsername = gameData.whiteUsername();
             String blackUsername = gameData.blackUsername();
             ChessGame.TeamColor playerColor;
+
             if (username.equals(whiteUsername)) {
                 playerColor = ChessGame.TeamColor.WHITE;
             } else if (username.equals(blackUsername)) {
@@ -231,6 +242,7 @@ public class WebSocketHandler {
                 connections.sendsMessage(session, new Error("Error: Only players can make moves"));
                 return;
             }
+
             if (gameData.game().isGameOver()) {
                 connections.sendsMessage(session, new Error("Error: Game is already over"));
                 return;

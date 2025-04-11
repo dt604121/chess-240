@@ -118,6 +118,7 @@ public class GamePlayClient implements NotificationHandler{
 
             ChessMove move = new ChessMove(start, end, promotionPiece != null ? promotionPiece.getPieceType() : null);
             ws.makeMove(authToken, gameId, move);
+
         } catch (Exception e) {
             throw new ResponseException(e.getMessage());
         }
@@ -164,8 +165,8 @@ public class GamePlayClient implements NotificationHandler{
 
             ws.leaveChess(authToken, gameId);
 
-            return String.format("%s has left the game. Come back soon!", TeamColor.WHITE ==
-                    color ? gameData.whiteUsername() : gameData.blackUsername());
+            return "";
+
         } catch (Exception e) {
             throw new ResponseException(e.getMessage());
         }
@@ -183,8 +184,6 @@ public class GamePlayClient implements NotificationHandler{
             if (answer.equalsIgnoreCase("yes")) {
                 ws.resignFromChess(authToken, gameId);
                 Repl.state = State.SIGNEDIN;
-                return String.format("%s has forfeited and has resigned from the game.", TeamColor.WHITE ==
-                        color ? gameData.whiteUsername() : gameData.blackUsername());
             }
 
             return "Ok resignation cancelled. Have a great rest of your game!";
@@ -201,24 +200,21 @@ public class GamePlayClient implements NotificationHandler{
 
             String positionString = params[0].trim();
 
-            if (positionString.isEmpty()) {
-                throw new ResponseException("Invalid position. Cannot be left empty.");
+            if (!positionString.matches("[a-h][1-8]")) {
+                throw new ResponseException("Invalid position format. Use e.g., a2, b3, etc.");
             }
 
             ChessPosition position = positionConversion(positionString);
-
             ChessBoard board = game.getBoard();
             ChessPiece piece = board.getPiece(position);
-            ChessGame game = gameData.game();
 
             if (piece == null) {
                 return "No piece found at that location.";
             }
 
             Collection<ChessMove> validMoves = game.validMoves(position);
-
             if (validMoves == null || validMoves.isEmpty()) {
-                return "No valid moves for this piece.";
+                return "That piece has no legal moves.";
             }
 
             Set<ChessPosition> highlightPositions = new HashSet<>();
