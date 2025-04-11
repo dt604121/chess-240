@@ -43,8 +43,8 @@ public class GamePlayClient implements NotificationHandler{
         ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
         if (ws == null) {
             ws = new WebSocketFacade(serverUrl, this, serverMessage);
-            ws.enterChess(authToken, this.gameId, playerType);
         }
+        ws.enterChess(authToken, this.gameId, playerType);
     }
 
     public String eval(String input) throws ResponseException {
