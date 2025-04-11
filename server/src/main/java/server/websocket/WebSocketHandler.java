@@ -152,11 +152,11 @@ public class WebSocketHandler {
 
             gameDAO.updateGame(updatedGameData);
 
-            if (game.isGameOver()){
-                Error errorMessage = new Error("Error: game is over.");
-                connections.sendsMessage(session, errorMessage);
-                return;
-            }
+//            if (game.isGameOver()){
+//                Error errorMessage = new Error("Error: game is over.");
+//                connections.sendsMessage(session, errorMessage);
+//                return;
+//            }
 
             var message = String.format("%s left the chess game.", username);
             Notification notification = new Notification(message);
@@ -297,7 +297,6 @@ public class WebSocketHandler {
             else if (isInCheck) {
                 Notification checkNotification = new Notification(String.format("Player %s is in check!", opponentName));
                 connections.broadcast(gameId, checkNotification, null);
-                gameData.game().setGameOver(true);
             }
 
             gameDAO.updateGame(gameData);
